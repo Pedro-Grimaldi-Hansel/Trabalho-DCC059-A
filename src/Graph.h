@@ -1,18 +1,17 @@
-#include "VertexList.h"
-#include "EdgeList.h"
+#ifndef GRAPH_H_INCLUDED
+#define GRAPH_H_INCLUDED
+#include "Node.h"
 
-class Graph {
-    public:
-        Graph(bool digraph);
-        ~Graph();
-        VertexList* getVertices();
-        void setVertices(VertexList* vertices);
-        EdgeList* getEdges();
-        void setEdges(EdgeList* edges);
-        bool getDigraph();
+using namespace std;
 
+class Graph{
     private:
-        VertexList* vertices;
-        EdgeList* edges;
-        bool digraph;
+        Node* primeiroNo;
+        Node* ultimoNo;
+        bool digrafo;
+    public:
+        Graph(bool digrafo);
+        ~Graph();
 };
+
+#endif // GRAPH_H_INCLUDED

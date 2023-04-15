@@ -7,10 +7,19 @@ using namespace std;
 Graph* lerArquivo(ifstream &arquivoEntrada){
     //Pegar primeira linha e ver o número de nos
     int ordemGrafo;
+    int idCauda;
+    int idCabeca;
+    float peso;
 
     arquivoEntrada >> ordemGrafo;
     cout << "A ordem do grafo é: " << ordemGrafo << endl;
+
     //Pegar linha até o fim do arquivo
+    while( arquivoEntrada >> idCauda >> idCabeca >> peso) {
+        
+    }
+
+    return NULL;
 }
 
 int main(int argc, char const *argv[]){
@@ -30,4 +39,6 @@ int main(int argc, char const *argv[]){
     if(arquivoEntrada.is_open()){
         Graph* grafo = lerArquivo(arquivoEntrada);
     }
+
+    return 0;
 }
