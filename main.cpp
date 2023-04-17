@@ -11,8 +11,17 @@ Graph* lerArquivo(ifstream &arquivoEntrada){
     int idCabeca;
     float peso;
 
+    bool digrafo = false;
+    Graph* grafo = new Graph(digrafo);
+
     arquivoEntrada >> ordemGrafo;
     cout << "A ordem do grafo é: " << ordemGrafo << endl;
+
+    for(int i = 0; i < ordemGrafo; i++){
+        grafo->insereNoFim(i);
+    }
+    grafo->imprime();
+    // grafo->imprimeInvertido();
 
     //Pegar linha até o fim do arquivo
     while( arquivoEntrada >> idCauda >> idCabeca >> peso) {
@@ -35,9 +44,10 @@ int main(int argc, char const *argv[]){
 
     arquivoEntrada.open(argv[1], ios::in);
     arquivoSaida.open(argv[2], ios::out | ios::trunc);
-
+    bool digrafo = false;
+    Graph* grafo = new Graph(digrafo);
     if(arquivoEntrada.is_open()){
-        Graph* grafo = lerArquivo(arquivoEntrada);
+        grafo = lerArquivo(arquivoEntrada);
     }
 
     return 0;

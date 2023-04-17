@@ -9,6 +9,15 @@ private:
     int id;
     Node* proxNo;
 public:
-    Node(Edge* primeiraAresta, int id, Node* proxNo);
+    Node();
+    Node(int id);
     ~Node();
+
+    void setProxNo(Node* proximo);
+    Node* getProxNo();
+    int getId();
+    void setId(int id);
+
+    //TODO: Implementar a inserção de aresta no no
+    void insereAresta(int idCauda, int idCabeca, float peso);
 };

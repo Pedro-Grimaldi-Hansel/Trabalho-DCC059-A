@@ -1,12 +1,30 @@
 #include "Node.h"
 
-Node::Node(Edge* primeiraAresta, int id, Node* proxNo)
+Node::Node(){}
+
+Node::Node(int id)
 {
-    this->primeiraAresta = primeiraAresta;
     this->id = id;
-    this->proxNo = proxNo;
 }
 
 Node::~Node()
 {
+}
+
+void Node::setProxNo(Node* proximo)
+{
+    this->proxNo = proximo;
+}
+
+Node* Node::getProxNo()
+{
+    return this->proxNo;
+}
+
+int Node::getId(){
+    return this->id;
+}
+
+void Node::setId(int id){
+    this->id = id;
 }
