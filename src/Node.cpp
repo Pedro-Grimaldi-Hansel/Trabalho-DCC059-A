@@ -28,3 +28,7 @@ int Node::getId(){
 void Node::setId(int id){
     this->id = id;
 }
+
+void Node::insereAresta(int idCauda, int idCabeca, float peso){
+    //TODO: implementar
+}
