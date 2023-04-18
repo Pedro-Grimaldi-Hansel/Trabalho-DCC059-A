@@ -7,6 +7,7 @@ Graph::Graph(bool digrafo){
     this->digrafo = digrafo;
     this->primeiroNo = nullptr;
     this->ultimoNo = nullptr;
+    this->ordem = 0;
 }
 
 void Graph::insereNoInicio(int id){
@@ -89,4 +90,119 @@ void Graph::imprimeInvertidoAux(Node* no){
 
     imprimeInvertidoAux(no->getProxNo());
     cout << "(" << no->getId() << ")" << endl;
+}
+
+bool Graph::getDigrafo()
+{
+    return this->digrafo;
+}
+
+int Graph::getGrauNo(int id)
+{
+    Node* no = buscaNo(id);
+
+    if(!getDigrafo())
+    {
+        return no->getGrauNo();
+    }
+    else{
+        cout << "Não é possível obter grau de um dígrafo com essa função!" << endl;
+        return 0;
+    }
+
+}
+
+int Graph::getEntradaNo(int id)
+{
+    Node* no = buscaNo(id);
+
+    if(getDigrafo())
+    {
+        return no->getEntradaNo();
+    }
+    else{
+        cout << "Não é possível obter grau de um grafo não direcionado com essa função!" << endl;
+        return 0;
+    }
+
+}
+
+int Graph::getSaidaNo(int id)
+{
+    Node* no = buscaNo(id);
+
+    if(getDigrafo())
+    {
+        return no->getSaidaNo();
+    }
+    else{
+        cout << "Não é possível obter grau de um grafo não direcionado com essa função!" << endl;
+        return 0;
+    }
+}
+
+bool Graph::getKRegularidade(int k)
+{
+    Node* no = this->primeiroNo;
+
+    if(no->getGrauNo() != k){
+        return false;
+    }
+    else{
+        while (no != nullptr)
+        {
+            if(no->getGrauNo() != k){ //caso tenha grau diferente de k retorna false
+                return false;
+            }
+
+            no = no->getProxNo(); //se tinha grau k passa para o próximo
+        }
+        return true; // se não retornou false depois de passar por todos retorna true
+    }
+}
+
+int Graph::getOrdem()
+{
+    return this->ordem;
+}
+
+bool Graph::isTrivial()
+{
+    Node* no = this->primeiroNo;
+    
+    if(no->getProxNo() == nullptr){ // se o próximo do primeiro for null é pq só possui um no
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+bool Graph::isNulo()
+{
+    Node* no = this->primeiroNo;
+
+    if(no == nullptr){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+
+int Graph::getGrauGrafo() // não está adaptado para um digrafo 
+{
+    Node* no = this->primeiroNo;
+    int grau = no->getGrauNo();
+
+    while (no != nullptr)
+    {
+        if(no->getGrauNo() > grau){ //caso tenha grau maior que o anterior, atualiza o valor de grau
+            grau = no->getGrauNo();
+        }
+
+        no = no->getProxNo(); // passa para o próximo
+    }
+    return grau; // retorna o maior grau entre os nos do grafo
 }

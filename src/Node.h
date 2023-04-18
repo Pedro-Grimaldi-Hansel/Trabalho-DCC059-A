@@ -8,6 +8,12 @@ private:
     Edge* primeiraAresta;
     int id;
     Node* proxNo;
+    int grauNo;
+
+    // colocando valores para grau de entrada e saída caso digrafo
+    int grauEntradaNo;
+    int grauSaidaNo;
+
 public:
     Node();
     Node(int id);
@@ -20,4 +26,9 @@ public:
 
     //TODO: Implementar a inserção de aresta no no
     void insereAresta(int idCauda, int idCabeca, float peso);
+
+    int getGrauNo();
+    int getEntradaNo();
+    int getSaidaNo();
+
 };
