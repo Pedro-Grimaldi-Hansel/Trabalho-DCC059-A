@@ -17,16 +17,11 @@ Graph* lerArquivo(ifstream &arquivoEntrada){
     arquivoEntrada >> ordemGrafo;
     cout << "A ordem do grafo é: " << ordemGrafo << endl;
 
-    for(int i = 0; i < ordemGrafo; i++){
-        grafo->insereNoFim(i);
-    }
-    grafo->imprime();
-    // grafo->imprimeInvertido();
-
     //Pegar linha até o fim do arquivo
     while( arquivoEntrada >> idCauda >> idCabeca >> peso) {
-        
+        grafo->insereAresta(idCauda, idCabeca, peso);
     }
+    grafo->imprime();
 
     return NULL;
 }

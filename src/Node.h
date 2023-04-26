@@ -17,6 +17,7 @@ public:
     Node* getProxNo();
     int getId();
     void setId(int id);
+    Edge* getPrimeiraAresta();
 
     //TODO: Implementar a inserção de aresta no no
     void insereAresta(int idCauda, int idCabeca, float peso);
