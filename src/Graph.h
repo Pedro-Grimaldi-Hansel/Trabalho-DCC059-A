@@ -48,6 +48,8 @@ class Graph{
 
         int getGrauGrafo();
 
+        int* sequenciaDeGraus(); //Apresentar a sequência de graus do grafo.
+
 };
 
 #endif // GRAPH_H_INCLUDED
