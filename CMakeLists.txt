@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(dcc059-trabalho-1)
 
 file(GLOB SOURCE_FILES "src/*.cpp")
-list(APPEND SOURCE_FILES "arquivoDeEntrada.txt" "arquivoDeSaida.txt")
+file(COPY arquivoDeEntrada.txt DESTINATION ${CMAKE_BINARY_DIR})
 include_directories(src)
 
 add_subdirectory(src)
