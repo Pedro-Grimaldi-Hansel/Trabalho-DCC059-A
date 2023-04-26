@@ -55,7 +55,8 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
     if(cauda == nullptr){
         this->insereNoFim(idCauda);
         cauda = this->ultimoNo;
-    }else if(cabeca == nullptr){
+    }
+    if(cabeca == nullptr){
         this->insereNoFim(idCabeca);
         cabeca = this->ultimoNo;
     }
@@ -71,9 +72,23 @@ void Graph::imprime(){
     //TODO: Adicionar a impressao das arestas também
     Node* no =  this->primeiroNo;
 
+    if(no == nullptr){
+        cout << "Grafo Vazio!" << endl;
+        return;
+    }
+
     while (no != nullptr)
     {
         cout << "(" << no->getId() << ")" << endl;
+        Edge* aresta = no->getPrimeiraAresta();
+        cout << "\t";
+        while (aresta != nullptr )
+        {
+            cout << aresta->getIdCabeca() << " (" << aresta->getPeso() << "), ";
+            aresta = aresta->getProxAresta();
+        }
+        cout << endl;
+
         no = no->getProxNo();
     }
 }
