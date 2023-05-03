@@ -11,6 +11,7 @@ class Graph{
         bool digrafo;
         void imprimeInvertidoAux(Node* no);
         int ordem; // TODO: atualizar sempre que houver innserção ou remoção de nó
+        // provavelmente vale mais a pena testar isso aqui sempre q for pedidoq
         
         //TODO: dá uma olhada nisso aqui depois galera
         // int grau; sempre que adicionar ou remover um nó ou aresta isso precisaria ser recalculado
@@ -47,6 +48,10 @@ class Graph{
         bool isNulo(); // retorna true se o grafo não possui nenhum nó
 
         int getGrauGrafo();
+
+        void vizinhancaAberta(int id);
+        void vizinhancaFechada(int id);
+
 
 };
 

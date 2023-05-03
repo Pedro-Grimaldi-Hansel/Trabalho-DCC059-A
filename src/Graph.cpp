@@ -1,5 +1,6 @@
 #include "Graph.h"
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -220,4 +221,51 @@ int Graph::getGrauGrafo() // não está adaptado para um digrafo
         no = no->getProxNo(); // passa para o próximo
     }
     return grau; // retorna o maior grau entre os nos do grafo
+}
+
+void Graph::vizinhancaAberta(int id)
+{
+    Node* no = buscaNo(id);
+    Edge* aresta = no->getPrimeiraAresta();
+    std::vector< int > vizinhancaAberta;
+
+
+    if(aresta->getIdCauda() == id){
+        vizinhancaAberta.push_back(aresta->getIdCabeca());
+    }
+    else{
+        vizinhancaAberta.push_back(aresta->getIdCauda());
+    }
+
+    cout << "A vizinhança aberta é: " << endl; 
+    for (int i = 0; i < vizinhancaAberta.size(); i++) {
+        cout << vizinhancaAberta[i] << " ";
+    }
+    cout << endl;
+
+    return;
+}
+
+void Graph::vizinhancaFechada(int id)
+{
+    Node* no = buscaNo(id);
+    Edge* aresta = no->getPrimeiraAresta();
+    std::vector< int > vizinhancaFechada;
+
+    vizinhancaFechada.push_back(id);
+
+    if(aresta->getIdCauda() == id){
+        vizinhancaFechada.push_back(aresta->getIdCabeca());
+    }
+    else{
+        vizinhancaFechada.push_back(aresta->getIdCauda());
+    }
+
+    cout << "A vizinhança fechada é: " << endl; 
+    for (int i = 0; i < vizinhancaFechada.size(); i++) {
+        cout << vizinhancaFechada[i] << " ";
+    }
+    cout << endl;
+
+    return;
 }
