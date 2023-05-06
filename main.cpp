@@ -49,5 +49,10 @@ int main(int argc, char const *argv[]){
         for(int i = 0; i < grafo->getOrdem(); i++){
             cout<<"No: "<<i+1<<" Grau: "<<seq[i]<<endl;
         }
+
+    int retorno = grafo->isNulo();
+
+    cout << retorno << endl;
+
     return 0;
 }

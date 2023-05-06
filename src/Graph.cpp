@@ -1,5 +1,6 @@
 #include "Graph.h"
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -72,6 +73,9 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
     if(!this->digrafo){
         cabeca->insereAresta(idCabeca, idCauda, peso);
     }
+    cabeca->setGrauNo(cabeca->getGrauNo() + 1);
+    cauda->setGrauNo(cauda->getGrauNo() + 1);
+
 }
 
 void Graph::imprime(){
@@ -261,4 +265,51 @@ int* Graph::sequenciaDeGraus(){     // não está adaptado para um digrafo
         }
     }
     return sequencia;
+}
+
+void Graph::vizinhancaAberta(int id)
+{
+    Node* no = buscaNo(id);
+    Edge* aresta = no->getPrimeiraAresta();
+    std::vector< int > vizinhancaAberta;
+
+
+    if(aresta->getIdCauda() == id){
+        vizinhancaAberta.push_back(aresta->getIdCabeca());
+    }
+    else{
+        vizinhancaAberta.push_back(aresta->getIdCauda());
+    }
+
+    cout << "A vizinhança aberta é: " << endl; 
+    for (int i = 0; i < vizinhancaAberta.size(); i++) {
+        cout << vizinhancaAberta[i] << " ";
+    }
+    cout << endl;
+
+    return;
+}
+
+void Graph::vizinhancaFechada(int id)
+{
+    Node* no = buscaNo(id);
+    Edge* aresta = no->getPrimeiraAresta();
+    std::vector< int > vizinhancaFechada;
+
+    vizinhancaFechada.push_back(id);
+
+    if(aresta->getIdCauda() == id){
+        vizinhancaFechada.push_back(aresta->getIdCabeca());
+    }
+    else{
+        vizinhancaFechada.push_back(aresta->getIdCauda());
+    }
+
+    cout << "A vizinhança fechada é: " << endl; 
+    for (int i = 0; i < vizinhancaFechada.size(); i++) {
+        cout << vizinhancaFechada[i] << " ";
+    }
+    cout << endl;
+
+    return;
 }

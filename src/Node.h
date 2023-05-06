@@ -32,4 +32,8 @@ public:
     int getEntradaNo();
     int getSaidaNo();
 
+    void setGrauNo(int grau);
+    void setEntradaNo(int grau);
+    void setSaidaNo(int grau);
+
 };

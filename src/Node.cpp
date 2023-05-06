@@ -67,3 +67,28 @@ int Node::getGrauNo()
 {
     return this->grauNo;
 }
+
+int Node::getEntradaNo()
+{
+    return this->grauEntradaNo;
+}
+
+int Node::getSaidaNo()
+{
+    return this->grauSaidaNo;
+}
+
+void Node::setGrauNo(int grau)
+{
+    this->grauNo = grau;
+}
+
+void Node::setEntradaNo(int grau)
+{
+    this->grauEntradaNo = grau;
+}
+
+void Node::setSaidaNo(int grau)
+{
+    this->grauSaidaNo = grau;
+}

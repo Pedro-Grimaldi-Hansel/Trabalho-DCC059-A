@@ -49,6 +49,9 @@ class Graph{
         int getGrauGrafo();
 
         int* sequenciaDeGraus(); //Apresentar a sequência de graus do grafo.
+        void vizinhancaAberta(int id);
+        void vizinhancaFechada(int id);
+
 
 };
 
