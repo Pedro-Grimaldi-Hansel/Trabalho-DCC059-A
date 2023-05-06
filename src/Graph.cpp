@@ -8,8 +8,13 @@ Graph::Graph(bool digrafo){
     this->digrafo = digrafo;
     this->primeiroNo = nullptr;
     this->ultimoNo = nullptr;
-    this->ordem = 0;
 }
+
+Node* Graph::getPrimeiroNo(){
+
+    return this->primeiroNo;
+}
+
 
 void Graph::insereNoInicio(int id){
     Node* no = new Node(id); //Cria um nó com o valor passado por parametro
@@ -68,9 +73,15 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
     if(!this->digrafo){
         cabeca->insereAresta(idCabeca, idCauda, peso);
     }
-    cabeca->setGrauNo(cabeca->getGrauNo() + 1);
-    cauda->setGrauNo(cauda->getGrauNo() + 1);
 
+    if(!this->getDigrafo()){
+        cabeca->setGrauNo(cabeca->getGrauNo() + 1);
+        cauda->setGrauNo(cauda->getGrauNo() + 1);
+    }
+    else{
+        cabeca->setEntradaNo(cabeca->getEntradaNo() + 1);
+        cauda->setSaidaNo(cabeca->getSaidaNo() + 1);
+    }
 }
 
 void Graph::imprime(){
@@ -122,7 +133,7 @@ int Graph::getGrauNo(int id)
     Node* no = buscaNo(id);
 
     if(!getDigrafo())
-    {
+    {   
         return no->getGrauNo();
     }
     else{
@@ -132,7 +143,7 @@ int Graph::getGrauNo(int id)
 
 }
 
-int Graph::getEntradaNo(int id)
+/*int Graph::getEntradaNo(int id)
 {
     Node* no = buscaNo(id);
 
@@ -160,7 +171,7 @@ int Graph::getSaidaNo(int id)
         return 0;
     }
 }
-
+*/
 bool Graph::getKRegularidade(int k)
 {
     Node* no = this->primeiroNo;
@@ -183,7 +194,15 @@ bool Graph::getKRegularidade(int k)
 
 int Graph::getOrdem()
 {
-    return this->ordem;
+    Node* no = this->primeiroNo;
+    int ordem = 0;
+
+    while (no != nullptr)
+    {
+        ordem++;
+        no = no->getProxNo();
+    }
+    return ordem;
 }
 
 bool Graph::isTrivial()
@@ -225,6 +244,33 @@ int Graph::getGrauGrafo() // não está adaptado para um digrafo
         no = no->getProxNo(); // passa para o próximo
     }
     return grau; // retorna o maior grau entre os nos do grafo
+}
+
+int* Graph::sequenciaDeGraus(){     // não está adaptado para um digrafo
+    if (this == nullptr || this->primeiroNo == nullptr || getOrdem() <= 0) {
+        cout << "Grafo Vazio!" << endl;
+        return nullptr;
+    }
+
+    Node* no = this->primeiroNo;
+    int* sequencia=new int[getOrdem()];
+
+    if(no == nullptr){
+        cout << "Grafo Vazio!" << endl;
+        return nullptr;
+    }
+    else{
+        for(int i = 0; i < getOrdem(); i++){
+            if (no != nullptr) {
+                sequencia[i] = no->getGrauNo();
+                no = no->getProxNo();
+            } else {
+                // nó é nulo, definir grau como zero
+                sequencia[i] = 0;
+            }
+        }
+    }
+    return sequencia;
 }
 
 void Graph::vizinhancaAberta(int id)
