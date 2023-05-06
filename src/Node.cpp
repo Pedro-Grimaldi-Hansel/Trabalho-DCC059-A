@@ -67,7 +67,7 @@ Edge* Node::buscaAresta(int idCauda, int idCabeca){
     Edge* edge = this->primeiraAresta;
 
     if(this->primeiraAresta == nullptr){
-        cout << "Nó isolado" << endl;
+        //Nó isolado
         return nullptr;
     }
 
@@ -81,20 +81,19 @@ Edge* Node::buscaAresta(int idCauda, int idCabeca){
 
     //Aresta não encontrada
     if(edge == nullptr){
-        cout << "Aresta não encotrada!" << endl;
         return nullptr;
     }
 
     return edge;
 }
 
-void Node::removeAresta(int idCauda, int idCabeca){
+bool Node::removeAresta(int idCauda, int idCabeca){
     Edge* aresta = this->primeiraAresta;
     Edge* arestaAnteriror = nullptr;
 
     if(this->primeiraAresta == nullptr){
         cout << "Aresta inexistente" << endl;
-        return;
+        return false;
     }
 
     //Percorre todas as arestas armazenando a atual e anterior
@@ -109,7 +108,7 @@ void Node::removeAresta(int idCauda, int idCabeca){
     //Aresta não encontrada
     if(aresta == nullptr){
         cout << "Aresta não encotrada!" << endl;
-        return;
+        return false;
     }
 
     if(arestaAnteriror == nullptr){
@@ -124,6 +123,9 @@ void Node::removeAresta(int idCauda, int idCabeca){
     }
     
     delete aresta;
+    return true;
+}
+
 int Node::getGrauNo()
 {
     return this->grauNo;

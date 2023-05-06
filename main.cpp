@@ -44,15 +44,12 @@ int main(int argc, char const *argv[]){
     if(arquivoEntrada.is_open()){
         grafo = lerArquivo(arquivoEntrada);   
     }
-        cout<<"Primeiro no: "<<grafo->getPrimeiroNo();
-        int* seq = grafo->sequenciaDeGraus();
-        for(int i = 0; i < grafo->getOrdem(); i++){
-            cout<<"No: "<<i+1<<" Grau: "<<seq[i]<<endl;
-        }
-
-    grafo->vizinhancaFechada(2);
-
-    // cout << retorno << endl;
+    
+    cout << "Removendo a aresta 1 - 2" << endl;
+    grafo->removeAresta(1,2);
+    cout << "Removendo a aresta 2 - 1" << endl;
+    grafo->removeAresta(2,1);
+    grafo->imprime();
 
     return 0;
 }

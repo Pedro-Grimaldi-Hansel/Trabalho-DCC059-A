@@ -80,7 +80,7 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
     }
     else{
         cabeca->setEntradaNo(cabeca->getEntradaNo() + 1);
-        cauda->setSaidaNo(cabeca->getSaidaNo() + 1);
+        cauda->setSaidaNo(cauda->getSaidaNo() + 1);
     }
 }
 
@@ -95,11 +95,21 @@ void Graph::removeAresta(int idCauda, int idCabeca){
     }
     
     //chama a remoção de aresta do no
-    cauda->removeAresta(idCauda, idCabeca);
+    bool removido = cauda->removeAresta(idCauda, idCabeca);
+    if( removido ){
+        if(this->digrafo){
+            cauda->setSaidaNo(cauda->getSaidaNo() - 1);
+        }else{
+            cauda->setGrauNo(cauda->getGrauNo() - 1);
+        }
+    }
 
     //verifica se o não for digrafo tem que remover a aresta na cabeça também
     if(!this->digrafo){
-        cabeca->removeAresta(idCabeca, idCauda);
+        removido = cabeca->removeAresta(idCabeca, idCauda);
+        if( removido ){
+            cabeca->setGrauNo(cabeca->getGrauNo() - 1);
+        }
     }
 }
 
@@ -232,7 +242,6 @@ bool Graph::isNulo()
         return false;
     }
 }
-
 
 int Graph::getGrauGrafo() // não está adaptado para um digrafo 
 {
