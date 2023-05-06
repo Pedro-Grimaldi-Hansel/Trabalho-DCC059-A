@@ -80,7 +80,7 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
     }
     else{
         cabeca->setEntradaNo(cabeca->getEntradaNo() + 1);
-        cauda->setSaidaNo(cabeca->getSaidaNo() + 1);
+        cauda->setSaidaNo(cauda->getSaidaNo() + 1);
     }
 }
 
