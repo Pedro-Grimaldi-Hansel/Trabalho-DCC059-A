@@ -45,9 +45,9 @@ int main(int argc, char const *argv[]){
         grafo = lerArquivo(arquivoEntrada);
     }
 
-    int retorno = grafo->isNulo();
+    grafo->vizinhancaFechada(2);
 
-    cout << retorno << endl;
+    // cout << retorno << endl;
 
     return 0;
 }
