@@ -23,7 +23,7 @@ Graph* lerArquivo(ifstream &arquivoEntrada){
     }
     grafo->imprime();
 
-    return NULL;
+    return grafo;
 }
 
 int main(int argc, char const *argv[]){
@@ -44,6 +44,10 @@ int main(int argc, char const *argv[]){
     if(arquivoEntrada.is_open()){
         grafo = lerArquivo(arquivoEntrada);
     }
+
+    int retorno = grafo->isNulo();
+
+    cout << retorno << endl;
 
     return 0;
 }

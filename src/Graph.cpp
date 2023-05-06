@@ -25,7 +25,8 @@ void Graph::insereNoFim(int id){
 
     if(this->primeiroNo == nullptr) //caso o grafo esteja vazio, insere no inicio mesmo
     {
-        this->primeiroNo = this->ultimoNo = no;
+        this->primeiroNo = no;
+        this->ultimoNo = no;
     }
     else
     {
@@ -67,6 +68,9 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
     if(!this->digrafo){
         cabeca->insereAresta(idCabeca, idCauda, peso);
     }
+    cabeca->setGrauNo(cabeca->getGrauNo() + 1);
+    cauda->setGrauNo(cauda->getGrauNo() + 1);
+
 }
 
 void Graph::imprime(){
