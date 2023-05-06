@@ -10,7 +10,6 @@ class Graph{
         Node* ultimoNo;
         bool digrafo;
         void imprimeInvertidoAux(Node* no);
-        int ordem; // TODO: atualizar sempre que houver innserção ou remoção de nó
         
         //TODO: dá uma olhada nisso aqui depois galera
         // int grau; sempre que adicionar ou remover um nó ou aresta isso precisaria ser recalculado
@@ -37,6 +36,7 @@ class Graph{
         int getGrauNo(int id); // retorna o grau de um nó se n for digrafo
         int getEntradaNo(int id); // retirna grau de entrada se for digrafo
         int getSaidaNo(int id); // retirna grau de saída se for digrafo
+        Node* getPrimeiroNo(); // retorna o primeiro nó do grafo
 
 
         bool getKRegularidade(int k); // retorna true se todos os vértices possuem grau k, else do contrário

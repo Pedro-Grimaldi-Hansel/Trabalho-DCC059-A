@@ -23,7 +23,7 @@ Graph* lerArquivo(ifstream &arquivoEntrada){
     }
     grafo->imprime();
 
-    return NULL;
+    return grafo;
 }
 
 int main(int argc, char const *argv[]){
@@ -42,8 +42,12 @@ int main(int argc, char const *argv[]){
     bool digrafo = false;
     Graph* grafo = new Graph(digrafo);
     if(arquivoEntrada.is_open()){
-        grafo = lerArquivo(arquivoEntrada);
+        grafo = lerArquivo(arquivoEntrada);   
     }
-
+        cout<<"Primeiro no: "<<grafo->getPrimeiroNo();
+        int* seq = grafo->sequenciaDeGraus();
+        for(int i = 0; i < grafo->getOrdem(); i++){
+            cout<<"No: "<<i+1<<" Grau: "<<seq[i]<<endl;
+        }
     return 0;
 }

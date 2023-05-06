@@ -7,8 +7,13 @@ Graph::Graph(bool digrafo){
     this->digrafo = digrafo;
     this->primeiroNo = nullptr;
     this->ultimoNo = nullptr;
-    this->ordem = 0;
 }
+
+Node* Graph::getPrimeiroNo(){
+
+    return this->primeiroNo;
+}
+
 
 void Graph::insereNoInicio(int id){
     Node* no = new Node(id); //Cria um nó com o valor passado por parametro
@@ -24,7 +29,8 @@ void Graph::insereNoFim(int id){
 
     if(this->primeiroNo == nullptr) //caso o grafo esteja vazio, insere no inicio mesmo
     {
-        this->primeiroNo = this->ultimoNo = no;
+        this->primeiroNo = no;
+        this->ultimoNo = no;
     }
     else
     {
@@ -178,7 +184,15 @@ bool Graph::getKRegularidade(int k)
 
 int Graph::getOrdem()
 {
-    return this->ordem;
+    Node* no = this->primeiroNo;
+    int ordem = 0;
+
+    while (no != nullptr)
+    {
+        ordem++;
+        no = no->getProxNo();
+    }
+    return ordem;
 }
 
 bool Graph::isTrivial()
