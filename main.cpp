@@ -23,7 +23,7 @@ Graph* lerArquivo(ifstream &arquivoEntrada){
     }
     grafo->imprime();
 
-    return NULL;
+    return grafo;
 }
 
 int main(int argc, char const *argv[]){

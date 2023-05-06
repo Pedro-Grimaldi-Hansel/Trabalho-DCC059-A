@@ -1,4 +1,5 @@
 #include "Edge.h"
+#include <iostream>
 
 using namespace std;
 
@@ -21,4 +22,6 @@ public:
 
     //TODO: Implementar a inserção de aresta no no
     void insereAresta(int idCauda, int idCabeca, float peso);
+    Edge* buscaAresta(int idCauda, int idCabeca);
+    void removeAresta(int idCauda, int idCabeca);
 };

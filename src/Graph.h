@@ -9,7 +9,6 @@ class Graph{
         Node* primeiroNo;
         Node* ultimoNo;
         bool digrafo;
-        void imprimeInvertidoAux(Node* no);
     public:
         //Construtor e destrutor
         Graph(bool digrafo);
@@ -23,8 +22,10 @@ class Graph{
         //Inserção de arestas
         void insereAresta(int idCauda, int idCabeca, float peso);
 
+        //Remoção de aresta
+        void removeAresta(int idCauda, int idCabeca);
+
         void imprime();
-        void imprimeInvertido();
 
 };
 

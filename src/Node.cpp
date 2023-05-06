@@ -54,3 +54,66 @@ void Node::insereAresta(int idCauda, int idCabeca, float peso){
         aux->setProxAresta(novaAresta); //seta a proxima aresta da atual ultima aresta para a nova aresta inserida
     }
 }
+
+Edge* Node::buscaAresta(int idCauda, int idCabeca){
+    Edge* edge = this->primeiraAresta;
+
+    if(this->primeiraAresta == nullptr){
+        cout << "Nó isolado" << endl;
+        return nullptr;
+    }
+
+    //Percorre todas as arestas
+    while(edge != nullptr){
+        if(edge->getIdCabeca() == idCabeca && edge->getIdCauda() == idCauda){
+            break; //encontrou a aresta
+        }
+        edge = edge->getProxAresta();
+    }
+
+    //Aresta não encontrada
+    if(edge == nullptr){
+        cout << "Aresta não encotrada!" << endl;
+        return nullptr;
+    }
+
+    return edge;
+}
+
+void Node::removeAresta(int idCauda, int idCabeca){
+    Edge* aresta = this->primeiraAresta;
+    Edge* arestaAnteriror = nullptr;
+
+    if(this->primeiraAresta == nullptr){
+        cout << "Aresta inexistente" << endl;
+        return;
+    }
+
+    //Percorre todas as arestas armazenando a atual e anterior
+    while(aresta != nullptr){
+        if(aresta->getIdCabeca() == idCabeca && aresta->getIdCauda() == idCauda){
+            break; //encontrou a aresta
+        }
+        arestaAnteriror = aresta;
+        aresta = aresta->getProxAresta();
+    }
+
+    //Aresta não encontrada
+    if(aresta == nullptr){
+        cout << "Aresta não encotrada!" << endl;
+        return;
+    }
+
+    if(arestaAnteriror == nullptr){
+        //a aresta é a primeira da lista
+        this->primeiraAresta = aresta->getProxAresta();
+    }else if(aresta->getProxAresta() == nullptr){
+        //a aresta é a ultima da lista
+        arestaAnteriror->setProxAresta(nullptr);
+    }else{
+        //a aresta está no meio
+        arestaAnteriror->setProxAresta(aresta->getProxAresta());
+    }
+    
+    delete aresta;
+}
