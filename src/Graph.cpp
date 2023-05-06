@@ -73,9 +73,15 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
     if(!this->digrafo){
         cabeca->insereAresta(idCabeca, idCauda, peso);
     }
-    cabeca->setGrauNo(cabeca->getGrauNo() + 1);
-    cauda->setGrauNo(cauda->getGrauNo() + 1);
 
+    if(!this->getDigrafo()){
+        cabeca->setGrauNo(cabeca->getGrauNo() + 1);
+        cauda->setGrauNo(cauda->getGrauNo() + 1);
+    }
+    else{
+        cabeca->setEntradaNo(cabeca->getEntradaNo() + 1);
+        cauda->setSaidaNo(cabeca->getSaidaNo() + 1);
+    }
 }
 
 void Graph::imprime(){
