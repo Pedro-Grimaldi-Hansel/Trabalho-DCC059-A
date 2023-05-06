@@ -9,12 +9,6 @@ class Graph{
         Node* primeiroNo;
         Node* ultimoNo;
         bool digrafo;
-        void imprimeInvertidoAux(Node* no);
-        
-        //TODO: dá uma olhada nisso aqui depois galera
-        // int grau; sempre que adicionar ou remover um nó ou aresta isso precisaria ser recalculado
-        // talvez n compense pois provavelmente vamos ter mais inserções/remoções doq pesquisa de grau do grafo 
-        // estou obtendo o grau do grafo recalculando sempre que for solicitado na própria função getGrau
     public:
         //Construtor e destrutor
         Graph(bool digrafo);
@@ -28,8 +22,10 @@ class Graph{
         //Inserção de arestas
         void insereAresta(int idCauda, int idCabeca, float peso);
 
+        //Remoção de aresta
+        void removeAresta(int idCauda, int idCabeca);
+
         void imprime();
-        void imprimeInvertido();
 
         bool getDigrafo();
 

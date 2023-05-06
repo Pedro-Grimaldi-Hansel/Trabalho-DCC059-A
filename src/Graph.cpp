@@ -84,8 +84,36 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
     }
 }
 
+void Graph::removeAresta(int idCauda, int idCabeca){
+    //busca Nos
+    Node* cauda = buscaNo(idCauda);
+    Node* cabeca = buscaNo(idCabeca);
+
+    if(cauda == nullptr || cabeca == nullptr){
+        cout << "Aresta inexiste" << endl;
+        return;
+    }
+    
+    //chama a remoção de aresta do no
+    bool removido = cauda->removeAresta(idCauda, idCabeca);
+    if( removido ){
+        if(this->digrafo){
+            cauda->setSaidaNo(cauda->getSaidaNo() - 1);
+        }else{
+            cauda->setGrauNo(cauda->getGrauNo() - 1);
+        }
+    }
+
+    //verifica se o não for digrafo tem que remover a aresta na cabeça também
+    if(!this->digrafo){
+        removido = cabeca->removeAresta(idCabeca, idCauda);
+        if( removido ){
+            cabeca->setGrauNo(cabeca->getGrauNo() - 1);
+        }
+    }
+}
+
 void Graph::imprime(){
-    //TODO: Adicionar a impressao das arestas também
     Node* no =  this->primeiroNo;
 
     if(no == nullptr){
@@ -107,20 +135,6 @@ void Graph::imprime(){
 
         no = no->getProxNo();
     }
-}
-
-void Graph::imprimeInvertido(){
-    //TODO: Adicionar a impressao das arestas também
-    Graph::imprimeInvertidoAux(this->primeiroNo);
-}
-
-void Graph::imprimeInvertidoAux(Node* no){
-    if(no == nullptr){
-        return;
-    }
-
-    imprimeInvertidoAux(no->getProxNo());
-    cout << "(" << no->getId() << ")" << endl;
 }
 
 bool Graph::getDigrafo()
@@ -228,7 +242,6 @@ bool Graph::isNulo()
         return false;
     }
 }
-
 
 int Graph::getGrauGrafo() // não está adaptado para um digrafo 
 {
