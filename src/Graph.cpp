@@ -1,5 +1,6 @@
 #include "Graph.h"
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -8,6 +9,12 @@ Graph::Graph(bool digrafo){
     this->primeiroNo = nullptr;
     this->ultimoNo = nullptr;
 }
+
+Node* Graph::getPrimeiroNo(){
+
+    return this->primeiroNo;
+}
+
 
 void Graph::insereNoInicio(int id){
     Node* no = new Node(id); //Cria um nó com o valor passado por parametro
@@ -66,6 +73,15 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
     if(!this->digrafo){
         cabeca->insereAresta(idCabeca, idCauda, peso);
     }
+
+    if(!this->getDigrafo()){
+        cabeca->setGrauNo(cabeca->getGrauNo() + 1);
+        cauda->setGrauNo(cauda->getGrauNo() + 1);
+    }
+    else{
+        cabeca->setEntradaNo(cabeca->getEntradaNo() + 1);
+        cauda->setSaidaNo(cabeca->getSaidaNo() + 1);
+    }
 }
 
 void Graph::removeAresta(int idCauda, int idCabeca){
@@ -109,4 +125,203 @@ void Graph::imprime(){
 
         no = no->getProxNo();
     }
+}
+
+bool Graph::getDigrafo()
+{
+    return this->digrafo;
+}
+
+int Graph::getGrauNo(int id)
+{
+    Node* no = buscaNo(id);
+
+    if(!getDigrafo())
+    {   
+        return no->getGrauNo();
+    }
+    else{
+        cout << "Não é possível obter grau de um dígrafo com essa função!" << endl;
+        return 0;
+    }
+
+}
+
+/*int Graph::getEntradaNo(int id)
+{
+    Node* no = buscaNo(id);
+
+    if(getDigrafo())
+    {
+        return no->getEntradaNo();
+    }
+    else{
+        cout << "Não é possível obter grau de um grafo não direcionado com essa função!" << endl;
+        return 0;
+    }
+
+}
+
+int Graph::getSaidaNo(int id)
+{
+    Node* no = buscaNo(id);
+
+    if(getDigrafo())
+    {
+        return no->getSaidaNo();
+    }
+    else{
+        cout << "Não é possível obter grau de um grafo não direcionado com essa função!" << endl;
+        return 0;
+    }
+}
+*/
+bool Graph::getKRegularidade(int k)
+{
+    Node* no = this->primeiroNo;
+
+    if(no->getGrauNo() != k){
+        return false;
+    }
+    else{
+        while (no != nullptr)
+        {
+            if(no->getGrauNo() != k){ //caso tenha grau diferente de k retorna false
+                return false;
+            }
+
+            no = no->getProxNo(); //se tinha grau k passa para o próximo
+        }
+        return true; // se não retornou false depois de passar por todos retorna true
+    }
+}
+
+int Graph::getOrdem()
+{
+    Node* no = this->primeiroNo;
+    int ordem = 0;
+
+    while (no != nullptr)
+    {
+        ordem++;
+        no = no->getProxNo();
+    }
+    return ordem;
+}
+
+bool Graph::isTrivial()
+{
+    Node* no = this->primeiroNo;
+    
+    if(no->getProxNo() == nullptr){ // se o próximo do primeiro for null é pq só possui um no
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+bool Graph::isNulo()
+{
+    Node* no = this->primeiroNo;
+
+    if(no == nullptr){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+
+int Graph::getGrauGrafo() // não está adaptado para um digrafo 
+{
+    Node* no = this->primeiroNo;
+    int grau = no->getGrauNo();
+
+    while (no != nullptr)
+    {
+        if(no->getGrauNo() > grau){ //caso tenha grau maior que o anterior, atualiza o valor de grau
+            grau = no->getGrauNo();
+        }
+
+        no = no->getProxNo(); // passa para o próximo
+    }
+    return grau; // retorna o maior grau entre os nos do grafo
+}
+
+int* Graph::sequenciaDeGraus(){     // não está adaptado para um digrafo
+    if (this == nullptr || this->primeiroNo == nullptr || getOrdem() <= 0) {
+        cout << "Grafo Vazio!" << endl;
+        return nullptr;
+    }
+
+    Node* no = this->primeiroNo;
+    int* sequencia=new int[getOrdem()];
+
+    if(no == nullptr){
+        cout << "Grafo Vazio!" << endl;
+        return nullptr;
+    }
+    else{
+        for(int i = 0; i < getOrdem(); i++){
+            if (no != nullptr) {
+                sequencia[i] = no->getGrauNo();
+                no = no->getProxNo();
+            } else {
+                // nó é nulo, definir grau como zero
+                sequencia[i] = 0;
+            }
+        }
+    }
+    return sequencia;
+}
+
+void Graph::vizinhancaAberta(int id)
+{
+    Node* no = buscaNo(id);
+    Edge* aresta = no->getPrimeiraAresta();
+    std::vector< int > vizinhancaAberta;
+
+    for(aresta; aresta != NULL; aresta = aresta->getProxAresta()){
+        if(aresta->getIdCauda() == id){
+            vizinhancaAberta.push_back(aresta->getIdCabeca());
+        }
+        else{
+            vizinhancaAberta.push_back(aresta->getIdCauda());
+        }
+    }
+    cout << "A vizinhança aberta é: " << endl; 
+    for (int i = 0; i < vizinhancaAberta.size(); i++) {
+        cout << vizinhancaAberta[i] << " ";
+    }
+    cout << endl;
+
+    return;
+}
+
+void Graph::vizinhancaFechada(int id)
+{
+    Node* no = buscaNo(id);
+    Edge* aresta = no->getPrimeiraAresta();
+    std::vector< int > vizinhancaFechada;
+
+    vizinhancaFechada.push_back(id);
+
+    for(aresta; aresta != NULL; aresta = aresta->getProxAresta()){
+        if(aresta->getIdCauda() == id){
+            vizinhancaFechada.push_back(aresta->getIdCabeca());
+        }
+        else{
+            vizinhancaFechada.push_back(aresta->getIdCauda());
+        }
+    }
+    
+    cout << "A vizinhança fechada é: " << endl; 
+    for (int i = 0; i < vizinhancaFechada.size(); i++) {
+        cout << vizinhancaFechada[i] << " ";
+    }
+    cout << endl;
+
+    return;
 }

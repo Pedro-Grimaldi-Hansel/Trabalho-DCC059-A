@@ -8,6 +8,14 @@ Node::Node(){
 Node::Node(int id)
 {
     this->id = id;
+
+    // colocando valores para grau de entrada e saída caso digrafo
+    this->grauNo = 0;
+    //TODO: aqui poderia ser bom receber uma informação se é digrafo ou n pra sabermos se vamos inicializar 
+    // grauNo ou grauEntradaNo/grauSaidaNo
+    // this->grauEntradaNo = 0;
+    // this->grauSaidaNo = 0;
+
     this->primeiraAresta = nullptr;
     this->proxNo = nullptr;
 }
@@ -116,4 +124,32 @@ void Node::removeAresta(int idCauda, int idCabeca){
     }
     
     delete aresta;
+int Node::getGrauNo()
+{
+    return this->grauNo;
+}
+
+int Node::getEntradaNo()
+{
+    return this->grauEntradaNo;
+}
+
+int Node::getSaidaNo()
+{
+    return this->grauSaidaNo;
+}
+
+void Node::setGrauNo(int grau)
+{
+    this->grauNo = grau;
+}
+
+void Node::setEntradaNo(int grau)
+{
+    this->grauEntradaNo = grau;
+}
+
+void Node::setSaidaNo(int grau)
+{
+    this->grauSaidaNo = grau;
 }
