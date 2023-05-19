@@ -113,6 +113,45 @@ void Graph::removeAresta(int idCauda, int idCabeca){
     }
 }
 
+void Graph::removeNo(int id){
+    Node* no = this->primeiroNo;
+    Node* noAnteriror = nullptr;
+
+    if(this->primeiroNo == nullptr){
+        cout << "Nó inexistente" << endl;
+        return;
+    }
+
+    //Percorre todos os nos armazenando o atual e anterior
+    while(no != nullptr){
+        if(no->getId() == id){
+            break; //encontrou a no
+        }
+        noAnteriror = no;
+        no = no->getProxNo();
+    }
+
+    //No não encontrada
+    if(no == nullptr){
+        cout << "No não encotrada!" << endl;
+        return ;
+    }
+
+    if(noAnteriror == nullptr){
+        //o no é a primeira da lista
+        this->primeiroNo = no->getProxNo();
+    }else if(no->getProxNo() == nullptr){
+        //o no é a ultima da lista
+        noAnteriror->setProxNo(nullptr);
+    }else{
+        //a no está no meio
+        noAnteriror->setProxNo(no->getProxNo());
+    }
+    
+    delete no;
+    return true;
+}
+
 void Graph::imprime(){
     Node* no =  this->primeiroNo;
 

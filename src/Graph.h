@@ -25,6 +25,9 @@ class Graph{
         //Remoção de aresta
         void removeAresta(int idCauda, int idCabeca);
 
+        //Remoção de nó
+        void removeNo(int id);
+
         void imprime();
 
         bool getDigrafo();
