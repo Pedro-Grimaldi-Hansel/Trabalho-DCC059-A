@@ -1,5 +1,6 @@
 #ifndef GRAPH_H_INCLUDED
 #define GRAPH_H_INCLUDED
+#include <fstream>
 #include "Node.h"
 
 using namespace std;
@@ -9,15 +10,25 @@ class Graph{
         Node* primeiroNo;
         Node* ultimoNo;
         bool digrafo;
+        bool pesoNasArestas;
+        bool pesoNosVertices;
+
+        int ultimoIdVinculado;
+        Node* ultimoNoVinculado;
     public:
         //Construtor e destrutor
         Graph(bool digrafo);
         ~Graph();
 
+        //Leitura de arquivo
+        Graph(ifstream &arquivoEntrada);
+
         //Inserção de Nos
+        void vinculaNo(int idArquivo);
         void insereNoInicio(int id);
         void insereNoFim(int id);
-        Node* buscaNo(int id);
+        void insereNoFim(int id, int idArquivo);
+        Node* buscaNoPorIdArquivo(int idArquivo);
 
         //Inserção de arestas
         void insereAresta(int idCauda, int idCabeca, float peso);
@@ -26,7 +37,7 @@ class Graph{
         void removeAresta(int idCauda, int idCabeca);
 
         //Remoção de nó
-        void removeNo(int id);
+        // bool removeNo(int id);
 
         void imprime();
 

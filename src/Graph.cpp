@@ -8,6 +8,33 @@ Graph::Graph(bool digrafo){
     this->digrafo = digrafo;
     this->primeiroNo = nullptr;
     this->ultimoNo = nullptr;
+    this->ultimoIdVinculado = 0;
+}
+
+Graph::Graph(ifstream &arquivoEntrada){
+     //Pegar primeira linha e ver o número de nos
+     this->ultimoIdVinculado = 0;
+    int ordemGrafo;
+    int idCauda;
+    int idCabeca;
+    float peso;
+
+    this->digrafo = false;
+
+    arquivoEntrada >> ordemGrafo;
+    cout << "A ordem do grafo é: " << ordemGrafo << endl;
+
+    //Primeiro insere todos o vértices
+    for(int i = 0; i < ordemGrafo; i++){
+        this->insereNoFim(i+1);
+    }
+
+    //Pegar linha até o fim do arquivo
+    while( arquivoEntrada >> idCauda >> idCabeca >> peso) {
+        this->insereAresta(idCauda, idCabeca, peso);
+    }
+
+    this->imprime();
 }
 
 Node* Graph::getPrimeiroNo(){
@@ -22,6 +49,26 @@ void Graph::insereNoInicio(int id){
     no->setProxNo(this->primeiroNo); //preenche o próximo
 
     this->primeiroNo = no; //no passa a ser o primeiro do grafo
+}
+
+//Somente utilizado para nos já inseridos!
+void Graph::vinculaNo(int idArquivo)
+{
+    Node* no = this->ultimoNoVinculado; //Pega o ultimo no vinculado
+
+    if(no == nullptr){ // Caso o ultimo no vinculado seja null
+        this->ultimoNoVinculado = this->primeiroNo; //ultimo no vinculado recebe o primeiro no
+        no = this->ultimoNoVinculado; //No revebe o ultimo no vinculado
+    }else{
+        this->ultimoNoVinculado = no->getProxNo(); //Atualiza o ultimo nó vinculado
+        if(this->ultimoNoVinculado == nullptr){
+            printf("Ordem do Grafo ultrapassada! Insira um nó!");
+            return;
+        }
+    }
+
+    no->setIdArquivo(idArquivo); //vincula o no
+    this->ultimoIdVinculado += 1; //incrementar o ultimo vinculado
 }
 
 void Graph::insereNoFim(int id){
@@ -40,12 +87,12 @@ void Graph::insereNoFim(int id){
     }
 }
 
-Node* Graph::buscaNo(int id){
+Node* Graph::buscaNoPorIdArquivo(int idArquivo){
     Node* no = this->primeiroNo; //auxiliar para busca
 
     while (no != nullptr)
     {
-        if(no->getId() == id){ //caso encontrou o nó retorna ele
+        if(no->getIdArquivo() == idArquivo){ //caso encontrou o nó retorna ele
             return no;
         }
 
@@ -56,16 +103,16 @@ Node* Graph::buscaNo(int id){
 }
 
 void Graph::insereAresta(int idCauda, int idCabeca, float peso){
-    Node* cauda = buscaNo(idCauda);
-    Node* cabeca = buscaNo(idCabeca);
+    Node* cauda = buscaNoPorIdArquivo(idCauda);
+    Node* cabeca = buscaNoPorIdArquivo(idCabeca);
 
     if(cauda == nullptr){
-        this->insereNoFim(idCauda);
-        cauda = this->ultimoNo;
+        this->vinculaNo(idCauda);
+        cauda = this->ultimoNoVinculado;
     }
     if(cabeca == nullptr){
-        this->insereNoFim(idCabeca);
-        cabeca = this->ultimoNo;
+        this->vinculaNo(idCabeca);
+        cabeca = this->ultimoNoVinculado;
     }
 
     cauda->insereAresta(idCauda, idCabeca, peso);
@@ -84,73 +131,74 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
     }
 }
 
-void Graph::removeAresta(int idCauda, int idCabeca){
-    //busca Nos
-    Node* cauda = buscaNo(idCauda);
-    Node* cabeca = buscaNo(idCabeca);
+//FIX: REMOVE aresta
+// void Graph::removeAresta(int idCauda, int idCabeca){
+//     //busca Nos
+//     Node* cauda = buscaNoPorIdArquivo(idCauda);
+//     Node* cabeca = buscaNoPorIdArquivo(idCabeca);
 
-    if(cauda == nullptr || cabeca == nullptr){
-        cout << "Aresta inexiste" << endl;
-        return;
-    }
+//     if(cauda == nullptr || cabeca == nullptr){
+//         cout << "Aresta inexiste" << endl;
+//         return;
+//     }
     
-    //chama a remoção de aresta do no
-    bool removido = cauda->removeAresta(idCauda, idCabeca);
-    if( removido ){
-        if(this->digrafo){
-            cauda->setSaidaNo(cauda->getSaidaNo() - 1);
-        }else{
-            cauda->setGrauNo(cauda->getGrauNo() - 1);
-        }
-    }
+//     //chama a remoção de aresta do no
+//     bool removido = cauda->removeAresta(idCauda, idCabeca);
+//     if( removido ){
+//         if(this->digrafo){
+//             cauda->setSaidaNo(cauda->getSaidaNo() - 1);
+//         }else{
+//             cauda->setGrauNo(cauda->getGrauNo() - 1);
+//         }
+//     }
 
-    //verifica se o não for digrafo tem que remover a aresta na cabeça também
-    if(!this->digrafo){
-        removido = cabeca->removeAresta(idCabeca, idCauda);
-        if( removido ){
-            cabeca->setGrauNo(cabeca->getGrauNo() - 1);
-        }
-    }
-}
+//     //verifica se o não for digrafo tem que remover a aresta na cabeça também
+//     if(!this->digrafo){
+//         removido = cabeca->removeAresta(idCabeca, idCauda);
+//         if( removido ){
+//             cabeca->setGrauNo(cabeca->getGrauNo() - 1);
+//         }
+//     }
+// }
 
-void Graph::removeNo(int id){
-    Node* no = this->primeiroNo;
-    Node* noAnteriror = nullptr;
+// bool Graph::removeNo(int id){
+//     Node* no = this->primeiroNo;
+//     Node* noAnteriror = nullptr;
 
-    if(this->primeiroNo == nullptr){
-        cout << "Nó inexistente" << endl;
-        return;
-    }
+//     if(this->primeiroNo == nullptr){
+//         cout << "Nó inexistente" << endl;
+//         return;
+//     }
 
-    //Percorre todos os nos armazenando o atual e anterior
-    while(no != nullptr){
-        if(no->getId() == id){
-            break; //encontrou a no
-        }
-        noAnteriror = no;
-        no = no->getProxNo();
-    }
+//     //Percorre todos os nos armazenando o atual e anterior
+//     while(no != nullptr){
+//         if(no->getId() == id){
+//             break; //encontrou a no
+//         }
+//         noAnteriror = no;
+//         no = no->getProxNo();
+//     }
 
-    //No não encontrada
-    if(no == nullptr){
-        cout << "No não encotrada!" << endl;
-        return ;
-    }
+//     //No não encontrada
+//     if(no == nullptr){
+//         cout << "No não encotrada!" << endl;
+//         return ;
+//     }
 
-    if(noAnteriror == nullptr){
-        //o no é a primeira da lista
-        this->primeiroNo = no->getProxNo();
-    }else if(no->getProxNo() == nullptr){
-        //o no é a ultima da lista
-        noAnteriror->setProxNo(nullptr);
-    }else{
-        //a no está no meio
-        noAnteriror->setProxNo(no->getProxNo());
-    }
+//     if(noAnteriror == nullptr){
+//         //o no é a primeira da lista
+//         this->primeiroNo = no->getProxNo();
+//     }else if(no->getProxNo() == nullptr){
+//         //o no é a ultima da lista
+//         noAnteriror->setProxNo(nullptr);
+//     }else{
+//         //a no está no meio
+//         noAnteriror->setProxNo(no->getProxNo());
+//     }
     
-    delete no;
-    return true;
-}
+//     delete no;
+//     return true;
+// }
 
 void Graph::imprime(){
     Node* no =  this->primeiroNo;
@@ -162,7 +210,7 @@ void Graph::imprime(){
 
     while (no != nullptr)
     {
-        cout << "(" << no->getId() << ")" << endl;
+        cout << "(" << no->getIdArquivo() << ")" << endl;
         Edge* aresta = no->getPrimeiraAresta();
         cout << "\t";
         while (aresta != nullptr )
@@ -183,7 +231,7 @@ bool Graph::getDigrafo()
 
 int Graph::getGrauNo(int id)
 {
-    Node* no = buscaNo(id);
+    Node* no = buscaNoPorIdArquivo(id);
 
     if(!getDigrafo())
     {   
@@ -198,7 +246,7 @@ int Graph::getGrauNo(int id)
 
 /*int Graph::getEntradaNo(int id)
 {
-    Node* no = buscaNo(id);
+    Node* no = buscaNoPorIdArquivo(id);
 
     if(getDigrafo())
     {
@@ -213,7 +261,7 @@ int Graph::getGrauNo(int id)
 
 int Graph::getSaidaNo(int id)
 {
-    Node* no = buscaNo(id);
+    Node* no = buscaNoPorIdArquivo(id);
 
     if(getDigrafo())
     {
@@ -327,7 +375,7 @@ int* Graph::sequenciaDeGraus(){     // não está adaptado para um digrafo
 
 void Graph::vizinhancaAberta(int id)
 {
-    Node* no = buscaNo(id);
+    Node* no = buscaNoPorIdArquivo(id);
     Edge* aresta = no->getPrimeiraAresta();
     std::vector< int > vizinhancaAberta;
 
@@ -350,7 +398,7 @@ void Graph::vizinhancaAberta(int id)
 
 void Graph::vizinhancaFechada(int id)
 {
-    Node* no = buscaNo(id);
+    Node* no = buscaNoPorIdArquivo(id);
     Edge* aresta = no->getPrimeiraAresta();
     std::vector< int > vizinhancaFechada;
 

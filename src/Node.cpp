@@ -5,9 +5,9 @@ Node::Node(){
     this->proxNo = nullptr;
 }
 
-Node::Node(int id)
+Node::Node(int idAplicacao)
 {
-    this->id = id;
+    this->idAplicacao = idAplicacao;
 
     // colocando valores para grau de entrada e saída caso digrafo
     this->grauNo = 0;
@@ -32,14 +32,6 @@ void Node::setProxNo(Node* proximo)
 Node* Node::getProxNo()
 {
     return this->proxNo;
-}
-
-int Node::getId(){
-    return this->id;
-}
-
-void Node::setId(int id){
-    this->id = id;
 }
 
 Edge* Node::getPrimeiraAresta(){
@@ -126,6 +118,11 @@ bool Node::removeAresta(int idCauda, int idCabeca){
     return true;
 }
 
+int Node::getIdArquivo()
+{
+    return this->idArquivo;
+}
+
 int Node::getGrauNo()
 {
     return this->grauNo;
@@ -141,6 +138,16 @@ int Node::getSaidaNo()
     return this->grauSaidaNo;
 }
 
+float Node::getPesoNo()
+{
+    return this->peso;
+}
+
+void Node::setIdArquivo(int idArquivo)
+{
+    this->idArquivo = idArquivo;
+}
+
 void Node::setGrauNo(int grau)
 {
     this->grauNo = grau;
@@ -154,4 +161,9 @@ void Node::setEntradaNo(int grau)
 void Node::setSaidaNo(int grau)
 {
     this->grauSaidaNo = grau;
+}
+
+void Node::setPesoNo(float peso)
+{
+    this->peso = peso;
 }

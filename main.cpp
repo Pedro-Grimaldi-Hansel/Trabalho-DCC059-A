@@ -4,28 +4,6 @@
 
 using namespace std;
 
-Graph* lerArquivo(ifstream &arquivoEntrada){
-    //Pegar primeira linha e ver o número de nos
-    int ordemGrafo;
-    int idCauda;
-    int idCabeca;
-    float peso;
-
-    bool digrafo = false;
-    Graph* grafo = new Graph(digrafo);
-
-    arquivoEntrada >> ordemGrafo;
-    cout << "A ordem do grafo é: " << ordemGrafo << endl;
-
-    //Pegar linha até o fim do arquivo
-    while( arquivoEntrada >> idCauda >> idCabeca >> peso) {
-        grafo->insereAresta(idCauda, idCabeca, peso);
-    }
-    grafo->imprime();
-
-    return grafo;
-}
-
 int main(int argc, char const *argv[]){
      // Verificando os parâmetros do programa
     if (argc != 3) 
@@ -40,16 +18,11 @@ int main(int argc, char const *argv[]){
     arquivoEntrada.open(argv[1], ios::in);
     arquivoSaida.open(argv[2], ios::out | ios::trunc);
     bool digrafo = false;
-    Graph* grafo = new Graph(digrafo);
-    if(arquivoEntrada.is_open()){
-        grafo = lerArquivo(arquivoEntrada);   
+    if(!arquivoEntrada.is_open()){
+        cout << "ERRO Arquivo não aberto corretamente!" << endl;
+        return 1;
     }
-    
-    cout << "Removendo a aresta 1 - 2" << endl;
-    grafo->removeAresta(1,2);
-    cout << "Removendo a aresta 2 - 1" << endl;
-    grafo->removeAresta(2,1);
-    grafo->imprime();
+    Graph* grafo = new Graph(arquivoEntrada);   
 
     return 0;
 }

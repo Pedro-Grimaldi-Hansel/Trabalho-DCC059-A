@@ -7,9 +7,11 @@ class Node
 {
 private:
     Edge* primeiraAresta;
-    int id;
+    int idAplicacao;    // id Da nossa aplicação (Serve somente para a inserção!)
+    int idArquivo;      // id do arquivo
     Node* proxNo;
     int grauNo;
+    float peso;
 
     // colocando valores para grau de entrada e saída caso digrafo
     int grauEntradaNo;
@@ -17,26 +19,27 @@ private:
 
 public:
     Node();
-    Node(int id);
+    Node(int idAplicacao);
     ~Node();
 
-    void setProxNo(Node* proximo);
-    Node* getProxNo();
-    int getId();
-    void setId(int id);
-    Edge* getPrimeiraAresta();
 
-    //TODO: Implementar a inserção de aresta no no
-    void insereAresta(int idCauda, int idCabeca, float peso);
-    Edge* buscaAresta(int idCauda, int idCabeca);
-    bool removeAresta(int idCauda, int idCabeca);
+    void insereAresta(int idCauda, int idCabeca, float peso); //Recebe o id de arquivo
+    Edge* buscaAresta(int idCauda, int idCabeca);             //Recebe o id de arquivo  
+    bool removeAresta(int idCauda, int idCabeca);             //Recebe o id de arquivo
 
     int getGrauNo();
     int getEntradaNo();
     int getSaidaNo();
+    int getIdArquivo();
+    float getPesoNo();
+    Node* getProxNo();
+    Edge* getPrimeiraAresta();
 
+    void setIdArquivo(int idArquivo);
     void setGrauNo(int grau);
     void setEntradaNo(int grau);
     void setSaidaNo(int grau);
+    void setPesoNo(float peso);
+    void setProxNo(Node* proximo);
 
 };
