@@ -58,7 +58,6 @@ void Graph::vinculaNo(int idArquivo)
 
     if(no == nullptr){ // Caso o ultimo no vinculado seja null
         this->ultimoNoVinculado = this->primeiroNo; //ultimo no vinculado recebe o primeiro no
-        no = this->ultimoNoVinculado; //No revebe o ultimo no vinculado
     }else{
         this->ultimoNoVinculado = no->getProxNo(); //Atualiza o ultimo nó vinculado
         if(this->ultimoNoVinculado == nullptr){
@@ -66,7 +65,7 @@ void Graph::vinculaNo(int idArquivo)
             return;
         }
     }
-
+    no = this->ultimoNoVinculado; //No revebe o ultimo no vinculado
     no->setIdArquivo(idArquivo); //vincula o no
     this->ultimoIdVinculado += 1; //incrementar o ultimo vinculado
 }
