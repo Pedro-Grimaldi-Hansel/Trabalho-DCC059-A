@@ -1,6 +1,8 @@
 #include "Graph.h"
 #include <iostream>
 #include <vector>
+#include <unordered_set>
+#include <list>
 
 using namespace std;
 
@@ -82,6 +84,8 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
         cabeca->setEntradaNo(cabeca->getEntradaNo() + 1);
         cauda->setSaidaNo(cauda->getSaidaNo() + 1);
     }
+
+    
 }
 
 void Graph::removeAresta(int idCauda, int idCabeca){
@@ -334,3 +338,97 @@ void Graph::vizinhancaFechada(int id)
 
     return;
 }
+
+int Graph::getNumberOfNodes()
+{
+    
+}
+
+int Graph::getNumberOfEdges()
+{
+    
+}
+
+bool Graph::isComplete()
+{
+    int n = getNumberOfNodes();
+    int edgesToBeComplete = n*(n-1)/2;
+    if(getDigrafo())
+    {
+        if(getNumberOfEdges() == edgesToBeComplete)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+
+    }
+}
+
+// Multigrafo é um grafo não dirigido que pode possuir arestas múltiplas, ou seja, arestas com mesmos nós finais
+
+bool Graph::isMultigraph()
+{
+    // Achou arestas com mesmos vértices de incidência = é multigrafo
+    // Definir da mesma forma que o multigrafo
+}
+
+// Função de busca em largura (Breadth-first search)
+
+bool Graph::BFS()
+{
+    Node* root = getPrimeiroNo();
+    int numberOfNodes = getNumberOfNodes();
+    vector<bool> visited;
+    visited.resize(numberOfNodes, false);
+ 
+    list<Node*> queue;
+ 
+    visited[root->getId()] = true;
+    queue.push_back(root);
+ 
+    while (!queue.empty()) {
+         
+        Node* nextNode = queue.front();
+        cout << nextNode->getId() << " ";
+        queue.pop_front();
+
+        for(Edge *edge = nextNode->getPrimeiraAresta(); edge != nullptr; edge = edge->getProxAresta())
+        {
+            Node *cauda = edge->getCauda();
+            if (!visited[cauda->getId()]) 
+            {
+                visited[cauda->getId()] = true;
+                queue.push_back(cauda);
+            }
+        }
+    }
+}
+
+
+// Grafo bipartido é grafo cujos vértices podem ser divididos em dois conjuntos disjuntos U e V tais que toda aresta conecta um vértice em U a um vértice em V; ou seja, U e V são conjuntos independentes.
+
+bool Graph::isBipartide()
+{
+    // Usar BFS
+    // visitados
+    // visitdos V
+    // Visitados U
+
+    // Verificação inicial
+    // Bipartido completo Km,n --- numVert = m + n e numArest = mn
+    // somaGrausU = somagrausV
+    // Não é bipartido se numAr > numV^2/4 (para grafo simples)
+    // se é digrafo não misto, considero arestax2 ---> numAr > numV^2/2
+}
+
+// Anotações: fazer funções getNumber... e setNumber para vértices, arestas, selfloops e mapear multiarestas
+// Ideia de fazer o node ser lista também
+
+// Funções de percorrer grafos: arestas->vértices, v->arestas
+// Fazer retornar o ponteiro do nó  enão o ID na cabeça e na cauda da aresta

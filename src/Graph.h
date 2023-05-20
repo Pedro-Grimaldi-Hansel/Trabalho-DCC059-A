@@ -9,6 +9,7 @@ class Graph{
         Node* primeiroNo;
         Node* ultimoNo;
         bool digrafo;
+
     public:
         //Construtor e destrutor
         Graph(bool digrafo);
@@ -47,6 +48,13 @@ class Graph{
         int* sequenciaDeGraus(); //Apresentar a sequência de graus do grafo.
         void vizinhancaAberta(int id);
         void vizinhancaFechada(int id);
+
+        bool Graph::BFS();
+        int Graph::getNumberOfNodes();
+        int Graph::getNumberOfEdges();
+        bool Graph::isComplete();
+        bool Graph::isMultigraph();
+        bool Graph::isBipartide();
 
 
 };
