@@ -22,6 +22,16 @@ Node::Node(int idAplicacao)
 
 Node::~Node()
 {
+    Edge* aux = this->primeiraAresta;
+    Edge* arestaASerDeletada;
+    if( aux != nullptr)
+    {
+        while(aux->getProxAresta() != nullptr){
+            arestaASerDeletada = aux;
+            aux = aux->getProxAresta();
+            delete arestaASerDeletada;
+        }
+    }
 }
 
 void Node::setProxNo(Node* proximo)
@@ -38,8 +48,8 @@ Edge* Node::getPrimeiraAresta(){
     return this->primeiraAresta;
 }
 
-void Node::insereAresta(int idCauda, int idCabeca, float peso){
-    Edge* novaAresta = new Edge(idCauda, idCabeca, peso);
+void Node::insereAresta(int idCabeca, float peso){
+    Edge* novaAresta = new Edge(idCabeca, peso);
 
     if(this->primeiraAresta == nullptr){ //Primeira aresta
         this->primeiraAresta = novaAresta;
@@ -55,7 +65,7 @@ void Node::insereAresta(int idCauda, int idCabeca, float peso){
     }
 }
 
-Edge* Node::buscaAresta(int idCauda, int idCabeca){
+Edge* Node::buscaAresta(int idCabeca){
     Edge* edge = this->primeiraAresta;
 
     if(this->primeiraAresta == nullptr){
@@ -65,7 +75,7 @@ Edge* Node::buscaAresta(int idCauda, int idCabeca){
 
     //Percorre todas as arestas
     while(edge != nullptr){
-        if(edge->getIdCabeca() == idCabeca && edge->getIdCauda() == idCauda){
+        if(edge->getIdCabeca() == idCabeca){
             break; //encontrou a aresta
         }
         edge = edge->getProxAresta();
@@ -79,7 +89,7 @@ Edge* Node::buscaAresta(int idCauda, int idCabeca){
     return edge;
 }
 
-bool Node::removeAresta(int idCauda, int idCabeca){
+bool Node::removeAresta(int idCabeca){
     Edge* aresta = this->primeiraAresta;
     Edge* arestaAnteriror = nullptr;
 
@@ -90,7 +100,7 @@ bool Node::removeAresta(int idCauda, int idCabeca){
 
     //Percorre todas as arestas armazenando a atual e anterior
     while(aresta != nullptr){
-        if(aresta->getIdCabeca() == idCabeca && aresta->getIdCauda() == idCauda){
+        if(aresta->getIdCabeca() == idCabeca){
             break; //encontrou a aresta
         }
         arestaAnteriror = aresta;

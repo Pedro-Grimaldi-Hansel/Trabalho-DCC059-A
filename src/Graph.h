@@ -17,7 +17,6 @@ class Graph{
         Node* ultimoNoVinculado;
     public:
         //Construtor e destrutor
-        Graph(bool digrafo);
         ~Graph();
 
         //Leitura de arquivo
@@ -25,7 +24,6 @@ class Graph{
 
         //Inserção de Nos
         void vinculaNo(int idArquivo);
-        void insereNoInicio(int id);
         void insereNoFim(int id);
         void insereNoFim(int id, int idArquivo);
         Node* buscaNoPorIdArquivo(int idArquivo);
@@ -37,7 +35,7 @@ class Graph{
         void removeAresta(int idCauda, int idCabeca);
 
         //Remoção de nó
-        // bool removeNo(int id);
+        bool removeNo(int idArquivo);
 
         void imprime();
 

@@ -18,11 +18,11 @@ int main(int argc, char const *argv[]){
     arquivoEntrada.open(argv[1], ios::in);
     arquivoSaida.open(argv[2], ios::out | ios::trunc);
     bool digrafo = false;
-    if(!arquivoEntrada.is_open()){
-        cout << "ERRO Arquivo não aberto corretamente!" << endl;
-        return 1;
-    }
     Graph* grafo = new Graph(arquivoEntrada);   
+    grafo->removeNo(3);
+    cout << "Pós remoção: " << endl;
+    cout << "Ordem do grafo é " << grafo->getOrdem() << endl;
+    grafo->imprime();
 
     return 0;
 }

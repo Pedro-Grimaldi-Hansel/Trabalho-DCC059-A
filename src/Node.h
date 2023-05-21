@@ -23,9 +23,9 @@ public:
     ~Node();
 
 
-    void insereAresta(int idCauda, int idCabeca, float peso); //Recebe o id de arquivo
-    Edge* buscaAresta(int idCauda, int idCabeca);             //Recebe o id de arquivo  
-    bool removeAresta(int idCauda, int idCabeca);             //Recebe o id de arquivo
+    void insereAresta(int idCabeca, float peso); //Recebe o id de arquivo
+    Edge* buscaAresta(int idCabeca);             //Recebe o id de arquivo  
+    bool removeAresta(int idCabeca);             //Recebe o id de arquivo
 
     int getGrauNo();
     int getEntradaNo();

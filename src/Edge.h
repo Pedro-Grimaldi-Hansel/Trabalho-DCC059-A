@@ -8,19 +8,15 @@ class Edge
 private:
     Edge* proxAresta;
     float peso;
-    int idCauda;
     int idCabeca;
 public:
     Edge();
-    Edge(int idCauda, int idCabeca, float peso);
-    Edge(Edge* proxAresta, float peso, int idCauda, int idCabeca);
+    Edge(int idCabeca, float peso);
+    Edge(Edge* proxAresta, float peso, int idCabeca);
     ~Edge();
 
     float getPeso();
     void setPeso(float peso);
-
-    int getIdCauda();
-    void setIdCauda(int idCauda);
 
     int getIdCabeca();
     void setIdCabeca(int idCabeca);
