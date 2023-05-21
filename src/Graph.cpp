@@ -373,13 +373,7 @@ void Graph::vizinhancaAberta(int id)
     std::vector< int > vizinhancaAberta;
 
     for(aresta; aresta != NULL; aresta = aresta->getProxAresta()){
-        //FIX: Arrumar para tirar o cauda da aresta
-        // if(aresta->getIdCauda() == id){
-        //     vizinhancaAberta.push_back(aresta->getIdCabeca());
-        // }
-        // else{
-        //     vizinhancaAberta.push_back(aresta->getIdCauda());
-        // }
+        vizinhancaAberta.push_back(aresta->getIdCabeca());
     }
     cout << "A vizinhança aberta é: " << endl; 
     for (int i = 0; i < vizinhancaAberta.size(); i++) {
@@ -399,13 +393,7 @@ void Graph::vizinhancaFechada(int id)
     vizinhancaFechada.push_back(id);
 
     for(aresta; aresta != NULL; aresta = aresta->getProxAresta()){
-        // Fix: Arrumar para tirar o cauda da aresta
-        // if(aresta->getIdCauda() == id){
-        //     vizinhancaFechada.push_back(aresta->getIdCabeca());
-        // }
-        // else{
-        //     vizinhancaFechada.push_back(aresta->getIdCauda());
-        // }
+        vizinhancaFechada.push_back(aresta->getIdCabeca());
     }
     
     cout << "A vizinhança fechada é: " << endl; 
