@@ -22,6 +22,10 @@ class Graph{
         //Leitura de arquivo
         Graph(ifstream &arquivoEntrada);
 
+        //Escrita no arquivo
+        void escreveArquivo(ofstream &arquivoSaida);
+        void escreveArquivoDOT(ofstream &arquivoSaida);
+
         //Inserção de Nos
         void vinculaNo(int idArquivo);
         void insereNoFim(int id);

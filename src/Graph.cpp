@@ -33,6 +33,71 @@ Graph::Graph(ifstream &arquivoEntrada){
     }
 }
 
+void Graph::escreveArquivo(ofstream &arquivoSaida)
+{
+    // Verificar se o arquivo foi aberto corretamente
+    if (!arquivoSaida.is_open()) {
+        cout << "Erro ao abrir o arquivo " << endl;
+        return;
+    }
+
+    arquivoSaida << this->getOrdem() << endl;
+
+    // Escrever as arestas do grafo
+    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo()){
+        for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
+            if(no->getIdArquivo() > aresta->getIdCabeca()){
+                continue; //Para não repetir aresta
+            }
+            arquivoSaida << no->getIdArquivo();
+            arquivoSaida << " " << aresta->getIdCabeca();
+            arquivoSaida << " " << aresta->getPeso() << endl;
+        }
+    }
+}
+
+void Graph::escreveArquivoDOT(ofstream &arquivoSaida)
+{
+    // Verificar se o arquivo foi aberto corretamente
+    if (!arquivoSaida.is_open()) {
+        cout << "Erro ao abrir o arquivo " << endl;
+        return;
+    }
+    
+    // Escrever o cabeçalho do arquivo DOT
+    if(this->digrafo){
+        arquivoSaida << "digraph Grafo {" << endl;
+    }else{
+        arquivoSaida << "graph Grafo {" << endl;
+    }
+    
+    // Escrever as arestas do grafo
+    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo()){
+        for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
+            if(no->getIdArquivo() < aresta->getIdCabeca()){
+                continue; //Para não repetir aresta
+            }
+            arquivoSaida << "    " << no->getIdArquivo();
+            if(this->digrafo){
+                arquivoSaida << " -> ";
+            }else{
+                arquivoSaida << " -- ";
+            }
+            arquivoSaida << aresta->getIdCabeca();
+            arquivoSaida << " [label = \"" << aresta->getPeso() << "\"] ";
+            arquivoSaida << ";" << endl;
+        }
+    }
+    
+    // Escrever o fechamento do arquivo DOT
+    arquivoSaida << "}" << endl;
+    
+    // Fechar o arquivo
+    arquivoSaida.close();
+    
+    cout << "Arquivo criado com sucesso!" << endl;
+}
+
 Node* Graph::getPrimeiroNo(){
     return this->primeiroNo;
 }
