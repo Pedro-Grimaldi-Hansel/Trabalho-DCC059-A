@@ -1,14 +1,9 @@
 #include "Edge.h"
 
-Edge::Edge(int idCauda,int idCabeca, float peso){
-    this->idCauda = idCauda;
+Edge::Edge(int idCabeca, float peso){
     this->idCabeca = idCabeca;
     this->peso = peso;
     this->proxAresta = nullptr;
-}
-
-Edge::Edge(Edge* proxAresta, float peso, int idCauda, int idCabeca)
-{
 }
 
 Edge::~Edge()
@@ -21,14 +16,6 @@ float Edge::getPeso(){
 
 void Edge::setPeso(float peso) {
     this->peso = peso;
-}
-
-int Edge::getIdCauda(){
-    return idCauda;
-}
-
-void Edge::setIdCauda(int idCauda) {
-    this->idCauda = idCauda;
 }
 
 int Edge::getIdCabeca(){
