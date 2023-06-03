@@ -181,7 +181,6 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
     }
 }
 
-//FIX: REMOVE aresta
 void Graph::removeAresta(int idCauda, int idCabeca){
     //busca Nos
     Node* cauda = buscaNoPorIdArquivo(idCauda);
@@ -216,7 +215,7 @@ bool Graph::removeNo(int idArquivo){
     Node* noAnteriror = nullptr;
 
     if(this->primeiroNo == nullptr){
-        cout << "Nó inexistente" << endl;
+        cout << "Grafo Vazio!" << endl;
         return false;
     }
 
@@ -231,7 +230,7 @@ bool Graph::removeNo(int idArquivo){
 
     //No não encontrada
     if(no == nullptr){
-        cout << "No não encotrada!" << endl;
+        cout << "No não encotrado!" << endl;
         return false;
     }
 
