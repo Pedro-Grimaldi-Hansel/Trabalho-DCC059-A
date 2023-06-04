@@ -19,8 +19,11 @@ int main(int argc, char const *argv[]){
     arquivoSaida.open(argv[2], ios::out | ios::trunc);
     bool digrafo = false;
     Graph* grafo = new Graph(arquivoEntrada);
+  
     grafo->imprime();
-    grafo->escreveArquivo(arquivoSaida);
+    grafo->AGM();
+
+    // cout << retorno << endl;
 
     return 0;
 }

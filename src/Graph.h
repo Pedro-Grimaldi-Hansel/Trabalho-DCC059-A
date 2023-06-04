@@ -2,6 +2,8 @@
 #define GRAPH_H_INCLUDED
 #include <fstream>
 #include "Node.h"
+#include <vector>
+
 
 using namespace std;
 
@@ -15,6 +17,15 @@ class Graph{
 
         int ultimoIdVinculado;
         Node* ultimoNoVinculado;
+
+        vector< Edge > OrdenaArestas(vector< Edge > arestas, int numArestas);
+        void quickSort(vector< Edge >& arestas, int low, int high);
+
+        void imprimeAGM(vector< Edge > AGM, int subarvores[], int mapa[], int numNos);
+        void atualizaSubarvores(int numNos, int subarvores[], int indiceCabecaSubarvores, int indiceCaudaSubarvores);
+        int buscaNoVector(vector< int > vector, int valor, int tam);
+        int buscaNoVetor(int vetor[], int idArquivo, int tam);
+
     public:
         //Construtor e destrutor
         ~Graph();
@@ -64,6 +75,8 @@ class Graph{
         void vizinhancaAberta(int id);
         void vizinhancaFechada(int id);
 
+        void AGM();
+       
 
 };
 

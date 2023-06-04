@@ -50,6 +50,7 @@ Edge* Node::getPrimeiraAresta(){
 
 void Node::insereAresta(int idCabeca, float peso){
     Edge* novaAresta = new Edge(idCabeca, peso);
+    novaAresta->setIdCauda(this->getIdArquivo());
 
     if(this->primeiraAresta == nullptr){ //Primeira aresta
         this->primeiraAresta = novaAresta;

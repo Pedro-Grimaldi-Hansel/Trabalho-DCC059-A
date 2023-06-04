@@ -468,3 +468,147 @@ void Graph::vizinhancaFechada(int id)
 
     return;
 }
+
+void Graph::AGM()
+{
+    std::vector< Edge > arestas;
+    Node* no = this->primeiroNo;
+    std::vector< Edge > AGM; // essa será a solução
+     // criar um vetor para auxiliar quanto a formação de ciclos
+    int i=0;
+    int numNos = this->getOrdem();
+    int subarvores[numNos]; // vetor solução
+    int mapa[numNos]; // vetor de mapeamento idArquivo->subarvore
+    // inicializar vetores auxiliares (aproveitando esse msm while)
+
+    while(no != nullptr){ // pegar todas as arestas do grafo e colocar no vetor
+        Edge* primeiraAresta = no->getPrimeiraAresta();
+        while(primeiraAresta!=nullptr){
+            if(this->getDigrafo() || primeiraAresta->getIdCabeca() < no->getIdArquivo()){ // se for digrafo eu tenho q entrar de qqr forma, pois serão duas arestas diferentes msm
+                arestas.push_back(*primeiraAresta);// se não for digrafo esse if ajuda a evitar pegar as arestas "duplicadas" que o grafo simples tem
+            }
+            primeiraAresta = primeiraAresta->getProxAresta();
+        }
+        subarvores[i] = mapa[i] = no->getIdArquivo();
+        i++;
+        no = no->getProxNo();
+    }
+    // ordenar as arestas em ordem crescente de peso
+    quickSort(arestas, 0, arestas.size()-1);
+
+    int contador = 0;
+    i=0;
+
+    while(contador < numNos-1 && i < arestas.size()){
+        int indiceCaudaSubarvores = buscaNoVetor(mapa, arestas[i].getIdCauda(), numNos);
+        int indiceCabecaSubarvores = buscaNoVetor(mapa, arestas[i].getIdCabeca(), numNos);
+
+        if(subarvores[indiceCaudaSubarvores] != subarvores[indiceCabecaSubarvores]) // se forem enguais é pq estão na msm subarvores
+        {
+            // atualizar o vetor de subarvores
+            atualizaSubarvores(numNos, subarvores, indiceCabecaSubarvores, indiceCaudaSubarvores);
+            contador++;
+            AGM.push_back(arestas[i]); // colocando a aresta na AGM
+        }
+        i++;
+    }
+
+    imprimeAGM(AGM, subarvores, mapa, numNos);
+}
+
+void Graph::imprimeAGM(vector< Edge > AGM, int subarvores[], int mapa[], int numNos)
+{
+    // vector< int > quantasSubarvoresTem;
+
+    // for(int i=0; i<numNos; i++){
+    //     if(buscaNoVector(quantasSubarvoresTem, subarvores[i], quantasSubarvoresTem.size()) == -1){
+    //         quantasSubarvoresTem.push_back(subarvores[i]);
+    //     }
+    // }
+    // // depois disso temos como saber o número de subarvores diferentes que existem com o quantasSubarvoresTem.size()
+    
+    // for(int i=0; i<quantasSubarvoresTem.size(); i++){
+    //     for(int j=0; j<AGM.size(); j++){
+    //         if(subarvores[j] == i){
+    //             print agm[j]
+    //         }
+    //     }
+    // }
+    cout << "AGM: {";
+    for(int i=0; i<AGM.size(); i++){
+        cout << "(" << AGM[i].getIdCauda() << ", " << AGM[i].getIdCabeca() << "), ";
+    }
+    cout << "}" << endl;
+
+    
+}
+
+// atualizar o vetor de subarvores
+void Graph::atualizaSubarvores(int numNos, int subarvores[], int indiceCabecaSubarvores, int indiceCaudaSubarvores)
+{
+    for(int j=0; j<numNos; j++){ 
+        if(subarvores[j] == subarvores[indiceCaudaSubarvores]){
+            subarvores[j] = subarvores[indiceCabecaSubarvores];
+        }
+    }
+}
+
+int Graph::buscaNoVector(vector< int > vector, int valor, int tam)
+{
+    for(int i=0; i<tam; i++){
+        if(vector[i] == valor){
+            return i;
+        }
+    }
+    return -1;
+}
+
+int Graph::buscaNoVetor(int vetor[], int idArquivo, int tam)
+{
+    for(int i=0; i<tam; i++){
+        if(vetor[i] == idArquivo){
+            return i;
+        }
+    }
+    return -1;
+}
+
+vector< Edge > Graph::OrdenaArestas(vector< Edge >arestas, int numArestas) // bubbleSort
+{
+    int aux;
+
+    for (int k = 1; k < numArestas; k++) {
+        for (int j = 0; j < numArestas - k; j++) {
+            if (arestas[j].getPeso() > arestas[j+1].getPeso()) {
+                aux = arestas[j].getPeso();
+                arestas[j].setPeso(arestas[j+1].getPeso()); 
+                arestas[j+1].setPeso(aux);
+            }
+        }
+    }
+    return arestas;
+}
+
+int partition(std::vector<Edge>& vetor, int low, int high) {
+    int pivot = vetor[high].getPeso();
+    int i = low - 1;
+
+    for (int j = low; j <= high - 1; j++) {
+        if (vetor[j].getPeso() <= pivot) {
+            i++;
+            std::swap(vetor[i], vetor[j]);
+        }
+    }
+
+    std::swap(vetor[i + 1], vetor[high]);
+    return i + 1;
+}
+
+void Graph::quickSort(std::vector<Edge>& vetor, int low, int high) {
+    if (low < high) {
+        int pi = partition(vetor, low, high);
+
+        quickSort(vetor, low, pi - 1);
+        quickSort(vetor, pi + 1, high);
+    }
+}
