@@ -858,9 +858,10 @@ void Graph::imprimeAGM(vector< Edge > AGM, int subarvores[], int mapa[], int num
     //         }
     //     }
     // }
-    cout << "AGM: {";
-    for(int i=0; i<AGM.size(); i++){
-        cout << "(" << AGM[i].getIdCauda() << ", " << AGM[i].getIdCabeca() << "), ";
+    cout << "graph AGM { " << endl;
+    for(int i = 0; i < AGM.size(); i++){
+        cout << "\t" << AGM[i].getIdCauda() << " -- " << AGM[i].getIdCabeca();
+        cout << " [ label = \"" << AGM[i].getPeso() << "\"]"  << "; " << endl;
     }
     cout << "}" << endl;
 
