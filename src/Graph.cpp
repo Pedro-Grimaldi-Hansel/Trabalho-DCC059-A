@@ -253,10 +253,29 @@ bool Graph::removeNo(int idArquivo){
     }
 
     //Remove todas as arestas
-    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo()){
-        for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
-            if(aresta->getIdCabeca() ==  idArquivo)
-                no->removeAresta(idArquivo);
+    for(Node* nodeAux = this->primeiroNo; nodeAux != nullptr; nodeAux = nodeAux->getProxNo()){
+        if(nodeAux->getIdArquivo() == idArquivo){
+            //Estamos no no que queremos deletar
+            Node* noASerDecrementado;
+            for(Edge* aresta = nodeAux->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
+                noASerDecrementado = buscaNoPorIdArquivo(aresta->getIdCabeca());
+                noASerDecrementado->setEntradaNo( noASerDecrementado->getEntradaNo() - 1 );
+            }
+
+        }else {
+            for(Edge* aresta = nodeAux->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
+                if(aresta->getIdCabeca() ==  idArquivo){
+                    nodeAux->removeAresta(idArquivo);
+
+                    if(this->digrafo){
+                        //Decrementa o grau de saida
+                        nodeAux->setSaidaNo( nodeAux->getSaidaNo() - 1);
+                    }else{
+                        //Decrementa o grau do no
+                        nodeAux->setGrauNo(nodeAux->getGrauNo() - 1);
+                    }
+                }
+            }
         }
     }
 
