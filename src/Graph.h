@@ -14,6 +14,8 @@ class Graph{
         bool digrafo;
         bool pesoNasArestas;
         bool pesoNosVertices;
+        int numArestas;
+
 
         int ultimoIdVinculado;
         Node* ultimoNoVinculado;
@@ -25,6 +27,7 @@ class Graph{
         void atualizaSubarvores(int numNos, int subarvores[], int indiceCabecaSubarvores, int indiceCaudaSubarvores);
         int buscaNoVector(vector< int > vector, int valor, int tam);
         int buscaNoVetor(int vetor[], int idArquivo, int tam);
+
 
     public:
         //Construtor e destrutor
@@ -61,6 +64,9 @@ class Graph{
         int getSaidaNo(int id); // retirna grau de saída se for digrafo
         Node* getPrimeiroNo(); // retorna o primeiro nó do grafo
 
+        int getNumArestas();
+        void setNumArestas(int numArestas);
+
 
         bool getKRegularidade(int k); // retorna true se todos os vértices possuem grau k, else do contrário
 
@@ -77,7 +83,9 @@ class Graph{
 
         void AGM();
        
-
+        void coberturaMinimaGulosa();
+        void quickSortGuloso(std::vector<Node>& vetor, int low, int high);
+        int partitionGuloso(std::vector<Node>& vetor, int low, int high);
 };
 
 #endif // GRAPH_H_INCLUDED

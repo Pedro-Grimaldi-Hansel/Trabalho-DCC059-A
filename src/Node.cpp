@@ -178,3 +178,11 @@ void Node::setPesoNo(float peso)
 {
     this->peso = peso;
 }
+
+float Node::getPrioridade()
+{
+    if(this->grauNo != 0)
+        return this->peso/this->grauNo; 
+    else
+        cout << "Nos com grau 0 não podem ter sua prioridade calculada" << endl;
+}

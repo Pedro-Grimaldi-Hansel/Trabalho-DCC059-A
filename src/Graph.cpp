@@ -1,4 +1,5 @@
 #include "Graph.h"
+#include "VertexData.h"
 #include <iostream>
 #include <vector>
 
@@ -16,6 +17,8 @@ Graph::Graph(ifstream &arquivoEntrada){
     int idCauda;
     int idCabeca;
     float peso;
+
+    this->numArestas = 0;
 
     this->digrafo = false;
 
@@ -179,6 +182,8 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
         cabeca->setEntradaNo(cabeca->getEntradaNo() + 1);
         cauda->setSaidaNo(cauda->getSaidaNo() + 1);
     }
+
+    setNumArestas(getNumArestas()+1);
 }
 
 void Graph::removeAresta(int idCauda, int idCabeca){
@@ -208,6 +213,8 @@ void Graph::removeAresta(int idCauda, int idCabeca){
             cabeca->setGrauNo(cabeca->getGrauNo() - 1);
         }
     }
+
+    setNumArestas(getNumArestas()-1);
 }
 
 bool Graph::removeNo(int idArquivo){
@@ -299,6 +306,16 @@ int Graph::getGrauNo(int id)
         return 0;
     }
 
+}
+
+int Graph::getNumArestas()
+{
+    return this->numArestas;
+}
+
+void Graph::setNumArestas(int numArestas)
+{
+    this->numArestas = numArestas;
 }
 
 /*int Graph::getEntradaNo(int id)
@@ -610,5 +627,82 @@ void Graph::quickSort(std::vector<Edge>& vetor, int low, int high) {
 
         quickSort(vetor, low, pi - 1);
         quickSort(vetor, pi + 1, high);
+    }
+}
+
+
+// PARTE 2 DO TRABALHO ABAIXO
+
+
+void Graph::coberturaMinimaGulosa()
+{
+    // vetor com os nos e graus dos nós
+    // contador que começa com o  valor do dobro do número de arestas e é decrementado em 2 a cada aresta adicionada
+    // vetor com os nos ordenados por uma ordem de otimidade (custo / grau) que mediria o "quão bom" ele seria para a solução
+    // toda vez q colocar alguém na solução é preciso atualizar todos os vetores 
+    // vetor solução que vai conter os indices dos nos
+    // o verexdata é a cabeça da minha pica uma estrutura auxiliar criada para condensar todos os vetores citados em um lugar só
+
+    vector< Node > vetorAuxiliar;
+    vector< int > solucao;
+    int contador = 2 * getNumArestas();
+    int contaVizinhos = 0;
+
+    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
+    {
+        if(no->getGrauNo() != 0){
+            vetorAuxiliar.push_back(*no);// remover todos os nós com grau 0
+        }
+    }
+    // aqui já temos o vetor auxiliar completo
+
+    while(contador > 0)
+    {
+        quickSortGuloso(vetorAuxiliar, 0, vetorAuxiliar.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução
+        solucao.push_back(vetorAuxiliar[0].getIdArquivo()); // coloca o "mais ótimo" candidato na solução
+
+        // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
+        for(int i=1; i<vetorAuxiliar.size(); i++){
+            for(Edge* aux = vetorAuxiliar[i].getPrimeiraAresta(); aux!=nullptr; aux = aux->getProxAresta())
+            {
+                if(aux->getIdCabeca() == vetorAuxiliar[0].getIdArquivo()){
+                    contaVizinhos++;
+                    vetorAuxiliar[i].setGrauNo(vetorAuxiliar[i].getGrauNo()-1);
+                    if(vetorAuxiliar[i].getGrauNo() == 0){
+                        vetorAuxiliar.erase(vetorAuxiliar.begin()+i);// olhuaire de novo isso aqui pq tá estranho
+                        i--;
+                    }
+                }
+            }
+        }
+        // remove o nó que foi  adicionado à solução
+        vetorAuxiliar.erase(vetorAuxiliar.begin());   
+
+        contador = contador - 2*contaVizinhos;
+        contaVizinhos=0;
+    }
+}
+
+int partitionGuloso(std::vector< Node >& vetor, int low, int high) {
+    int pivot = vetor[high].getPrioridade();
+    int i = low - 1;
+
+    for (int j = low; j <= high - 1; j++) {
+        if (vetor[j].getPrioridade() <= pivot) {
+            i++;
+            std::swap(vetor[i], vetor[j]);
+        }
+    }
+
+    std::swap(vetor[i + 1], vetor[high]);
+    return i + 1;
+}
+
+void Graph::quickSortGuloso(std::vector< Node >& vetor, int low, int high) {
+    if (low < high) {
+        int pi = partition(vetor, low, high);
+
+        quickSortGuloso(vetor, low, pi - 1);
+        quickSortGuloso(vetor, pi + 1, high);
     }
 }

@@ -42,4 +42,6 @@ public:
     void setPesoNo(float peso);
     void setProxNo(Node* proximo);
 
+    float getPrioridade();
+
 };
