@@ -681,6 +681,13 @@ void Graph::coberturaMinimaGulosa()
         contador = contador - 2*contaVizinhos;
         contaVizinhos=0;
     }
+
+    // imprimir a solução
+    cout << "Cobertura mínima de vértices (Guloso): "; 
+    for(int i=0; i<solucao.size(); i++)
+    {
+        cout << solucao[i] << ", "; 
+    }
 }
 
 int partitionGuloso(std::vector< Node >& vetor, int low, int high) {
