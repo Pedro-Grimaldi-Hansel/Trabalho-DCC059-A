@@ -185,4 +185,5 @@ float Node::getPrioridade()
         return this->peso/this->grauNo; 
     else
         cout << "Nos com grau 0 não podem ter sua prioridade calculada" << endl;
+        return 999999;
 }

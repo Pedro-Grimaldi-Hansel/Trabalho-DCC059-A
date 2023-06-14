@@ -1,5 +1,4 @@
 #include "Graph.h"
-#include "VertexData.h"
 #include <iostream>
 #include <vector>
 
@@ -690,7 +689,7 @@ void Graph::coberturaMinimaGulosa()
     }
 }
 
-int partitionGuloso(std::vector< Node >& vetor, int low, int high) {
+int Graph::partitionGuloso(std::vector< Node >& vetor, int low, int high) {
     int pivot = vetor[high].getPrioridade();
     int i = low - 1;
 
@@ -707,7 +706,7 @@ int partitionGuloso(std::vector< Node >& vetor, int low, int high) {
 
 void Graph::quickSortGuloso(std::vector< Node >& vetor, int low, int high) {
     if (low < high) {
-        int pi = partition(vetor, low, high);
+        int pi = partitionGuloso(vetor, low, high);
 
         quickSortGuloso(vetor, low, pi - 1);
         quickSortGuloso(vetor, pi + 1, high);

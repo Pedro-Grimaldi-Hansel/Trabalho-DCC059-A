@@ -46,7 +46,9 @@
         "streambuf": "cpp",
         "typeinfo": "cpp",
         "optional": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "cstring": "cpp",
+        "cinttypes": "cpp"
     },
     "cmake.debugConfig": {
         "args": [

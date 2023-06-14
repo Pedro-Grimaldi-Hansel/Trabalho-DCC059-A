@@ -27,7 +27,8 @@ class Graph{
         void atualizaSubarvores(int numNos, int subarvores[], int indiceCabecaSubarvores, int indiceCaudaSubarvores);
         int buscaNoVector(vector< int > vector, int valor, int tam);
         int buscaNoVetor(int vetor[], int idArquivo, int tam);
-
+        void quickSortGuloso(std::vector<Node>& vetor, int low, int high);
+        int partitionGuloso(std::vector<Node>& vetor, int low, int high);
 
     public:
         //Construtor e destrutor
@@ -84,8 +85,6 @@ class Graph{
         void AGM();
        
         void coberturaMinimaGulosa();
-        void quickSortGuloso(std::vector<Node>& vetor, int low, int high);
-        int partitionGuloso(std::vector<Node>& vetor, int low, int high);
 };
 
 #endif // GRAPH_H_INCLUDED
