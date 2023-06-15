@@ -85,7 +85,7 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
         cauda->setSaidaNo(cauda->getSaidaNo() + 1);
     }
 
-    
+    this->numberOfEdges++;
 }
 
 void Graph::removeAresta(int idCauda, int idCabeca){
@@ -115,6 +115,8 @@ void Graph::removeAresta(int idCauda, int idCabeca){
             cabeca->setGrauNo(cabeca->getGrauNo() - 1);
         }
     }
+
+    this->numberOfEdges--;
 }
 
 void Graph::imprime(){
@@ -341,12 +343,12 @@ void Graph::vizinhancaFechada(int id)
 
 int Graph::getNumberOfNodes()
 {
-    
+    return this->getOrdem();
 }
 
 int Graph::getNumberOfEdges()
 {
-    
+    return this->numberOfEdges; 
 }
 
 bool Graph::isComplete()
@@ -375,7 +377,7 @@ bool Graph::isComplete()
 bool Graph::isMultigraph()
 {
     // Achou arestas com mesmos vértices de incidência = é multigrafo
-    // Definir da mesma forma que o multigrafo
+    // conversar 
 }
 
 // Função de busca em largura (Breadth-first search)
@@ -401,7 +403,7 @@ bool Graph::BFS()
         for(Edge *edge = nextNode->getPrimeiraAresta(); edge != nullptr; edge = edge->getProxAresta())
         {
             Node *cauda = edge->getCauda();
-            if (!visited[cauda->getId()]) 
+            if (!visited[cauda->getId()])
             {
                 visited[cauda->getId()] = true;
                 queue.push_back(cauda);
