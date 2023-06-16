@@ -21,18 +21,7 @@ Node::Node(int idAplicacao)
 }
 
 Node::~Node()
-{
-    Edge* aux = this->primeiraAresta;
-    Edge* arestaASerDeletada;
-    if( aux != nullptr)
-    {
-        while(aux->getProxAresta() != nullptr){
-            arestaASerDeletada = aux;
-            aux = aux->getProxAresta();
-            delete arestaASerDeletada;
-        }
-    }
-}
+{}
 
 void Node::setProxNo(Node* proximo)
 {

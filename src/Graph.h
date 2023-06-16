@@ -29,13 +29,14 @@ class Graph{
         int buscaNoVetor(int vetor[], int idArquivo, int tam);
         void quickSortGuloso(std::vector<Node>& vetor, int low, int high);
         int partitionGuloso(std::vector<Node>& vetor, int low, int high);
+        void swap(Node* a, Node* b);
 
     public:
-        //Construtor e destrutor
+        //Destrutor
         ~Graph();
 
         //Leitura de arquivo
-        Graph(ifstream &arquivoEntrada);
+        Graph(ifstream &arquivoEntrada, bool digrafo, bool ponderadoVertice, bool ponderadoAresta);
 
         //Escrita no arquivo
         void escreveArquivo(ofstream &arquivoSaida);
