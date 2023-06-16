@@ -67,11 +67,12 @@ class Graph{
         void vizinhancaFechada(int id);
 
         bool Graph::BFS();
+        bool Graph::BFSColoring(int startNode, vector<int>& color, vector<bool>& visited);
         int Graph::getNumberOfNodes();
         int Graph::getNumberOfEdges();
         bool Graph::isComplete();
-        bool Graph::isMultigraph();
         bool Graph::isBipartide();
+        bool Graph::isEulerian()
 
 
 };

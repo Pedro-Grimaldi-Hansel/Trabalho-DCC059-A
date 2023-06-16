@@ -491,80 +491,160 @@ bool Graph::isComplete()
     int edgesToBeComplete = n*(n-1)/2;
     if(getDigrafo())
     {
-        if(getNumberOfEdges() == edgesToBeComplete)
+        if(getNumberOfEdges() != edgesToBeComplete)
         {
-            return true;
+            return false;
         }
         else
         {
-            return false;
+            Node* currentNode = getPrimeiroNo();
+            while (currentNode != nullptr)
+            {
+                Node* otherNode = currentNode->getProxNo();
+                while (otherNode != nullptr)
+                {
+                    if (currentNode->buscaAresta(otherNode->getIdArquivo()) == nullptr)
+                    {
+                        return false;
+                    }
+                    otherNode = otherNode->getProxNo();
+                }
+                currentNode = currentNode->getProxNo();
+            }
         }
     }
     else
     {
+        if (getNumberOfEdges() != edgesToBeComplete)
+        {
+            return false;
+        }
 
+        else
+        {
+            // Confere se há self-loops ou multiarestas
+            Node* currentNode = getPrimeiroNo();
+            while (currentNode != nullptr)
+            {
+                if (currentNode->getGrauNo() != n - 1)
+                {
+                    return false;
+                }
+                currentNode = currentNode->getProxNo();
+            }
+        }
     }
-}
-
-// Multigrafo é um grafo não dirigido que pode possuir arestas múltiplas, ou seja, arestas com mesmos nós finais
-
-bool Graph::isMultigraph()
-{
-    // Achou arestas com mesmos vértices de incidência = é multigrafo
-    // conversar 
 }
 
 // Função de busca em largura (Breadth-first search)
 
 bool Graph::BFS()
 {
-    Node* root = getPrimeiroNo();
+    Node* root = getPrimeiroNo(); 
     int numberOfNodes = getNumberOfNodes();
-    vector<bool> visited;
-    visited.resize(numberOfNodes, false);
- 
-    list<Node*> queue;
- 
-    visited[root->getId()] = true;
-    queue.push_back(root);
- 
-    while (!queue.empty()) {
-         
+    vector<bool> visited(numberOfNodes, false);
+
+    list<Node*> queue; // Fila para visita
+    visited[root->getIdArquivo()] = true; // Marca o primeiro como visitado
+    queue.push_back(root); // Coloca o primeiro nó fim da fila
+
+    while (!queue.empty()) 
+    {
         Node* nextNode = queue.front();
-        cout << nextNode->getId() << " ";
+        cout << nextNode->getIdArquivo() << " ";
         queue.pop_front();
 
-        for(Edge *edge = nextNode->getPrimeiraAresta(); edge != nullptr; edge = edge->getProxAresta())
+        Edge* currentEdge = nextNode->getPrimeiraAresta();
+        while (currentEdge != nullptr) 
         {
-            Node *cauda = edge->getCauda();
-            if (!visited[cauda->getId()])
+            int headNodeId = currentEdge->getIdCabeca();
+            Node* headNode = buscaNoPorIdArquivo(headNodeId);
+
+            if (!visited[headNode->getIdArquivo()]) 
             {
-                visited[cauda->getId()] = true;
-                queue.push_back(cauda);
+                visited[headNode->getIdArquivo()] = true;
+                queue.push_back(headNode);
             }
+
+            currentEdge = currentEdge->getProxAresta();
         }
     }
+
+    return true;
 }
 
+// BFS auxiliar para saber se é bipartido onde há colocarção dos nós parasaber se há uma possível bipartição
+
+bool Graph::BFSColoring(int startNode, vector<int>& color, vector<bool>& visited)
+{
+    color[startNode] = 1;  // Colore o primeiro nó com a cor 1
+    list<int> queue; // Fila para visita
+    queue.push_back(startNode); // Coloca o primeiro nó na fila
+    visited[startNode] = true; // Marca o primeiro como visitado
+
+    while (!queue.empty()) 
+    {
+        int currentNode = queue.front();
+        queue.pop_front();
+
+        Edge* currentEdge = buscaNoPorIdArquivo(currentNode)->getPrimeiraAresta();
+
+        while (currentEdge != nullptr) 
+        {
+            int neighborNode = currentEdge->getIdCabeca();
+
+            if (!visited[neighborNode]) 
+            {
+                visited[neighborNode] = true;
+                color[neighborNode] = 1 - color[currentNode];  // Colore o nó vizinho com a cor oposta
+                queue.push_back(neighborNode);
+            } 
+            else if (color[neighborNode] == color[currentNode]) 
+            {
+                return false;  // Achou aresta com extremidades em nós da mesma cor
+            }
+
+            currentEdge = currentEdge->getProxAresta();
+        }
+    }
+
+    return true;  // Grafo é Bipartido
+}
 
 // Grafo bipartido é grafo cujos vértices podem ser divididos em dois conjuntos disjuntos U e V tais que toda aresta conecta um vértice em U a um vértice em V; ou seja, U e V são conjuntos independentes.
 
 bool Graph::isBipartide()
 {
-    // Usar BFS
-    // visitados
-    // visitdos V
-    // Visitados U
 
-    // Verificação inicial
-    // Bipartido completo Km,n --- numVert = m + n e numArest = mn
-    // somaGrausU = somagrausV
-    // Não é bipartido se numAr > numV^2/4 (para grafo simples)
-    // se é digrafo não misto, considero arestax2 ---> numAr > numV^2/2
+    int numberOfNodes = getNumberOfNodes();
+    int numberOfEdges = getNumberOfEdges();
+
+    // Verificação Básica Inicial
+    
+    if(getDigrafo() && numberOfEdges > ((numberOfNodes*numberOfNodes)/2) || !getDigrafo() && numberOfEdges > ((numberOfNodes*numberOfNodes)/4))
+    {
+        return false;
+    }
+    else
+    {
+        vector<int> color(numberOfNodes, -1);  // Todos os nós são iniciados com cor -1
+        vector<bool> visited(numberOfNodes, false);
+
+        for (int i = 0; i < numberOfNodes; i++) 
+        {
+            if (!visited[i]) 
+            {
+                if (!BFSColoring(i, color, visited)) {
+                    return false;  // Grafo não é Bipartido
+                }
+            }
+        }
+
+        return true;  // Grafo Bipartido
+    }
 }
 
-// Anotações: fazer funções getNumber... e setNumber para vértices, arestas, selfloops e mapear multiarestas
-// Ideia de fazer o node ser lista também
+bool Graph::isEulerian()
+{
 
-// Funções de percorrer grafos: arestas->vértices, v->arestas
-// Fazer retornar o ponteiro do nó  enão o ID na cabeça e na cauda da aresta
+}
