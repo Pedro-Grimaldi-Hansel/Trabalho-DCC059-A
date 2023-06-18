@@ -52,7 +52,7 @@
     },
     "cmake.debugConfig": {
         "args": [
-            "arquivoDeEntrada.txt", "arquivoDeSaida.txt", "0", "0", "1"
+            "instancia Cobertura de Vertices/C125.9.txt", "arquivoDeSaida.txt", "0", "0", "1"
         ]
     },
 }

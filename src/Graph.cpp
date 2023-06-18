@@ -661,8 +661,6 @@ void Graph::coberturaMinimaGulosa()
 
     vector< Node > vetorAuxiliar;
     vector< int > solucao;
-    int contador = getNumArestas();
-    int contaVizinhos = 0;
     float custoTotal = 0;
 
     for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
@@ -673,7 +671,7 @@ void Graph::coberturaMinimaGulosa()
     }
     // aqui já temos o vetor auxiliar completo
 
-    while(contador > 0)
+    while(vetorAuxiliar.size() != 0)
     {
         quickSortGuloso(vetorAuxiliar, 0, vetorAuxiliar.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução
         solucao.push_back(vetorAuxiliar[0].getIdArquivo()); // coloca o "mais ótimo" candidato na solução
@@ -684,7 +682,6 @@ void Graph::coberturaMinimaGulosa()
             for(Edge* aux = vetorAuxiliar[i].getPrimeiraAresta(); aux != nullptr; aux = aux->getProxAresta())
             {
                 if(aux->getIdCabeca() == vetorAuxiliar[0].getIdArquivo()){
-                    contaVizinhos++; //Imcrementa o numero de vizinhos
                     vetorAuxiliar[i].setGrauNo( vetorAuxiliar[i].getGrauNo() - 1); //Atualiza o grau do no
                     if(vetorAuxiliar[i].getGrauNo() == 0){
                         vetorAuxiliar.erase(vetorAuxiliar.begin() + i);// olhuaire de novo isso aqui pq tá estranho
@@ -695,19 +692,11 @@ void Graph::coberturaMinimaGulosa()
         }
         // remove o nó que foi  adicionado à solução
         vetorAuxiliar.erase(vetorAuxiliar.begin());   
-
-        contador = contador - contaVizinhos;
-        contaVizinhos = 0;
     }
 
     // imprimir a solução
     cout << "Tamanho da Solução: " << solucao.size() << " vertices" << endl;
     cout << "Custo total: " << custoTotal << endl;
-    cout << "Cobertura mínima de vértices (Guloso): "; 
-    for(int i=0; i<solucao.size(); i++)
-    {
-        cout << solucao[i] << ", "; 
-    }
     cout << endl;
 }
 
