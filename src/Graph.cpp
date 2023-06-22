@@ -776,6 +776,7 @@ void Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
     float custoTotal = 0;
     float custoBest = 0;
     //alpha = 0.1; // mais ou menos
+    std::srand(std::time(nullptr));
 
     for(int i=0; i<nInteracoes; i++){
         for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
@@ -787,15 +788,16 @@ void Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
         solucao.clear();
         while(vetorAuxiliar.size() > 0)
         {
-            quickSortGuloso(vetorAuxiliar, 0, vetorAuxiliar.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução
-            solucao.push_back(vetorAuxiliar[0].getIdArquivo()); // coloca o "mais ótimo" candidato na solução
-            std::srand(std::time(nullptr));
+            quickSortGuloso(vetorAuxiliar, 0, vetorAuxiliar.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução           
 
             int numero_aleatorio = (int)(alpha*(vetorAuxiliar.size()-1));
             if(numero_aleatorio==0)
                 numero_aleatorio=1;
             int k = std::rand() % numero_aleatorio; //Randomizao o numero de 0 a alpha*(vetorAuxiliar.size()-1)
+            // cout << "numero aleatorio usado no rand:" << k << endl;
             custoTotal += vetorAuxiliar[k].getPesoNo();
+
+            solucao.push_back(vetorAuxiliar[k].getIdArquivo()); // coloca o "mais ótimo" candidato na solução
 
             // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
             for(int i = 1; i < vetorAuxiliar.size(); i++){
@@ -811,7 +813,7 @@ void Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
                 }
             }
             // remove o nó que foi  adicionado à solução
-            vetorAuxiliar.erase(vetorAuxiliar.begin());    
+            vetorAuxiliar.erase(vetorAuxiliar.begin()+k);    
         }
 
         if(i==0 || custoTotal < custoBest){
@@ -834,10 +836,11 @@ void Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
 bool Graph::verificaSolucao(vector< int >solucao)
 {
     //percorrer todas as arestas verificando se uma das extremidades está na solução
+    bool encontrou = false;
 
     for(Node* no = this->primeiroNo; no != nullptr ; no = no->getProxNo()){
         for(Edge* aux = no->getPrimeiraAresta(); aux != nullptr; aux = aux->getProxAresta()){
-            bool encontrou = false;
+            encontrou=false;
             for(int i=0; i < solucao.size(); i++){
                 if(aux->getIdCabeca() == solucao[i] || aux->getIdCauda() == solucao[i]){
                     encontrou = true; 
@@ -845,6 +848,7 @@ bool Graph::verificaSolucao(vector< int >solucao)
                 }
             }
             if(!encontrou){ // solucao incorreta
+                cout << "não encontrou a aresta:" << aux->getIdCauda() << ", " << aux->getIdCabeca() << endl;  
                 return false;
             }
         }
