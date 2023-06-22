@@ -86,6 +86,10 @@ class Graph{
         void AGM();
        
         void coberturaMinimaGulosa();
+        void coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes);
+
+        void verificaSolucao();
+
 };
 
 #endif // GRAPH_H_INCLUDED

@@ -23,7 +23,7 @@ int main(int argc, char const *argv[]){
     bool ponderadoVertice = string(argv[5]) != "0";
 
     Graph* grafo = new Graph(arquivoEntrada, digrafo, ponderadoAresta, ponderadoVertice);
-    grafo->coberturaMinimaGulosa();
+    grafo->coberturaMinimaGulosaRandomizada(0.1, 400);
 
     return 0;
 }

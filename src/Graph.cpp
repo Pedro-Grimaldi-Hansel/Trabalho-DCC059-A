@@ -1,6 +1,7 @@
 #include "Graph.h"
 #include <iostream>
 #include <vector>
+#include <ctime>
 
 using namespace std;
 
@@ -130,7 +131,7 @@ void Graph::vinculaNo(int idArquivo)
     no = this->ultimoNoVinculado; //No revebe o ultimo no vinculado
     no->setIdArquivo(idArquivo); //vincula o no
     if(this->pesoNosVertices){
-        no->setPesoNo( (idArquivo % 3) + 1);
+        no->setPesoNo( (idArquivo % 200) + 1);
     }
     this->ultimoIdVinculado += 1; //incrementar o ultimo vinculado
 }
@@ -765,4 +766,63 @@ void Graph::quickSortGuloso(std::vector<Node>& arr, int low, int high)
         quickSortGuloso(arr, low, pi - 1);
         quickSortGuloso(arr, pi + 1, high);
     }
+}
+
+void Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
+{
+    vector< Node > vetorAuxiliar;
+    vector< int > solucao;
+    vector< int > solucaoBest;
+    float custoTotal = 0;
+    float custoBest = 0;
+    //alpha = 0.1; // mais ou menos
+
+    for(int i=0; i<nInteracoes; i++){
+        for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
+        {
+            if(no->getGrauNo() != 0){
+                vetorAuxiliar.push_back(*no);// remover todos os nós com grau 0
+            }
+        } // aqui já temos o vetor auxiliar completo
+        solucao.clear();
+        while(vetorAuxiliar.size() > 0)
+        {
+            quickSortGuloso(vetorAuxiliar, 0, vetorAuxiliar.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução
+            solucao.push_back(vetorAuxiliar[0].getIdArquivo()); // coloca o "mais ótimo" candidato na solução
+            std::srand(std::time(nullptr));
+
+            int numero_aleatorio = (int)(alpha*(vetorAuxiliar.size()-1));
+            if(numero_aleatorio==0)
+                numero_aleatorio=1;
+            int k = std::rand() % numero_aleatorio; //Randomizao o numero de 0 a alpha*(vetorAuxiliar.size()-1)
+            custoTotal += vetorAuxiliar[k].getPesoNo();
+
+            // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
+            for(int i = 1; i < vetorAuxiliar.size(); i++){
+                for(Edge* aux = vetorAuxiliar[i].getPrimeiraAresta(); aux != nullptr; aux = aux->getProxAresta())
+                {
+                    if(aux->getIdCabeca() == vetorAuxiliar[k].getIdArquivo()){
+                        vetorAuxiliar[i].setGrauNo( vetorAuxiliar[i].getGrauNo() - 1); //Atualiza o grau do no
+                        if(vetorAuxiliar[i].getGrauNo() == 0){
+                            vetorAuxiliar.erase(vetorAuxiliar.begin() + i);
+                            i--;
+                        }
+                    }
+                }
+            }
+            // remove o nó que foi  adicionado à solução
+            vetorAuxiliar.erase(vetorAuxiliar.begin());    
+        }
+
+        if(i==0 || custoTotal < custoBest){
+           custoBest = custoTotal;
+           solucaoBest = solucao; 
+        }  //Compara as soluçoes e atualiza a melhor
+    }
+
+    // imprimir a solução Best
+    cout << "Cobertura mínima Guloso Randomizado" << endl;
+    cout << "Tamanho da Solução: " << solucaoBest.size() << " vertices" << endl;
+    cout << "Custo total: " << custoBest << endl;
+
 }

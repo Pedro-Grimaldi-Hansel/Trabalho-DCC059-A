@@ -48,11 +48,12 @@
         "optional": "cpp",
         "sstream": "cpp",
         "cstring": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "ctime": "cpp"
     },
     "cmake.debugConfig": {
         "args": [
-            "instancia Cobertura de Vertices/C125.9.txt", "arquivoDeSaida.txt", "0", "0", "1"
+            "instancia Cobertura de Vertices/brock200_2.txt", "arquivoDeSaida.txt", "0", "0", "1"
         ]
     },
 }
