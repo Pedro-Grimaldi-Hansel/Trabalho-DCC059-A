@@ -88,7 +88,7 @@ class Graph{
         void coberturaMinimaGulosa();
         void coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes);
 
-        void verificaSolucao();
+        bool verificaSolucao(vector< int >solucao);
 
 };
 

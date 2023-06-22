@@ -820,9 +820,35 @@ void Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
         }  //Compara as soluçoes e atualiza a melhor
     }
 
+    bool retorno = verificaSolucao(solucaoBest);
+    cout << (retorno ? "A solução é de fato uma das soluções já feitas" : "A solução apresentada está errada") << endl;  
+
     // imprimir a solução Best
     cout << "Cobertura mínima Guloso Randomizado" << endl;
     cout << "Tamanho da Solução: " << solucaoBest.size() << " vertices" << endl;
     cout << "Custo total: " << custoBest << endl;
 
+}
+
+
+bool Graph::verificaSolucao(vector< int >solucao)
+{
+    //percorrer todas as arestas verificando se uma das extremidades está na solução
+
+    for(Node* no = this->primeiroNo; no != nullptr ; no = no->getProxNo()){
+        for(Edge* aux = no->getPrimeiraAresta(); aux != nullptr; aux = aux->getProxAresta()){
+            bool encontrou = false;
+            for(int i=0; i < solucao.size(); i++){
+                if(aux->getIdCabeca() == solucao[i] || aux->getIdCauda() == solucao[i]){
+                    encontrou = true; 
+                    break;
+                }
+            }
+            if(!encontrou){ // solucao incorreta
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
