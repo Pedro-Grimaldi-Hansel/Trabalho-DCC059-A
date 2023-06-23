@@ -1,6 +1,7 @@
 #ifndef GRAPH_H_INCLUDED
 #define GRAPH_H_INCLUDED
 #include <fstream>
+#include"Solution.h"
 #include "Node.h"
 #include <vector>
 
@@ -30,6 +31,10 @@ class Graph{
         void quickSortGuloso(std::vector<Node>& vetor, int low, int high);
         int partitionGuloso(std::vector<Node>& vetor, int low, int high);
         void swap(Node* a, Node* b);
+        void inicializaVetores(vector<float>& probabilidades, vector<float>& medias, vector<int>& aparicoes, int m);
+        void atualizaProbabilidades(vector<float>& probabilidades, vector<float> medias, float* alpha, Solution solBest);
+        int escolheAlfa(vector<float> probabilidades);
+        void atualizaMedias(vector<float>& medias, vector<int> aparicoes, int indiceEscolhido, Solution sol );
 
     public:
         //Destrutor
@@ -86,7 +91,8 @@ class Graph{
         void AGM();
        
         void coberturaMinimaGulosa();
-        void coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes);
+        Solution coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes);
+        void coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tammanhoVetor, int nIterecoes, int bloco);
 
         bool verificaSolucao(vector< int >solucao);
 
