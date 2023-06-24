@@ -3,9 +3,12 @@
 #include <vector>
 #include <chrono>
 #include <ctime>
+#include <queue>
+#include <climits>
 
 using namespace std;
 using namespace chrono;
+
 
 Graph::Graph(ifstream &arquivoEntrada, bool digrafo, bool ponderadoAresta, bool ponderadoVertice){
     if(!arquivoEntrada.is_open()){
@@ -42,7 +45,13 @@ Graph::Graph(ifstream &arquivoEntrada, bool digrafo, bool ponderadoAresta, bool 
         while( arquivoEntrada >> leitor >> idCauda >> idCabeca) {
             this->insereAresta(idCauda, idCabeca, pesoAresta);
         }
-    }else{
+    }else if(!ponderadoVertice && ponderadoAresta){
+        while(arquivoEntrada >> idCauda >> idCabeca >> pesoAresta){
+            this->insereAresta(idCauda, idCabeca, pesoAresta);
+        }
+    }
+    
+    else{
         cout << "ERROR: Leitura ainda não implementada!" << endl;
     }
 }
@@ -488,7 +497,7 @@ int* Graph::sequenciaDeGraus(){     // não está adaptado para um digrafo
     return sequencia;
 }
 
-void Graph::vizinhancaAberta(int id)
+vector< int > Graph::vizinhancaAberta(int id)
 {
     Node* no = buscaNoPorIdArquivo(id);
     Edge* aresta = no->getPrimeiraAresta();
@@ -503,7 +512,7 @@ void Graph::vizinhancaAberta(int id)
     }
     cout << endl;
 
-    return;
+    return vizinhancaAberta;
 }
 
 void Graph::vizinhancaFechada(int id)
@@ -939,25 +948,123 @@ void Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanhoVet
    cout << "Tempo de execução: " << solBest.getTempoExecucao() << " segundos."<< endl;
 }
 
+bool Graph::isVizinho(int idNo, int idVizinho)
+{
+    Node* no = buscaNoPorIdArquivo(idNo);
+    Edge* aresta = no->getPrimeiraAresta();
+
+    for(aresta; aresta != NULL; aresta = aresta->getProxAresta()){
+        if(aresta->getIdCabeca() == idVizinho)
+            return true;
+    }
+    return false;
+}
+
+void Graph::caminhoMinimoDijkstra(int idNo) {
+    typedef pair<int, int> pii;  // Pair de inteiros (vértice, peso)
+
+    int n = this->getOrdem();
+    Node* no = buscaNoPorIdArquivo(idNo);
+
+    map<int, int> distances;  // mapa para armazenar os id em conjunto com as distâncias mínimas
+    for(Node* aux=primeiroNo;aux!=nullptr;aux=aux->getProxNo())
+    {   
+        distances[aux->getIdArquivo()] = INT_MAX; // populando o mapa 
+    }
+    priority_queue<pii, vector<pii>, greater<pii>> pq;  // Fila de prioridade para os pares (distância, vértice)
+
+    distances[idNo] = 0;
+    pq.push(make_pair(0, idNo));
+
+    // Execução do algoritmo de Dijkstra
+    while (!pq.empty()) {
+        int current_node = pq.top().second;
+        int current_distance = pq.top().first;
+        pq.pop();
+
+        // Verifica se já encontrou uma distância menor para esse nó
+        if(current_distance > distances[current_node])
+            continue;
+
+        // Exploração dos vizinhos do nó atual
+        for(Edge* edge=no->getPrimeiraAresta(); edge!=nullptr; edge=edge->getProxAresta()) {
+            Node* vizinho = buscaNoPorIdArquivo(edge->getIdCabeca());
+
+            int neighbor_node = vizinho->getIdArquivo();
+            int neighbor_distance = edge->getPeso();
+
+            int new_distance = distances[current_node] + neighbor_distance;
+            if (new_distance < distances[neighbor_node]) {
+                // Atualiza a distância e adiciona o vizinho na fila
+                distances[neighbor_node] = new_distance;
+                pq.push(make_pair(new_distance, neighbor_node));
+            }
+        }
+    }
+    cout << "Caminho mínimo dijkstra:" << endl;
+    for(no; no!=nullptr; no=no->getProxNo()){
+    cout << "(" << no->getIdArquivo() << ", " << distances[no->getIdArquivo()] << ")" << endl;
+    }
+}
+
+
+map<int, int> Graph::distanciaMinima(int idNo) {
+    int n = this->getOrdem();
+    Node* no = buscaNoPorIdArquivo(idNo);
+
+    map<int, int> distances;  // mapa para armazenar os id em conjunto com as distâncias mínimas
+    for(Node* aux=primeiroNo;aux!=nullptr;aux=aux->getProxNo())
+    {   
+        distances[aux->getIdArquivo()] = INT_MAX; // populando o mapa 
+    }
+    queue<int> q;  // Fila para processar os nós
+
+    distances[idNo] = 0;
+    q.push(idNo);
+
+    // Execução do algoritmo de Dijkstra
+    while (!q.empty()) {
+        int current_node = q.front();
+        no = buscaNoPorIdArquivo(current_node);
+        q.pop();
+
+        // Exploração dos vizinhos do nó atual
+        for(Edge* edge=no->getPrimeiraAresta(); edge!=nullptr; edge=edge->getProxAresta()) {
+            Node* vizinho = buscaNoPorIdArquivo(edge->getIdCabeca());
+
+            if (distances[vizinho->getIdArquivo()] == INT_MAX) {
+                // Atualiza a distância e adiciona o vizinho na fila
+                distances[vizinho->getIdArquivo()] = distances[current_node] + 1;
+                q.push(vizinho->getIdArquivo());
+            }
+        }
+    }
+
+    return distances;
+}
+
 int Graph::calculaExcentricidadeNo(Node* no)
 {
     int dist;
+    map<int,int> distancias;
     int excentricidade = 0;
     // calcular todos os caminhos mínimos e retornar o maior
-    for(Node* aux=this->primeiroNo; aux != nullptr; aux = aux->getProxNo())
+   
+    distancias = distanciaMinima(no->getIdArquivo()); // recebe um mapa com todas as distâncias entre o no e os demais
+    for(int i=0; i<distancias.size(); i++)
     {
-        dist = caminhoMinimo(no, aux);
-        if(dist > excentricidade)
-            excentricidade = dist; 
+        if(distancias[i]> excentricidade){
+            excentricidade = distancias[i]; // a excentricidade vai ser a maior distância entre todas
+        }
     }
     return excentricidade;
 }
 
-void Graph::raioDiametroCentroPeriferiaGrafo()
+void Graph::raioDiametroCentroPeriferia()
 {
     int excentricidade;
     vector< Node* > excentricidades; 
-    int raio = 999999;
+    int raio = INT_MAX;
     int diametro = 0;
     vector< int> centro, periferia;
     for(Node* no=this->primeiroNo; no != nullptr; no = no->getProxNo())
@@ -967,15 +1074,40 @@ void Graph::raioDiametroCentroPeriferiaGrafo()
         // se a distância for maior q o diâmetro, diâmetro = distância
         excentricidade = calculaExcentricidadeNo(no);
         no->setExcentricidadeNo(excentricidade);
-        excentricidades.push_back(no);
-        if(excentricidade < raio)
-            raio = excentricidade;
-        if(excentricidade > diametro)
+
+        if(no->getExcentricidadeNo() < raio){
+            raio = excentricidade; // atualiza o raio
+            centro.clear(); // limpa o centro que continha nos antigos (do raio anterior)
+        }
+        if(no->getExcentricidadeNo() == raio){
+            centro.push_back(no->getIdArquivo()); // coloca o nó (raio atual) no centro 
+        }
+
+        if(no->getExcentricidadeNo() > diametro){
             diametro = excentricidade;
+            periferia.clear(); // limpa a periferia que continha nos antigos (do diâmetro anterior)
+        }
+        if(no->getExcentricidadeNo() == diametro){
+            periferia.push_back(no->getIdArquivo()); // coloca o nó (diâmetro atual) na periferia 
+        }
+
     }// saindo do for já teremos o valor do raio e diametro
 
+    // printar resultados
 
-    // ao final pegar os conjuntos de centro e periferia
-    // vou utilizar o vector excentricidades para isso
+    cout << "Raio do grafo:" << raio << endl;
+    cout << "Diâmetro do grafo:" << diametro << endl;
+    
+    cout << "Centro do grafo:" << endl;
+    for(int i=0;i<centro.size();i++)
+        cout << centro[i] << ", ";
+
+    cout << endl;
+
+    cout << "Periferia do grafo:" << endl;
+    for(int i=0;i<periferia.size();i++)
+        cout << periferia[i] << ", ";
+
+    cout << endl;
 
 }

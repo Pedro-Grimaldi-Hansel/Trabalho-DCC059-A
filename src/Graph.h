@@ -4,6 +4,7 @@
 #include"Solution.h"
 #include "Node.h"
 #include <vector>
+#include <map>
 
 
 using namespace std;
@@ -85,7 +86,7 @@ class Graph{
         int getGrauGrafo();
 
         int* sequenciaDeGraus(); //Apresentar a sequência de graus do grafo.
-        void vizinhancaAberta(int id);
+        vector< int >  vizinhancaAberta(int id);
         void vizinhancaFechada(int id);
 
         void AGM();
@@ -96,8 +97,15 @@ class Graph{
 
         bool verificaSolucao(vector< int >solucao);
 
-        void raioDiametroCentroPeriferiaGrafo();
+        void raioDiametroCentroPeriferia();
         int calculaExcentricidadeNo(Node* no);
+
+        bool isVizinho(int idNo, int idVizinho);
+        map<int, int> distanciaMinima(int idNo);
+        void caminhoMinimoDijkstra(int idNo);
+
+
+
 };
 
 #endif // GRAPH_H_INCLUDED

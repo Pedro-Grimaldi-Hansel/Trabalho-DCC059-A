@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <map>
+
 
 #include "src/Graph.h"
 
@@ -12,7 +14,6 @@ int main(int argc, char const *argv[]){
         cout << "ERRO: Esperado: ./<nome_Programa> <arquivoDeEntrada> <arquivoDeSaida> <direcionado[0,1]> <ponderadoAresta[0,1]> <ponderadoVertice[0,1]>" << endl;
         return 1;
     }
-
     ifstream arquivoEntrada;
     ofstream arquivoSaida;
 
@@ -24,7 +25,9 @@ int main(int argc, char const *argv[]){
 
     Graph* grafo = new Graph(arquivoEntrada, digrafo, ponderadoAresta, ponderadoVertice);
     float alpha[] = {0.1, 0.3, 0.25, 0.60, 0.75};
-    grafo->coberturaMinimaGulosaRandomizadaReativa(alpha, 5, 1000, 10);
-   
+    Node* no = grafo->getPrimeiroNo();
+    grafo->imprime();
+    grafo->caminhoMinimoDijkstra(no->getIdArquivo());
+    grafo->escreveArquivoDOT(arquivoSaida);
     return 0;
 }
