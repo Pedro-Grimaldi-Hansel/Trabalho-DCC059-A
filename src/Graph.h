@@ -96,6 +96,8 @@ class Graph{
 
         bool verificaSolucao(vector< int >solucao);
 
+        void raioDiametroCentroPeriferiaGrafo();
+        int calculaExcentricidadeNo(Node* no);
 };
 
 #endif // GRAPH_H_INCLUDED

@@ -938,3 +938,44 @@ void Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanhoVet
    cout << "Custo da solução: " << solBest.getCustoTotal()<< endl;
    cout << "Tempo de execução: " << solBest.getTempoExecucao() << " segundos."<< endl;
 }
+
+int Graph::calculaExcentricidadeNo(Node* no)
+{
+    int dist;
+    int excentricidade = 0;
+    // calcular todos os caminhos mínimos e retornar o maior
+    for(Node* aux=this->primeiroNo; aux != nullptr; aux = aux->getProxNo())
+    {
+        dist = caminhoMinimo(no, aux);
+        if(dist > excentricidade)
+            excentricidade = dist; 
+    }
+    return excentricidade;
+}
+
+void Graph::raioDiametroCentroPeriferiaGrafo()
+{
+    int excentricidade;
+    vector< Node* > excentricidades; 
+    int raio = 999999;
+    int diametro = 0;
+    vector< int> centro, periferia;
+    for(Node* no=this->primeiroNo; no != nullptr; no = no->getProxNo())
+    {
+        // calcular a  excentricidade do nó
+        // se a distancia for menor q o raio, raio = distância
+        // se a distância for maior q o diâmetro, diâmetro = distância
+        excentricidade = calculaExcentricidadeNo(no);
+        no->setExcentricidadeNo(excentricidade);
+        excentricidades.push_back(no);
+        if(excentricidade < raio)
+            raio = excentricidade;
+        if(excentricidade > diametro)
+            diametro = excentricidade;
+    }// saindo do for já teremos o valor do raio e diametro
+
+
+    // ao final pegar os conjuntos de centro e periferia
+    // vou utilizar o vector excentricidades para isso
+
+}

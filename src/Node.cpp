@@ -176,3 +176,14 @@ float Node::getPrioridade()
         cout << "Nos com grau 0 não podem ter sua prioridade calculada" << endl;
         return 999999;
 }
+
+int Node::getExcentricidadeNo()
+{
+    return this->excentricidade;
+}
+
+
+void Node::setExcentricidadeNo(int excentricidade)
+{
+    this->excentricidade = excentricidade;
+}
