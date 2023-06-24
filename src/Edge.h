@@ -9,6 +9,7 @@ private:
     Edge* proxAresta;
     float peso;
     int idCabeca;
+    int idCauda;
 public:
     Edge();
     Edge(int idCabeca, float peso);
@@ -20,6 +21,8 @@ public:
 
     int getIdCabeca();
     void setIdCabeca(int idCabeca);
+    int getIdCauda();
+    void setIdCauda(int idCauda);
 
     Edge* getProxAresta();
     void setProxAresta(Edge* aresta);

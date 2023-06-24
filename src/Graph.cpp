@@ -3,35 +3,49 @@
 #include <vector>
 #include <unordered_set>
 #include <list>
+#include <chrono>
+#include <ctime>
 
 using namespace std;
+using namespace chrono;
 
-Graph::Graph(ifstream &arquivoEntrada){
+Graph::Graph(ifstream &arquivoEntrada, bool digrafo, bool ponderadoAresta, bool ponderadoVertice){
     if(!arquivoEntrada.is_open()){
         cout << "ERRO: Arquivo não aberto corretamente!" << endl;
         return;
     }
 
-    //Pegar primeira linha e ver o número de nos
     this->ultimoIdVinculado = 0;
+    this->digrafo = digrafo;
+    this->pesoNasArestas = ponderadoAresta;
+    this->pesoNosVertices = ponderadoVertice;
+    
+    string leitor;
     int ordemGrafo;
+    int numArestas;
     int idCauda;
     int idCabeca;
-    float peso;
+    float pesoAresta = 0;
 
-    this->digrafo = false;
-
+    //Pegar primeira linha e ver o número de nos e arestas
     arquivoEntrada >> ordemGrafo;
+    arquivoEntrada >> numArestas;
+
     cout << "A ordem do grafo é: " << ordemGrafo << endl;
+    cout << "o grafo tem " << numArestas << " arestas"<< endl;
 
     //Primeiro insere todos o vértices
     for(int i = 0; i < ordemGrafo; i++){
         this->insereNoFim(i+1);
     }
 
-    //Pegar linha até o fim do arquivo
-    while( arquivoEntrada >> idCauda >> idCabeca >> peso) {
-        this->insereAresta(idCauda, idCabeca, peso);
+    if(ponderadoVertice && !ponderadoAresta){
+        //Pegar linha até o fim do arquivo
+        while( arquivoEntrada >> leitor >> idCauda >> idCabeca) {
+            this->insereAresta(idCauda, idCabeca, pesoAresta);
+        }
+    }else{
+        cout << "ERROR: Leitura ainda não implementada!" << endl;
     }
 }
 
@@ -120,6 +134,9 @@ void Graph::vinculaNo(int idArquivo)
     }
     no = this->ultimoNoVinculado; //No revebe o ultimo no vinculado
     no->setIdArquivo(idArquivo); //vincula o no
+    if(this->pesoNosVertices){
+        no->setPesoNo( (idArquivo % 200) + 1);
+    }
     this->ultimoIdVinculado += 1; //incrementar o ultimo vinculado
 }
 
@@ -182,7 +199,7 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
         cauda->setSaidaNo(cauda->getSaidaNo() + 1);
     }
 
-    this->numberOfEdges++;
+    setNumArestas(getNumArestas()+1);
 }
 
 void Graph::removeAresta(int idCauda, int idCabeca){
@@ -213,7 +230,7 @@ void Graph::removeAresta(int idCauda, int idCabeca){
         }
     }
 
-    this->numberOfEdges--;
+    setNumArestas(getNumArestas()-1);
 }
 
 bool Graph::removeNo(int idArquivo){
@@ -241,10 +258,29 @@ bool Graph::removeNo(int idArquivo){
     }
 
     //Remove todas as arestas
-    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo()){
-        for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
-            if(aresta->getIdCabeca() ==  idArquivo)
-                no->removeAresta(idArquivo);
+    for(Node* nodeAux = this->primeiroNo; nodeAux != nullptr; nodeAux = nodeAux->getProxNo()){
+        if(nodeAux->getIdArquivo() == idArquivo){
+            //Estamos no no que queremos deletar
+            Node* noASerDecrementado;
+            for(Edge* aresta = nodeAux->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
+                noASerDecrementado = buscaNoPorIdArquivo(aresta->getIdCabeca());
+                noASerDecrementado->setEntradaNo( noASerDecrementado->getEntradaNo() - 1 );
+            }
+
+        }else {
+            for(Edge* aresta = nodeAux->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
+                if(aresta->getIdCabeca() ==  idArquivo){
+                    nodeAux->removeAresta(idArquivo);
+
+                    if(this->digrafo){
+                        //Decrementa o grau de saida
+                        nodeAux->setSaidaNo( nodeAux->getSaidaNo() - 1);
+                    }else{
+                        //Decrementa o grau do no
+                        nodeAux->setGrauNo(nodeAux->getGrauNo() - 1);
+                    }
+                }
+            }
         }
     }
 
@@ -273,12 +309,20 @@ void Graph::imprime(){
 
     while (no != nullptr)
     {
-        cout << "(" << no->getIdArquivo() << ")" << endl;
+        cout << "(" << no->getIdArquivo() << ")";
+        if(this->pesoNosVertices){
+            cout << "<peso: " << no->getPesoNo() << " >";
+        }
+        cout << endl;
         Edge* aresta = no->getPrimeiraAresta();
         cout << "\t";
         while (aresta != nullptr )
         {
-            cout << aresta->getIdCabeca() << " (" << aresta->getPeso() << "), ";
+            cout << aresta->getIdCabeca();
+            if(this->pesoNasArestas){
+                cout << " (" << aresta->getPeso() << ")";
+            }
+                cout <<", ";
             aresta = aresta->getProxAresta();
         }
         cout << endl;
@@ -305,6 +349,16 @@ int Graph::getGrauNo(int id)
         return 0;
     }
 
+}
+
+int Graph::getNumArestas()
+{
+    return this->numArestas;
+}
+
+void Graph::setNumArestas(int numArestas)
+{
+    this->numArestas = numArestas;
 }
 
 /*int Graph::getEntradaNo(int id)
@@ -719,3 +773,414 @@ bool Graph::isEulerian()
 
 
 
+void Graph::AGM()
+{
+    std::vector< Edge > arestas;
+    Node* no = this->primeiroNo;
+    std::vector< Edge > AGM; // essa será a solução
+     // criar um vetor para auxiliar quanto a formação de ciclos
+    int i=0;
+    int numNos = this->getOrdem();
+    int subarvores[numNos]; // vetor solução
+    int mapa[numNos]; // vetor de mapeamento idArquivo->subarvore
+    // inicializar vetores auxiliares (aproveitando esse msm while)
+
+    while(no != nullptr){ // pegar todas as arestas do grafo e colocar no vetor
+        Edge* primeiraAresta = no->getPrimeiraAresta();
+        while(primeiraAresta!=nullptr){
+            if(this->getDigrafo() || primeiraAresta->getIdCabeca() < no->getIdArquivo()){ // se for digrafo eu tenho q entrar de qqr forma, pois serão duas arestas diferentes msm
+                arestas.push_back(*primeiraAresta);// se não for digrafo esse if ajuda a evitar pegar as arestas "duplicadas" que o grafo simples tem
+            }
+            primeiraAresta = primeiraAresta->getProxAresta();
+        }
+        subarvores[i] = mapa[i] = no->getIdArquivo();
+        i++;
+        no = no->getProxNo();
+    }
+    // ordenar as arestas em ordem crescente de peso
+    quickSort(arestas, 0, arestas.size()-1);
+
+    int contador = 0;
+    i=0;
+
+    while(contador < numNos-1 && i < arestas.size()){
+        int indiceCaudaSubarvores = buscaNoVetor(mapa, arestas[i].getIdCauda(), numNos);
+        int indiceCabecaSubarvores = buscaNoVetor(mapa, arestas[i].getIdCabeca(), numNos);
+
+        if(subarvores[indiceCaudaSubarvores] != subarvores[indiceCabecaSubarvores]) // se forem enguais é pq estão na msm subarvores
+        {
+            // atualizar o vetor de subarvores
+            atualizaSubarvores(numNos, subarvores, indiceCabecaSubarvores, indiceCaudaSubarvores);
+            contador++;
+            AGM.push_back(arestas[i]); // colocando a aresta na AGM
+        }
+        i++;
+    }
+
+    imprimeAGM(AGM, subarvores, mapa, numNos);
+}
+
+void Graph::imprimeAGM(vector< Edge > AGM, int subarvores[], int mapa[], int numNos)
+{
+    // vector< int > quantasSubarvoresTem;
+
+    // for(int i=0; i<numNos; i++){
+    //     if(buscaNoVector(quantasSubarvoresTem, subarvores[i], quantasSubarvoresTem.size()) == -1){
+    //         quantasSubarvoresTem.push_back(subarvores[i]);
+    //     }
+    // }
+    // // depois disso temos como saber o número de subarvores diferentes que existem com o quantasSubarvoresTem.size()
+    
+    // for(int i=0; i<quantasSubarvoresTem.size(); i++){
+    //     for(int j=0; j<AGM.size(); j++){
+    //         if(subarvores[j] == i){
+    //             print agm[j]
+    //         }
+    //     }
+    // }
+    cout << "AGM: {";
+    for(int i=0; i<AGM.size(); i++){
+        cout << "(" << AGM[i].getIdCauda() << ", " << AGM[i].getIdCabeca() << "), ";
+    }
+    cout << "}" << endl;
+
+    
+}
+
+// atualizar o vetor de subarvores
+void Graph::atualizaSubarvores(int numNos, int subarvores[], int indiceCabecaSubarvores, int indiceCaudaSubarvores)
+{
+    for(int j=0; j<numNos; j++){ 
+        if(subarvores[j] == subarvores[indiceCaudaSubarvores]){
+            subarvores[j] = subarvores[indiceCabecaSubarvores];
+        }
+    }
+}
+
+int Graph::buscaNoVector(vector< int > vector, int valor, int tam)
+{
+    for(int i=0; i<tam; i++){
+        if(vector[i] == valor){
+            return i;
+        }
+    }
+    return -1;
+}
+
+int Graph::buscaNoVetor(int vetor[], int idArquivo, int tam)
+{
+    for(int i=0; i<tam; i++){
+        if(vetor[i] == idArquivo){
+            return i;
+        }
+    }
+    return -1;
+}
+
+vector< Edge > Graph::OrdenaArestas(vector< Edge >arestas, int numArestas) // bubbleSort
+{
+    int aux;
+
+    for (int k = 1; k < numArestas; k++) {
+        for (int j = 0; j < numArestas - k; j++) {
+            if (arestas[j].getPeso() > arestas[j+1].getPeso()) {
+                aux = arestas[j].getPeso();
+                arestas[j].setPeso(arestas[j+1].getPeso()); 
+                arestas[j+1].setPeso(aux);
+            }
+        }
+    }
+    return arestas;
+}
+
+int partition(std::vector<Edge>& vetor, int low, int high) {
+    int pivot = vetor[high].getPeso();
+    int i = low - 1;
+
+    for (int j = low; j <= high - 1; j++) {
+        if (vetor[j].getPeso() <= pivot) {
+            i++;
+            std::swap(vetor[i], vetor[j]);
+        }
+    }
+
+    std::swap(vetor[i + 1], vetor[high]);
+    return i + 1;
+}
+
+void Graph::quickSort(std::vector<Edge>& vetor, int low, int high) {
+    if (low < high) {
+        int pi = partition(vetor, low, high);
+
+        quickSort(vetor, low, pi - 1);
+        quickSort(vetor, pi + 1, high);
+    }
+}
+
+// PARTE 2 DO TRABALHO ABAIXO
+
+void Graph::coberturaMinimaGulosa()
+{
+    // vetor com os nos e graus dos nós
+    // contador que começa com o  valor do dobro do número de arestas e é decrementado em 2 a cada aresta adicionada
+    // vetor com os nos ordenados por uma ordem de otimidade (custo / grau) que mediria o "quão bom" ele seria para a solução
+    // toda vez q colocar alguém na solução é preciso atualizar todos os vetores 
+    // vetor solução que vai conter os indices dos nos
+
+    vector< Node > vetorAuxiliar;
+    vector< int > solucao;
+    float custoTotal = 0;
+
+    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
+    {
+        if(no->getGrauNo() != 0){
+            vetorAuxiliar.push_back(*no);// remover todos os nós com grau 0
+        }
+    }
+    // aqui já temos o vetor auxiliar completo
+
+    while(vetorAuxiliar.size() != 0)
+    {
+        quickSortGuloso(vetorAuxiliar, 0, vetorAuxiliar.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução
+        solucao.push_back(vetorAuxiliar[0].getIdArquivo()); // coloca o "mais ótimo" candidato na solução
+        custoTotal += vetorAuxiliar[0].getPesoNo();
+
+        // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
+        for(int i = 1; i < vetorAuxiliar.size(); i++){
+            for(Edge* aux = vetorAuxiliar[i].getPrimeiraAresta(); aux != nullptr; aux = aux->getProxAresta())
+            {
+                if(aux->getIdCabeca() == vetorAuxiliar[0].getIdArquivo()){
+                    vetorAuxiliar[i].setGrauNo( vetorAuxiliar[i].getGrauNo() - 1); //Atualiza o grau do no
+                    if(vetorAuxiliar[i].getGrauNo() == 0){
+                        vetorAuxiliar.erase(vetorAuxiliar.begin() + i);// olhuaire de novo isso aqui pq tá estranho
+                        i--;
+                    }
+                }
+            }
+        }
+        // remove o nó que foi  adicionado à solução
+        vetorAuxiliar.erase(vetorAuxiliar.begin());   
+    }
+
+    // imprimir a solução
+    cout << "Tamanho da Solução: " << solucao.size() << " vertices" << endl;
+    cout << "Custo total: " << custoTotal << endl;
+    cout << endl;
+}
+
+// Function to swap two elements
+void Graph::swap(Node* a, Node* b)
+{
+    Node t = *a;
+    *a = *b;
+    *b = t;
+}
+ 
+// Partition the array using the last element as the pivot
+int Graph::partitionGuloso(std::vector<Node>& arr, int low, int high)
+{
+    // Choosing the pivot
+    float pivot = arr[high].getPrioridade();
+    int desempate = arr[high].getGrauNo();
+ 
+    // Index of smaller element and indicates
+    // the right position of pivot found so far
+    int i = (low - 1);
+ 
+    for (int j = low; j <= high - 1; j++) {
+ 
+        // If current element is smaller than the pivot
+        if (arr[j].getPrioridade() < pivot ||( arr[j].getPrioridade() == pivot && arr[j].getGrauNo() > desempate )) {
+ 
+            // Increment index of smaller element
+            i++;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+    swap(&arr[i + 1], &arr[high]);
+    return (i + 1);
+}
+ 
+void Graph::quickSortGuloso(std::vector<Node>& arr, int low, int high)
+{
+    if (low < high) {
+ 
+        // pi is partitioning index, arr[p]
+        // is now at right place
+        int pi = partitionGuloso(arr, low, high);
+ 
+        // Separately sort elements before
+        // partition and after partition
+        quickSortGuloso(arr, low, pi - 1);
+        quickSortGuloso(arr, pi + 1, high);
+    }
+}
+
+Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
+{
+    high_resolution_clock::time_point start = high_resolution_clock::now();
+    vector< Node > vetorAuxiliar;
+    vector< int > solucao;
+    vector< int > solucaoBest;
+    float custoTotal = 0;
+    float custoBest = 0;
+    double time = 0;
+
+    std::srand(std::time(nullptr));
+
+    for(int i=0; i<nInteracoes; i++){
+        for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
+        {
+            if(no->getGrauNo() != 0){
+                vetorAuxiliar.push_back(*no);// remover todos os nós com grau 0
+            }
+        } // aqui já temos o vetor auxiliar completo
+        solucao.clear();
+        while(vetorAuxiliar.size() > 0)
+        {
+            quickSortGuloso(vetorAuxiliar, 0, vetorAuxiliar.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução           
+
+            int numero_aleatorio = (int)(alpha*(vetorAuxiliar.size()-1));
+            if(numero_aleatorio==0)
+                numero_aleatorio=1;
+            int k = std::rand() % numero_aleatorio; //Randomizao o numero de 0 a alpha*(vetorAuxiliar.size()-1)
+            // cout << "numero aleatorio usado no rand:" << k << endl;
+            custoTotal += vetorAuxiliar[k].getPesoNo();
+
+            solucao.push_back(vetorAuxiliar[k].getIdArquivo()); // coloca o "mais ótimo" candidato na solução
+
+            // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
+            for(int i = 1; i < vetorAuxiliar.size(); i++){
+                for(Edge* aux = vetorAuxiliar[i].getPrimeiraAresta(); aux != nullptr; aux = aux->getProxAresta())
+                {
+                    if(aux->getIdCabeca() == vetorAuxiliar[k].getIdArquivo()){
+                        vetorAuxiliar[i].setGrauNo( vetorAuxiliar[i].getGrauNo() - 1); //Atualiza o grau do no
+                        if(vetorAuxiliar[i].getGrauNo() == 0){
+                            vetorAuxiliar.erase(vetorAuxiliar.begin() + i);
+                            i--;
+                        }
+                    }
+                }
+            }
+            // remove o nó que foi  adicionado à solução
+            vetorAuxiliar.erase(vetorAuxiliar.begin()+k);    
+        }
+
+        if(i==0 || custoTotal < custoBest){
+           custoBest = custoTotal;
+           solucaoBest = solucao; 
+        }  //Compara as soluçoes e atualiza a melhor
+    }
+
+    high_resolution_clock::time_point stop = high_resolution_clock::now();
+    time = duration_cast<duration<double>>(stop - start).count();
+
+    Solution solution = Solution(custoBest, solucaoBest, time, alpha);
+
+    return solution;
+}
+
+bool Graph::verificaSolucao(vector< int >solucao)
+{
+    //percorrer todas as arestas verificando se uma das extremidades está na solução
+    bool encontrou = false;
+
+    for(Node* no = this->primeiroNo; no != nullptr ; no = no->getProxNo()){
+        for(Edge* aux = no->getPrimeiraAresta(); aux != nullptr; aux = aux->getProxAresta()){
+            encontrou=false;
+            for(int i=0; i < solucao.size(); i++){
+                if(aux->getIdCabeca() == solucao[i] || aux->getIdCauda() == solucao[i]){
+                    encontrou = true; 
+                    break;
+                }
+            }
+            if(!encontrou){ // solucao incorreta
+                cout << "não encontrou a aresta:" << aux->getIdCauda() << ", " << aux->getIdCabeca() << endl;  
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+void Graph::inicializaVetores(vector<float>& probabilidades, vector<float>& medias, vector<int>& aparicoes,  int m)
+{
+    for(int i = 0; i < m; i ++)
+    {
+        probabilidades.push_back(1 / (float) m);
+        medias.push_back(1);
+        aparicoes.push_back(0);
+    }
+}
+
+void Graph::atualizaProbabilidades(vector<float>& probabilidades, vector<float> medias, float* alpha, Solution solBest)
+{
+    vector<float> qualidades;
+    float somatorio = 0;
+    for(int i = 0; i < probabilidades.size(); i++){
+        qualidades.push_back(solBest.getCustoTotal()/medias[i]);
+        somatorio += qualidades[i];
+    }
+    for(int i = 0; i < probabilidades.size(); i++){
+        if(somatorio != 0){
+            probabilidades[i] = qualidades[i]/somatorio;
+        }else{
+            probabilidades[i] = qualidades[i];
+        }
+    }
+}
+
+int Graph::escolheAlfa(vector<float> probabilidades)
+{
+    float numeroAleatorio = rand()/(RAND_MAX + 1.0);
+    float probabilidadeAcumulada = 0;
+    int indiceEscolhido;
+
+    for (int i = 0; i < probabilidades.size(); i++) {
+        probabilidadeAcumulada += probabilidades[i];
+        if (probabilidadeAcumulada >= numeroAleatorio) {
+            indiceEscolhido = i;
+            break;
+        }
+    }
+    return indiceEscolhido;
+}
+
+void Graph::atualizaMedias(vector<float>& medias, vector<int> aparicoes, int indiceEscolhido, Solution sol )
+{
+    medias[indiceEscolhido] = (medias[indiceEscolhido] * aparicoes[indiceEscolhido] + sol.getCustoTotal())/(aparicoes[indiceEscolhido] + 1);
+}
+
+void Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanhoVetor, int nIteracoes, int bloco)
+{
+    Solution solBest, sol;
+    int i = 1;
+    vector<float> probabilidades, medias;
+    vector<int> aparicoes;
+    inicializaVetores(probabilidades, medias, aparicoes, tamanhoVetor);
+
+   while(i < nIteracoes){
+        if(i % bloco == 0 && i != 1){
+            atualizaProbabilidades(probabilidades, medias, alpha, solBest);
+        }
+        int indiceEscolhido = escolheAlfa(probabilidades);
+        float alfaAtual = alpha[ indiceEscolhido ];
+        
+        sol = coberturaMinimaGulosaRandomizada(alfaAtual, 1);
+
+        atualizaMedias(medias, aparicoes, indiceEscolhido, sol);
+        aparicoes[indiceEscolhido] = aparicoes[indiceEscolhido] + 1;
+
+        if(sol.getCustoTotal() < solBest.getCustoTotal() || i == 1)
+        {
+            solBest = sol;
+        }
+        i++;
+   }
+
+   cout << "Solução gulosa randomizada reativa: "<< endl;
+   cout << "Tamanho da solução: " << solBest.getSolucao().size() << endl;
+   cout << "Custo da solução: " << solBest.getCustoTotal()<< endl;
+   cout << "Tempo de execução: " << solBest.getTempoExecucao() << " segundos."<< endl;
+}

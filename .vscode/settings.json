@@ -44,11 +44,16 @@
         "ostream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "optional": "cpp",
+        "sstream": "cpp",
+        "cstring": "cpp",
+        "cinttypes": "cpp",
+        "ctime": "cpp"
     },
     "cmake.debugConfig": {
         "args": [
-            "arquivoDeEntrada.txt", "arquivoDeSaida.txt"
+            "instancia Cobertura de Vertices/brock200_2.txt", "arquivoDeSaida.txt", "0", "0", "1"
         ]
     },
 }

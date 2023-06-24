@@ -1,7 +1,10 @@
 #ifndef GRAPH_H_INCLUDED
 #define GRAPH_H_INCLUDED
 #include <fstream>
+#include"Solution.h"
 #include "Node.h"
+#include <vector>
+
 
 using namespace std;
 
@@ -14,15 +17,33 @@ class Graph{
 
         bool pesoNasArestas;
         bool pesoNosVertices;
+        int numArestas;
+
 
         int ultimoIdVinculado;
         Node* ultimoNoVinculado;
+
+        vector< Edge > OrdenaArestas(vector< Edge > arestas, int numArestas);
+        void quickSort(vector< Edge >& arestas, int low, int high);
+
+        void imprimeAGM(vector< Edge > AGM, int subarvores[], int mapa[], int numNos);
+        void atualizaSubarvores(int numNos, int subarvores[], int indiceCabecaSubarvores, int indiceCaudaSubarvores);
+        int buscaNoVector(vector< int > vector, int valor, int tam);
+        int buscaNoVetor(int vetor[], int idArquivo, int tam);
+        void quickSortGuloso(std::vector<Node>& vetor, int low, int high);
+        int partitionGuloso(std::vector<Node>& vetor, int low, int high);
+        void swap(Node* a, Node* b);
+        void inicializaVetores(vector<float>& probabilidades, vector<float>& medias, vector<int>& aparicoes, int m);
+        void atualizaProbabilidades(vector<float>& probabilidades, vector<float> medias, float* alpha, Solution solBest);
+        int escolheAlfa(vector<float> probabilidades);
+        void atualizaMedias(vector<float>& medias, vector<int> aparicoes, int indiceEscolhido, Solution sol );
+
     public:
-        //Construtor e destrutor
+        //Destrutor
         ~Graph();
 
         //Leitura de arquivo
-        Graph(ifstream &arquivoEntrada);
+        Graph(ifstream &arquivoEntrada, bool digrafo, bool ponderadoVertice, bool ponderadoAresta);
 
         //Escrita no arquivo
         void escreveArquivo(ofstream &arquivoSaida);
@@ -52,6 +73,9 @@ class Graph{
         int getSaidaNo(int id); // retirna grau de saída se for digrafo
         Node* getPrimeiroNo(); // retorna o primeiro nó do grafo
 
+        int getNumArestas();
+        void setNumArestas(int numArestas);
+
 
         bool getKRegularidade(int k); // retorna true se todos os vértices possuem grau k, else do contrário
 
@@ -66,14 +90,21 @@ class Graph{
         void vizinhancaAberta(int id);
         void vizinhancaFechada(int id);
 
-        bool Graph::BFS();
-        bool Graph::BFSColoring(int startNode, vector<int>& color, vector<bool>& visited);
-        int Graph::getNumberOfNodes();
-        int Graph::getNumberOfEdges();
-        bool Graph::isComplete();
-        bool Graph::isBipartide();
-        bool Graph::isEulerian()
+        bool BFS();
+        bool BFSColoring(int startNode, vector<int>& color, vector<bool>& visited);
+        int getNumberOfNodes();
+        int getNumberOfEdges();
+        bool isComplete();
+        bool isBipartide();
+        bool isEulerian();
 
+        void AGM();
+       
+        void coberturaMinimaGulosa();
+        Solution coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes);
+        void coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tammanhoVetor, int nIterecoes, int bloco);
+
+        bool verificaSolucao(vector< int >solucao);
 
 };
 

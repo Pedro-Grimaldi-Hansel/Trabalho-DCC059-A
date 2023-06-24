@@ -21,18 +21,7 @@ Node::Node(int idAplicacao)
 }
 
 Node::~Node()
-{
-    Edge* aux = this->primeiraAresta;
-    Edge* arestaASerDeletada;
-    if( aux != nullptr)
-    {
-        while(aux->getProxAresta() != nullptr){
-            arestaASerDeletada = aux;
-            aux = aux->getProxAresta();
-            delete arestaASerDeletada;
-        }
-    }
-}
+{}
 
 void Node::setProxNo(Node* proximo)
 {
@@ -50,6 +39,7 @@ Edge* Node::getPrimeiraAresta(){
 
 void Node::insereAresta(int idCabeca, float peso){
     Edge* novaAresta = new Edge(idCabeca, peso);
+    novaAresta->setIdCauda(this->getIdArquivo());
 
     if(this->primeiraAresta == nullptr){ //Primeira aresta
         this->primeiraAresta = novaAresta;
@@ -176,4 +166,13 @@ void Node::setSaidaNo(int grau)
 void Node::setPesoNo(float peso)
 {
     this->peso = peso;
+}
+
+float Node::getPrioridade()
+{
+    if(this->grauNo != 0)
+        return this->peso/this->grauNo; 
+    else
+        cout << "Nos com grau 0 não podem ter sua prioridade calculada" << endl;
+        return 999999;
 }

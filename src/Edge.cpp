@@ -2,6 +2,7 @@
 
 Edge::Edge(int idCabeca, float peso){
     this->idCabeca = idCabeca;
+    this->idCauda = idCauda;
     this->peso = peso;
     this->proxAresta = nullptr;
 }
@@ -24,6 +25,14 @@ int Edge::getIdCabeca(){
 
 void Edge::setIdCabeca(int idCabeca) {
     this->idCabeca = idCabeca;
+}
+
+int Edge::getIdCauda(){
+    return this->idCauda;
+}
+
+void Edge::setIdCauda(int idCauda) {
+    this->idCauda = idCauda;
 }
 
 Edge* Edge::getProxAresta(){
