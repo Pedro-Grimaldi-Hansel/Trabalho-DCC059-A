@@ -646,5 +646,76 @@ bool Graph::isBipartide()
 
 bool Graph::isEulerian()
 {
+    int numberOfNodes = getNumberOfNodes();
+    int numberOfEdges = getNumberOfEdges();
 
-}
+    if (getDigrafo()) 
+    {
+        // Verifica se todos os nós possuem os mesmos graus de entrada e de saída, menos grafos com ssef-loops
+        for (Node* node = getPrimeiroNo(); node != nullptr; node = node->getProxNo()) 
+        {
+            if (node->getEntradaNo() != node->getSaidaNo()) 
+            {
+                if (node->getEntradaNo() != node->getSaidaNo() || node->getEntradaNo() % 2 != 0) 
+                {
+                    return false;
+                }
+            }
+        }
+    } 
+    else 
+    {
+        int selfLoopsCount = 0;
+        // Contagem de arestas incidentes em cada nó
+        vector<int> degreeCount(numberOfNodes, 0);  
+
+        for (Node* node = getPrimeiroNo(); node != nullptr; node = node->getProxNo()) 
+        {
+            Edge* currentEdge = node->getPrimeiraAresta();
+            while (currentEdge != nullptr) 
+            {
+                int headNode = currentEdge->getIdCabeca();
+                degreeCount[headNode]++;
+                degreeCount[node->getIdArquivo()]++;
+                currentEdge = currentEdge->getProxAresta();
+            }
+
+            // Self-loops
+            if (degreeCount[node->getIdArquivo()] > 0) 
+            {
+                selfLoopsCount += degreeCount[node->getIdArquivo()] / 2;
+            }
+        }
+
+        // Verifica se todos os nós (exceto self-loops) possuem grau par, e os nós com self-loops possuem grau par ou múltiplo de 2
+        for (int i = 0; i < numberOfNodes; i++) 
+        {
+            if (degreeCount[i] % 2 != 0) 
+            {
+                if (degreeCount[i] % 2 != 0 || degreeCount[i] % 4 != 0) 
+                {
+                    return false;
+                }
+            }
+        }
+
+        // Verifica se o número de self-loops é par
+        if (selfLoopsCount % 2 != 0) 
+        {
+            return false;
+        }
+    }
+
+    // Verifica se o grafo é conexo
+    if (!BFS())
+    {
+        return false;
+    }
+
+    return true;
+
+
+
+
+
+
