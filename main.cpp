@@ -26,8 +26,10 @@ int main(int argc, char const *argv[]){
     Graph* grafo = new Graph(arquivoEntrada, digrafo, ponderadoAresta, ponderadoVertice);
     float alpha[] = {0.1, 0.3, 0.25, 0.60, 0.75};
     Node* no = grafo->getPrimeiroNo();
-    grafo->imprime();
-    grafo->caminhoMinimoDijkstra(no->getIdArquivo());
-    grafo->escreveArquivoDOT(arquivoSaida);
+    // grafo->imprime();
+    // grafo->caminhoMinimoDijkstra(no->getIdArquivo());
+    // grafo->escreveArquivoDOT(arquivoSaida);
+    vector< int > subgrafo = {1, 3, 5};
+    grafo->subgrafoInduzido(subgrafo);
     return 0;
 }

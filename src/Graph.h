@@ -104,7 +104,7 @@ class Graph{
         map<int, int> distanciaMinima(int idNo);
         void caminhoMinimoDijkstra(int idNo);
 
-
+        void subgrafoInduzido(vector< int > vet); // deve receber um vector de inteiros que representam os ids de arquivo dos nós do subgrafo
 
 };
 

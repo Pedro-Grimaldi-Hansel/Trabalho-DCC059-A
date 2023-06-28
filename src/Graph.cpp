@@ -1111,3 +1111,45 @@ void Graph::raioDiametroCentroPeriferia()
     cout << endl;
 
 }
+
+
+void Graph::subgrafoInduzido(vector<int> vet)
+{
+    vector< Node* > subgrafoNo; 
+    Node* aux = new Node;
+
+    for(int i=0;i<vet.size();i++){
+        aux = buscaNoPorIdArquivo(vet[i]);
+        if(aux != nullptr){
+            subgrafoNo.push_back(aux);
+        }
+        else{
+            cout << "Vértice (" << vet[i] << ") não encontrado" << endl;
+            return;
+        }
+    }
+    
+    // imprimindo o resultado
+    cout << "O subgrafo induzido é:" << endl;
+    for(int i=0;i<subgrafoNo.size();i++){
+        cout << "(" << subgrafoNo[i]->getIdArquivo() << ")";
+        if(this->pesoNosVertices){
+            cout << "<peso: " << subgrafoNo[i]->getPesoNo() << " >";
+        }
+        cout << endl;
+        Edge* aresta = subgrafoNo[i]->getPrimeiraAresta();
+        cout << "\t";
+        while (aresta != nullptr)
+        {
+            if(buscaNoVector(vet, aresta->getIdCabeca(), vet.size()) != -1 && buscaNoVector(vet, aresta->getIdCauda(), vet.size()) != -1){
+                cout << aresta->getIdCabeca();
+                if(this->pesoNasArestas){
+                    cout << " (" << aresta->getPeso() << ")";
+                }
+                cout <<", ";
+            }
+            aresta = aresta->getProxAresta();
+        }
+        cout << endl;
+    }
+}
