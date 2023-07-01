@@ -42,6 +42,9 @@ class Graph{
 
         //Leitura de arquivo
         Graph(ifstream &arquivoEntrada, bool digrafo, bool ponderadoVertice, bool ponderadoAresta);
+        
+        //Leitura somente para o trabalho
+        Graph(ifstream &arquivoEntrada);
 
         //Escrita no arquivo
         void escreveArquivo(ofstream &arquivoSaida);
@@ -55,6 +58,7 @@ class Graph{
 
         //Inserção de arestas
         void insereAresta(int idCauda, int idCabeca, float peso);
+        void insereArestaTrabalho(int idCauda, int idCabeca);
 
         //Remoção de aresta
         void removeAresta(int idCauda, int idCabeca);

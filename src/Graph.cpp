@@ -47,6 +47,38 @@ Graph::Graph(ifstream &arquivoEntrada, bool digrafo, bool ponderadoAresta, bool 
     }
 }
 
+Graph::Graph(ifstream &arquivoEntrada){
+    if(!arquivoEntrada.is_open()){
+        cout << "ERRO: Arquivo não aberto corretamente!" << endl;
+        return;
+    }
+
+    //Para o trabalho temos instancias não direcionadas, sem peso nas arestas e peso nos vetices
+    this->digrafo = false;
+    this->pesoNasArestas = false;
+    this->pesoNosVertices = true;
+    
+    string leitor;
+    int ordemGrafo;
+    int numArestas;
+    int idCauda;
+    int idCabeca;
+
+    //Pegar primeira linha e ver o número de nos e arestas
+    arquivoEntrada >> ordemGrafo;
+    arquivoEntrada >> numArestas;
+
+    cout << "A ordem do grafo é: " << ordemGrafo << endl;
+    cout << "o grafo tem " << numArestas << " arestas"<< endl;
+
+    this->numArestas = numArestas;
+
+    while( arquivoEntrada >> leitor >> idCauda >> idCabeca) {
+        this->insereArestaTrabalho(idCauda, idCabeca);
+    }
+}
+
+
 void Graph::escreveArquivo(ofstream &arquivoSaida)
 {
     // Verificar se o arquivo foi aberto corretamente
@@ -154,6 +186,26 @@ void Graph::insereNoFim(int id){
     }
 }
 
+void Graph::insereNoFim(int id, int idArquivo){
+    Node* no = new Node(id);
+    no->setIdArquivo(idArquivo);
+    no->setProxNo(nullptr);
+
+    //Setando o peso do vertice conforme o trabalho
+    no->setPesoNo( (idArquivo % 200) + 1 );
+
+    if(this->primeiroNo == nullptr) //caso o grafo esteja vazio, insere no inicio mesmo
+    {
+        this->primeiroNo = no;
+        this->ultimoNo = no;
+    }
+    else
+    {
+        this->ultimoNo->setProxNo(no);
+        this->ultimoNo = no;
+    }
+}
+
 Node* Graph::buscaNoPorIdArquivo(int idArquivo){
     Node* no = this->primeiroNo; //auxiliar para busca
 
@@ -167,6 +219,36 @@ Node* Graph::buscaNoPorIdArquivo(int idArquivo){
     }
     //caso nao tenha encontrado nenhum, retorna nullptr
     return nullptr;
+}
+
+void Graph::insereArestaTrabalho(int idCauda, int idCabeca)
+{
+    Node* cauda = buscaNoPorIdArquivo(idCauda);
+    Node* cabeca = buscaNoPorIdArquivo(idCabeca);
+
+    if(cauda == nullptr){
+        this->insereNoFim(idCauda, idCauda);
+        cauda = this->ultimoNo;
+    }
+    if(cabeca == nullptr){
+        this->insereNoFim(idCabeca, idCabeca);
+        cabeca = this->ultimoNo;
+    }
+
+    cauda->insereAresta(idCabeca, 0);
+
+    if(!this->digrafo){
+        cabeca->insereAresta(idCauda, 0);
+    }
+
+    if(!this->getDigrafo()){
+        cabeca->setGrauNo(cabeca->getGrauNo() + 1);
+        cauda->setGrauNo(cauda->getGrauNo() + 1);
+    }
+    else{
+        cabeca->setEntradaNo(cabeca->getEntradaNo() + 1);
+        cauda->setSaidaNo(cauda->getSaidaNo() + 1);
+    }
 }
 
 void Graph::insereAresta(int idCauda, int idCabeca, float peso){
