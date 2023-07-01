@@ -703,6 +703,16 @@ int Graph::buscaNoVector(vector< int > vector, int valor, int tam)
     return -1;
 }
 
+int Graph::buscaNoVectorNos(vector< Node > vector, int valor, int tam)
+{
+    for(int i=0; i<tam; i++){
+        if(vector[i].getIdArquivo() == valor){
+            return i;
+        }
+    }
+    return -1;
+}
+
 int Graph::buscaNoVetor(int vetor[], int idArquivo, int tam)
 {
     for(int i=0; i<tam; i++){
@@ -765,6 +775,7 @@ void Graph::coberturaMinimaGulosa()
 
     vector< Node > vetorAuxiliar;
     vector< int > solucao;
+    vector< vector<int> > matrizDeAdjacencia(this->getOrdem(), vector<int>(this->getOrdem(), 0));
     float custoTotal = 0;
 
     for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
@@ -772,7 +783,11 @@ void Graph::coberturaMinimaGulosa()
         if(no->getGrauNo() != 0){
             vetorAuxiliar.push_back(*no);// remover todos os nós com grau 0
         }
+        for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
+            matrizDeAdjacencia[aresta->getIdCauda()-1][aresta->getIdCabeca()-1] = 1;
+        }
     }
+
     // aqui já temos o vetor auxiliar completo
 
     while(vetorAuxiliar.size() != 0)
@@ -782,21 +797,25 @@ void Graph::coberturaMinimaGulosa()
         custoTotal += vetorAuxiliar[0].getPesoNo();
 
         // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
-        for(int i = 1; i < vetorAuxiliar.size(); i++){
-            for(Edge* aux = vetorAuxiliar[i].getPrimeiraAresta(); aux != nullptr; aux = aux->getProxAresta())
-            {
-                if(aux->getIdCabeca() == vetorAuxiliar[0].getIdArquivo()){
-                    vetorAuxiliar[i].setGrauNo( vetorAuxiliar[i].getGrauNo() - 1); //Atualiza o grau do no
-                    if(vetorAuxiliar[i].getGrauNo() == 0){
-                        vetorAuxiliar.erase(vetorAuxiliar.begin() + i);// olhuaire de novo isso aqui pq tá estranho
-                        i--;
-                    }
+        for(int i = 0; i < this->getOrdem(); i++)
+        {
+            int idEscolhido = vetorAuxiliar[0].getIdArquivo();
+            if(matrizDeAdjacencia[idEscolhido - 1][i] == 1){
+                int adjacente = buscaNoVectorNos(vetorAuxiliar, i+1, vetorAuxiliar.size());
+                //Atualiza o grau do no
+                vetorAuxiliar[adjacente].setGrauNo( vetorAuxiliar[adjacente].getGrauNo() - 1); 
+                matrizDeAdjacencia[idEscolhido-1][i] = 0;
+                matrizDeAdjacencia[i][idEscolhido-1] = 0;
+                if(vetorAuxiliar[adjacente].getGrauNo() == 0){
+                    vetorAuxiliar.erase(vetorAuxiliar.begin() + adjacente);
                 }
             }
         }
         // remove o nó que foi  adicionado à solução
         vetorAuxiliar.erase(vetorAuxiliar.begin());   
     }
+
+    verificaSolucao(solucao);
 
     // imprimir a solução
     cout << "Tamanho da Solução: " << solucao.size() << " vertices" << endl;

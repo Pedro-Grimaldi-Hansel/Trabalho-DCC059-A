@@ -27,6 +27,7 @@ class Graph{
         void imprimeAGM(vector< Edge > AGM, int subarvores[], int mapa[], int numNos);
         void atualizaSubarvores(int numNos, int subarvores[], int indiceCabecaSubarvores, int indiceCaudaSubarvores);
         int buscaNoVector(vector< int > vector, int valor, int tam);
+        int buscaNoVectorNos(vector< Node > vector, int valor, int tam);
         int buscaNoVetor(int vetor[], int idArquivo, int tam);
         void quickSortGuloso(std::vector<Node>& vetor, int low, int high);
         int partitionGuloso(std::vector<Node>& vetor, int low, int high);
