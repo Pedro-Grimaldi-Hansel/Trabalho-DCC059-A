@@ -13,7 +13,6 @@ class Graph{
         Node* primeiroNo;
         Node* ultimoNo;
         bool digrafo;
-        int numberOfEdges = 0;
 
         bool pesoNasArestas;
         bool pesoNosVertices;

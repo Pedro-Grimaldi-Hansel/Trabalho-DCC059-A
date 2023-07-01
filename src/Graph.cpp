@@ -536,7 +536,7 @@ int Graph::getNumberOfNodes()
 
 int Graph::getNumberOfEdges()
 {
-    return this->numberOfEdges; 
+    return this->numArestas; 
 }
 
 bool Graph::isComplete()
@@ -643,12 +643,12 @@ bool Graph::BFSColoring(int startNode, vector<int>& color, vector<bool>& visited
         int currentNode = queue.front();
         queue.pop_front();
 
-        Edge* currentEdge = buscaNoPorIdArquivo(currentNode)->getPrimeiraAresta();
+        Edge* currentEdge = buscaNoPorIdArquivo(currentNode+1)->getPrimeiraAresta();
 
         while (currentEdge != nullptr) 
         {
             int neighborNode = currentEdge->getIdCabeca();
-
+            neighborNode--;
             if (!visited[neighborNode]) 
             {
                 visited[neighborNode] = true;
