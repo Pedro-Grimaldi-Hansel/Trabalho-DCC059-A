@@ -97,6 +97,7 @@ class Graph{
         bool isComplete();
         bool isBipartide();
         bool isEulerian();
+        void stronglyConectedComponents();
 
         void AGM();
        

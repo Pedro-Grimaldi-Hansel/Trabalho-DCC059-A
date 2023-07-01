@@ -543,51 +543,53 @@ bool Graph::isComplete()
 {
     int n = getNumberOfNodes();
     int edgesToBeComplete = n*(n-1)/2;
-    if(getDigrafo())
-    {
-        if(getNumberOfEdges() != edgesToBeComplete)
-        {
-            return false;
-        }
-        else
-        {
-            Node* currentNode = getPrimeiroNo();
-            while (currentNode != nullptr)
-            {
-                Node* otherNode = currentNode->getProxNo();
-                while (otherNode != nullptr)
-                {
-                    if (currentNode->buscaAresta(otherNode->getIdArquivo()) == nullptr)
-                    {
-                        return false;
-                    }
-                    otherNode = otherNode->getProxNo();
-                }
-                currentNode = currentNode->getProxNo();
-            }
-        }
-    }
-    else
-    {
-        if (getNumberOfEdges() != edgesToBeComplete)
-        {
-            return false;
-        }
+    return (getDigrafo() && getNumberOfEdges() == edgesToBeComplete*2) || (!getDigrafo() &&  getNumberOfEdges() == edgesToBeComplete);
 
-        else
-        {
-            // Confere se há self-loops ou multiarestas
-            Node* currentNode = getPrimeiroNo();
-            while (currentNode != nullptr)
-            {
-                if (currentNode->getGrauNo() != n - 1)
-                {
-                    return false;
-                }
-                currentNode = currentNode->getProxNo();
-            }
-        }
-    }
+    // if(getDigrafo())
+    // {
+    //     if(getNumberOfEdges() != edgesToBeComplete*2)
+    //     {
+    //         return false;
+    //     }
+    //     else
+    //     {
+    //         Node* currentNode = getPrimeiroNo();
+    //         while (currentNode != nullptr)
+    //         {
+    //             Node* otherNode = currentNode->getProxNo();
+    //             while (otherNode != nullptr)
+    //             {
+    //                 if (currentNode->buscaAresta(otherNode->getIdArquivo()) == nullptr)
+    //                 {
+    //                     return false;
+    //                 }
+    //                 otherNode = otherNode->getProxNo();
+    //             }
+    //             currentNode = currentNode->getProxNo();
+    //         }
+    //     }
+    // }
+    // else
+    // {
+    //     if (getNumberOfEdges() != edgesToBeComplete)
+    //     {
+    //         return false;
+    //     }
+
+    //     else
+    //     {
+    //         // Confere se há self-loops ou multiarestas
+    //         Node* currentNode = getPrimeiroNo();
+    //         while (currentNode != nullptr)
+    //         {
+    //             if (currentNode->getGrauNo() != n - 1)
+    //             {
+    //                 return false;
+    //             }
+    //             currentNode = currentNode->getProxNo();
+    //         }
+    //     }
+    // }
 }
 
 // Função de busca em largura (Breadth-first search)
@@ -705,7 +707,7 @@ bool Graph::isEulerian()
 
     if (getDigrafo()) 
     {
-        // Verifica se todos os nós possuem os mesmos graus de entrada e de saída, menos grafos com ssef-loops
+        // Verifica se todos os nós possuem os mesmos graus de entrada e de saída, menos grafos com self-loops
         for (Node* node = getPrimeiroNo(); node != nullptr; node = node->getProxNo()) 
         {
             if (node->getEntradaNo() != node->getSaidaNo()) 
@@ -768,10 +770,19 @@ bool Graph::isEulerian()
 
     return true;
 
+}
 
+void Graph::stronglyConectedComponents()
+{
+    if(getDigrafo())
+    {
 
-
-
+    }
+    else
+    {
+        cout<< "Não é um digrafo?" << endl;
+    }
+}
 
 void Graph::AGM()
 {
