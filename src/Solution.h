@@ -27,11 +27,13 @@ public:
 
     float getCustoTotal(){return this->custoTotal;};
     vector<int> getSolucao(){return this->solucao;};
+    float getAlpha(){return this->alpha;};
     double getTempoExecucao(){ return this->tempoExecucao; };
 
     void setCustoTotal(float custoTotal){this->custoTotal = custoTotal;}
     void setSolucao(vector<int> solucao){this->solucao = solucao;}
     void setTempoExecucao(double tempoExecucao){this->tempoExecucao = tempoExecucao;}
+    void setAlpha(float alpha){this->alpha = alpha;}
 };
 
 #endif // SOLTION_H_INCLUDED

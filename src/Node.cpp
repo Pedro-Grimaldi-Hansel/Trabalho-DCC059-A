@@ -138,6 +138,11 @@ int Node::getGrauNo()
     return this->grauNo;
 }
 
+int Node::getGrauReativo()
+{
+    return this->grauReativo;
+}
+
 int Node::getEntradaNo()
 {
     return this->grauEntradaNo;
@@ -161,6 +166,11 @@ void Node::setIdArquivo(int idArquivo)
 void Node::setGrauNo(int grau)
 {
     this->grauNo = grau;
+}
+
+void Node::setGrauReativo(int grau)
+{
+    this->grauReativo = grau;
 }
 
 void Node::setEntradaNo(int grau)

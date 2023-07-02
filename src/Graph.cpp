@@ -262,7 +262,9 @@ void Graph::insereArestaTrabalho(int idCauda, int idCabeca)
 
     if(!this->getDigrafo()){
         cabeca->setGrauNo(cabeca->getGrauNo() + 1);
+        cabeca->setGrauReativo(cabeca->getGrauNo());
         cauda->setGrauNo(cauda->getGrauNo() + 1);
+        cauda->setGrauReativo(cauda->getGrauNo());
     }
     else{
         cabeca->setEntradaNo(cabeca->getEntradaNo() + 1);
@@ -411,7 +413,7 @@ void Graph::imprime(){
     {
         cout << "(" << no->getIdArquivo() << ")";
         if(this->pesoNosVertices){
-            cout << "<peso: " << no->getPesoNo() << " >";
+            cout << "<grau: " << no->getGrauNo() << " >";
         }
         cout << endl;
         Edge* aresta = no->getPrimeiraAresta();
@@ -777,13 +779,15 @@ void Graph::quickSort(std::vector<Edge>& vetor, int low, int high) {
 
 // PARTE 2 DO TRABALHO ABAIXO
 
-void Graph::coberturaMinimaGulosa()
+Solution Graph::coberturaMinimaGulosa()
 {
     vector< Node* > candidatos;
     vector< Node* > candidatosMapa;
     vector< int > solucao;
     vector< vector<int> > matrizDeAdjacencia(this->getOrdem(), vector<int>(this->getOrdem(), 0));
     float custoTotal = 0;
+    high_resolution_clock::time_point start = high_resolution_clock::now();
+    double time = 0;
 
     for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
     {
@@ -821,11 +825,21 @@ void Graph::coberturaMinimaGulosa()
         candidatos.erase(candidatos.begin());   
     }
 
+    high_resolution_clock::time_point stop = high_resolution_clock::now();
+    time = duration_cast<duration<double>>(stop - start).count();
+
     // verificaSolucao(solucao);
     // imprimir a solução
     cout << "Tamanho da Solução: " << solucao.size() << " vertices" << endl;
     cout << "Custo total: " << custoTotal << endl;
     cout << endl;
+
+    Solution sol = Solution();
+    sol.setCustoTotal(custoTotal);
+    sol.setSolucao(solucao);
+    sol.setTempoExecucao(time);
+
+    return sol;
 }
  
 // Partition the array using the last element as the pivot
@@ -889,9 +903,12 @@ Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
 
     std::srand(std::time(nullptr));
 
-    for(int i=0; i<nInteracoes; i++){
+    for(int i = 0; i < nInteracoes; i++){
+        candidatos.clear();
+        candidatosMapa.clear();
         for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
         {
+            no->setGrauNo(no->getGrauReativo());
             if(no->getGrauNo() != 0){
                 candidatos.push_back(no);// remover todos os nós com grau 0
                 candidatosMapa.push_back(no);
@@ -929,7 +946,7 @@ Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
                 }
             }
             // remove o nó que foi  adicionado à solução
-            candidatos.erase(candidatos.begin()+k);    
+            candidatos.erase(candidatos.begin()+k);
         }
 
         if(i==0 || custoTotal < custoBest){
@@ -1018,35 +1035,38 @@ void Graph::atualizaMedias(vector<float>& medias, vector<int> aparicoes, int ind
     medias[indiceEscolhido] = (medias[indiceEscolhido] * aparicoes[indiceEscolhido] + sol.getCustoTotal())/(aparicoes[indiceEscolhido] + 1);
 }
 
-// void Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanhoVetor, int nIteracoes, int bloco)
-// {
-//     Solution solBest, sol;
-//     int i = 1;
-//     vector<float> probabilidades, medias;
-//     vector<int> aparicoes;
-//     inicializaVetores(probabilidades, medias, aparicoes, tamanhoVetor);
+Solution Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanhoVetor, int nIteracoes, int bloco)
+{
+    Solution solBest, sol;
+    int i = 1;
+    vector<float> probabilidades, medias;
+    vector<int> aparicoes;
+    inicializaVetores(probabilidades, medias, aparicoes, tamanhoVetor);
 
-//    while(i < nIteracoes){
-//         if(i % bloco == 0 && i != 1){
-//             atualizaProbabilidades(probabilidades, medias, alpha, solBest);
-//         }
-//         int indiceEscolhido = escolheAlfa(probabilidades);
-//         float alfaAtual = alpha[ indiceEscolhido ];
+   while(i < nIteracoes){
+        if(i % bloco == 0 && i != 1){
+            atualizaProbabilidades(probabilidades, medias, alpha, solBest);
+        }
+        int indiceEscolhido = escolheAlfa(probabilidades);
+        float alfaAtual = alpha[ indiceEscolhido ];
         
-//         sol = coberturaMinimaGulosaRandomizada(alfaAtual, 1);
+        sol = coberturaMinimaGulosaRandomizada(alfaAtual, 1);
+        sol.setAlpha(alfaAtual);
 
-//         atualizaMedias(medias, aparicoes, indiceEscolhido, sol);
-//         aparicoes[indiceEscolhido] = aparicoes[indiceEscolhido] + 1;
+        atualizaMedias(medias, aparicoes, indiceEscolhido, sol);
+        aparicoes[indiceEscolhido] = aparicoes[indiceEscolhido] + 1;
 
-//         if(sol.getCustoTotal() < solBest.getCustoTotal() || i == 1)
-//         {
-//             solBest = sol;
-//         }
-//         i++;
-//    }
+        if(sol.getCustoTotal() < solBest.getCustoTotal() || i == 1)
+        {
+            solBest = sol;
+        }
+        i++;
+   }
 
-//    cout << "Solução gulosa randomizada reativa: "<< endl;
-//    cout << "Tamanho da solução: " << solBest.getSolucao().size() << endl;
-//    cout << "Custo da solução: " << solBest.getCustoTotal()<< endl;
-//    cout << "Tempo de execução: " << solBest.getTempoExecucao() << " segundos."<< endl;
-// }
+   cout << "Solução gulosa randomizada reativa: "<< endl;
+   cout << "Tamanho da solução: " << solBest.getSolucao().size() << endl;
+   cout << "Custo da solução: " << solBest.getCustoTotal()<< endl;
+   cout << "Tempo de execução: " << solBest.getTempoExecucao() << " segundos."<< endl;
+
+   return solBest;
+}

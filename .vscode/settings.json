@@ -3,5 +3,9 @@
         "args": [
             "instancias/brock200_2.txt", "arquivoDeSaida.txt", "0", "0", "1"
         ]
+    },
+    "files.associations": {
+        "ostream": "cpp",
+        "chrono": "cpp"
     }
 }

@@ -11,6 +11,7 @@ private:
     int idArquivo;      // id do arquivo
     Node* proxNo;
     int grauNo;
+    int grauReativo;
     float peso;
 
     // colocando valores para grau de entrada e saída caso digrafo
@@ -28,6 +29,7 @@ public:
     bool removeAresta(int idCabeca);             //Recebe o id de arquivo
 
     int getGrauNo();
+    int getGrauReativo();
     int getEntradaNo();
     int getSaidaNo();
     int getIdArquivo();
@@ -37,6 +39,7 @@ public:
 
     void setIdArquivo(int idArquivo);
     void setGrauNo(int grau);
+    void setGrauReativo(int grau);
     void setEntradaNo(int grau);
     void setSaidaNo(int grau);
     void setPesoNo(float peso);
