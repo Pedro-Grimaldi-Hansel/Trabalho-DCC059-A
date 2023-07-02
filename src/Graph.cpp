@@ -795,7 +795,6 @@ void Graph::coberturaMinimaGulosa()
             matrizDeAdjacencia[aresta->getIdCauda()-1][aresta->getIdCabeca()-1] = 1;
         }
     }
-    cout << endl;
 
     // aqui já temos o vetor auxiliar completo
     int arestasCount = this->getNumArestas();
@@ -876,69 +875,76 @@ void Graph::quickSortGuloso(std::vector<Node*>& arr, int low, int high)
     }
 }
 
-// Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
-// {
-//     high_resolution_clock::time_point start = high_resolution_clock::now();
-//     vector< Node > vetorAuxiliar;
-//     vector< int > solucao;
-//     vector< int > solucaoBest;
-//     float custoTotal = 0;
-//     float custoBest = 0;
-//     double time = 0;
+Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
+{
+    high_resolution_clock::time_point start = high_resolution_clock::now();
+    vector< Node* > candidatos;
+    vector< Node* > candidatosMapa;
+    vector< vector<int> > matrizDeAdjacencia(this->getOrdem(), vector<int>(this->getOrdem(), 0));
+    vector< int > solucao;
+    vector< int > solucaoBest;
+    float custoTotal = 0;
+    float custoBest = 0;
+    double time = 0;
 
-//     std::srand(std::time(nullptr));
+    std::srand(std::time(nullptr));
 
-//     for(int i=0; i<nInteracoes; i++){
-//         for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
-//         {
-//             if(no->getGrauNo() != 0){
-//                 vetorAuxiliar.push_back(*no);// remover todos os nós com grau 0
-//             }
-//         } // aqui já temos o vetor auxiliar completo
-//         solucao.clear();
-//         while(vetorAuxiliar.size() > 0)
-//         {
-//             quickSortGuloso(vetorAuxiliar, 0, vetorAuxiliar.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução           
+    for(int i=0; i<nInteracoes; i++){
+        for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
+        {
+            if(no->getGrauNo() != 0){
+                candidatos.push_back(no);// remover todos os nós com grau 0
+                candidatosMapa.push_back(no);
+            }
+            for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
+                matrizDeAdjacencia[aresta->getIdCauda()-1][aresta->getIdCabeca()-1] = 1;
+            }
+        }
 
-//             int numero_aleatorio = (int)(alpha*(vetorAuxiliar.size()-1));
-//             if(numero_aleatorio==0)
-//                 numero_aleatorio=1;
-//             int k = std::rand() % numero_aleatorio; //Randomizao o numero de 0 a alpha*(vetorAuxiliar.size()-1)
-//             // cout << "numero aleatorio usado no rand:" << k << endl;
-//             custoTotal += vetorAuxiliar[k].getPesoNo();
+        int arestasCount = numArestas;
+        solucao.clear();
+        while(arestasCount > 0)
+        {
+            quickSortGuloso(candidatos, 0, candidatos.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução           
 
-//             solucao.push_back(vetorAuxiliar[k].getIdArquivo()); // coloca o "mais ótimo" candidato na solução
+            int numero_aleatorio = (int)(alpha*(candidatos.size()-1));
+            if(numero_aleatorio == 0)
+                numero_aleatorio = 1;
+            int k = rand() % numero_aleatorio; //Randomizao o numero de 0 a alpha*(candidatos.size()-1)
+            // cout << "numero aleatorio usado no rand:" << k << endl;
+            custoTotal += candidatos[k]->getPesoNo();
 
-//             // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
-//             for(int i = 1; i < vetorAuxiliar.size(); i++){
-//                 for(Edge* aux = vetorAuxiliar[i].getPrimeiraAresta(); aux != nullptr; aux = aux->getProxAresta())
-//                 {
-//                     if(aux->getIdCabeca() == vetorAuxiliar[k].getIdArquivo()){
-//                         vetorAuxiliar[i].setGrauNo( vetorAuxiliar[i].getGrauNo() - 1); //Atualiza o grau do no
-//                         if(vetorAuxiliar[i].getGrauNo() == 0){
-//                             vetorAuxiliar.erase(vetorAuxiliar.begin() + i);
-//                             i--;
-//                         }
-//                     }
-//                 }
-//             }
-//             // remove o nó que foi  adicionado à solução
-//             vetorAuxiliar.erase(vetorAuxiliar.begin()+k);    
-//         }
+            int idEscolhido = candidatos[k]->getIdArquivo();
+            solucao.push_back(idEscolhido); // coloca o "mais ótimo" candidato na solução
 
-//         if(i==0 || custoTotal < custoBest){
-//            custoBest = custoTotal;
-//            solucaoBest = solucao; 
-//         }  //Compara as soluçoes e atualiza a melhor
-//     }
+            // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
+            for(int i = 0; i < this->getOrdem(); i++)
+            {
+                if(matrizDeAdjacencia[idEscolhido - 1][i] == 1){
+                    //Atualiza o grau do no
+                    candidatosMapa[i]->setGrauNo( candidatosMapa[i]->getGrauNo() - 1); 
+                    matrizDeAdjacencia[idEscolhido-1][i] = 0;
+                    matrizDeAdjacencia[i][idEscolhido-1] = 0;
+                    arestasCount--;
+                }
+            }
+            // remove o nó que foi  adicionado à solução
+            candidatos.erase(candidatos.begin()+k);    
+        }
 
-//     high_resolution_clock::time_point stop = high_resolution_clock::now();
-//     time = duration_cast<duration<double>>(stop - start).count();
+        if(i==0 || custoTotal < custoBest){
+           custoBest = custoTotal;
+           solucaoBest = solucao; 
+        }  //Compara as soluçoes e atualiza a melhor
+    }
 
-//     Solution solution = Solution(custoBest, solucaoBest, time, alpha);
+    high_resolution_clock::time_point stop = high_resolution_clock::now();
+    time = duration_cast<duration<double>>(stop - start).count();
 
-//     return solution;
-// }
+    Solution solution = Solution(custoBest, solucaoBest, time, alpha);
+
+    return solution;
+}
 
 bool Graph::verificaSolucao(vector< int >solucao)
 {

@@ -25,12 +25,9 @@ int main(int argc, char const *argv[]){
     bool ponderadoVertice = string(argv[5]) != "0";
 
     Graph* grafo = new Graph(arquivoEntrada);
-    float time = 0;
-    high_resolution_clock::time_point start = high_resolution_clock::now();
-    grafo->coberturaMinimaGulosa();
-    high_resolution_clock::time_point stop = high_resolution_clock::now();
-    time = duration_cast<duration<double>>(stop - start).count();
-    cout << "Tempo de execução: " << time << " segundos." << endl;
+
+    Solution sol = grafo->coberturaMinimaGulosaRandomizada(0.1, 1000);
+    cout << "Solução: " << sol.getCustoTotal() << ", Tempo: " << sol.getTempoExecucao() << ", Tam: " << sol.getSolucao().size() << endl;
     // float alpha[] = {0.1, 0.3, 0.25, 0.60, 0.75};
     // grafo->coberturaMinimaGulosaRandomizadaReativa(alpha, 5, 1000, 10);
    
