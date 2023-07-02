@@ -14,6 +14,7 @@ class Graph{
         Node* primeiroNo;
         Node* ultimoNo;
         bool digrafo;
+
         bool pesoNasArestas;
         bool pesoNosVertices;
         int numArestas;
@@ -89,6 +90,15 @@ class Graph{
         vector< int >  vizinhancaAberta(int id);
         void vizinhancaFechada(int id);
 
+        bool BFS();
+        bool BFSColoring(int startNode, vector<int>& color, vector<bool>& visited);
+        int getNumberOfNodes();
+        int getNumberOfEdges();
+        bool isComplete();
+        bool isBipartide();
+        bool isEulerian();
+        void stronglyConectedComponents();
+
         void AGM();
        
         void coberturaMinimaGulosa();
@@ -106,6 +116,11 @@ class Graph{
 
         void subgrafoInduzido(vector< int > vet); // deve receber um vector de inteiros que representam os ids de arquivo dos nós do subgrafo
 
+        void DFSDireto(Node* no, map<int,bool> &visitado, map< int,bool > &fecho);
+        void DFSIndireto(Node* no, map<int,bool> &visitado, map< int,bool > &fecho);
+
+        void fechoTransitivoDireto(int id);
+        void fechoTransitivoIndireto(int id);
 };
 
 #endif // GRAPH_H_INCLUDED

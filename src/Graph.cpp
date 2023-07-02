@@ -1,6 +1,8 @@
 #include "Graph.h"
 #include <iostream>
 #include <vector>
+#include <unordered_set>
+#include <list>
 #include <chrono>
 #include <ctime>
 #include <queue>
@@ -97,7 +99,7 @@ void Graph::escreveArquivoDOT(ofstream &arquivoSaida)
     // Escrever as arestas do grafo
     for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo()){
         for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
-            if(no->getIdArquivo() < aresta->getIdCabeca()){
+            if(no->getIdArquivo() < aresta->getIdCabeca() && !this->digrafo){
                 continue; //Para não repetir aresta
             }
             arquivoSaida << "    " << no->getIdArquivo();
@@ -534,6 +536,261 @@ void Graph::vizinhancaFechada(int id)
     cout << endl;
 
     return;
+}
+
+int Graph::getNumberOfNodes()
+{
+    return this->getOrdem();
+}
+
+int Graph::getNumberOfEdges()
+{
+    return this->numArestas; 
+}
+
+bool Graph::isComplete()
+{
+    int n = getNumberOfNodes();
+    int edgesToBeComplete = n*(n-1)/2;
+    return (getDigrafo() && getNumberOfEdges() == edgesToBeComplete*2) || (!getDigrafo() &&  getNumberOfEdges() == edgesToBeComplete);
+
+    // if(getDigrafo())
+    // {
+    //     if(getNumberOfEdges() != edgesToBeComplete*2)
+    //     {
+    //         return false;
+    //     }
+    //     else
+    //     {
+    //         Node* currentNode = getPrimeiroNo();
+    //         while (currentNode != nullptr)
+    //         {
+    //             Node* otherNode = currentNode->getProxNo();
+    //             while (otherNode != nullptr)
+    //             {
+    //                 if (currentNode->buscaAresta(otherNode->getIdArquivo()) == nullptr)
+    //                 {
+    //                     return false;
+    //                 }
+    //                 otherNode = otherNode->getProxNo();
+    //             }
+    //             currentNode = currentNode->getProxNo();
+    //         }
+    //     }
+    // }
+    // else
+    // {
+    //     if (getNumberOfEdges() != edgesToBeComplete)
+    //     {
+    //         return false;
+    //     }
+
+    //     else
+    //     {
+    //         // Confere se há self-loops ou multiarestas
+    //         Node* currentNode = getPrimeiroNo();
+    //         while (currentNode != nullptr)
+    //         {
+    //             if (currentNode->getGrauNo() != n - 1)
+    //             {
+    //                 return false;
+    //             }
+    //             currentNode = currentNode->getProxNo();
+    //         }
+    //     }
+    // }
+}
+
+// Função de busca em largura (Breadth-first search)
+
+bool Graph::BFS()
+{
+    Node* root = getPrimeiroNo(); 
+    int numberOfNodes = getNumberOfNodes();
+    vector<bool> visited(numberOfNodes, false);
+
+    list<Node*> queue; // Fila para visita
+    visited[root->getIdArquivo()] = true; // Marca o primeiro como visitado
+    queue.push_back(root); // Coloca o primeiro nó fim da fila
+
+    while (!queue.empty()) 
+    {
+        Node* nextNode = queue.front();
+        cout << nextNode->getIdArquivo() << " ";
+        queue.pop_front();
+
+        Edge* currentEdge = nextNode->getPrimeiraAresta();
+        while (currentEdge != nullptr) 
+        {
+            int headNodeId = currentEdge->getIdCabeca();
+            Node* headNode = buscaNoPorIdArquivo(headNodeId);
+
+            if (!visited[headNode->getIdArquivo()]) 
+            {
+                visited[headNode->getIdArquivo()] = true;
+                queue.push_back(headNode);
+            }
+
+            currentEdge = currentEdge->getProxAresta();
+        }
+    }
+
+    return true;
+}
+
+// BFS auxiliar para saber se é bipartido onde há colocarção dos nós parasaber se há uma possível bipartição
+
+bool Graph::BFSColoring(int startNode, vector<int>& color, vector<bool>& visited)
+{
+    color[startNode] = 1;  // Colore o primeiro nó com a cor 1
+    list<int> queue; // Fila para visita
+    queue.push_back(startNode); // Coloca o primeiro nó na fila
+    visited[startNode] = true; // Marca o primeiro como visitado
+
+    while (!queue.empty()) 
+    {
+        int currentNode = queue.front();
+        queue.pop_front();
+
+        Edge* currentEdge = buscaNoPorIdArquivo(currentNode+1)->getPrimeiraAresta();
+
+        while (currentEdge != nullptr) 
+        {
+            int neighborNode = currentEdge->getIdCabeca();
+            neighborNode--;
+            if (!visited[neighborNode]) 
+            {
+                visited[neighborNode] = true;
+                color[neighborNode] = 1 - color[currentNode];  // Colore o nó vizinho com a cor oposta
+                queue.push_back(neighborNode);
+            } 
+            else if (color[neighborNode] == color[currentNode]) 
+            {
+                return false;  // Achou aresta com extremidades em nós da mesma cor
+            }
+
+            currentEdge = currentEdge->getProxAresta();
+        }
+    }
+
+    return true;  // Grafo é Bipartido
+}
+
+// Grafo bipartido é grafo cujos vértices podem ser divididos em dois conjuntos disjuntos U e V tais que toda aresta conecta um vértice em U a um vértice em V; ou seja, U e V são conjuntos independentes.
+
+bool Graph::isBipartide()
+{
+
+    int numberOfNodes = getNumberOfNodes();
+    int numberOfEdges = getNumberOfEdges();
+
+    // Verificação Básica Inicial
+    
+    if(getDigrafo() && numberOfEdges > ((numberOfNodes*numberOfNodes)/2) || !getDigrafo() && numberOfEdges > ((numberOfNodes*numberOfNodes)/4))
+    {
+        return false;
+    }
+    else
+    {
+        vector<int> color(numberOfNodes, -1);  // Todos os nós são iniciados com cor -1
+        vector<bool> visited(numberOfNodes, false);
+
+        for (int i = 0; i < numberOfNodes; i++) 
+        {
+            if (!visited[i]) 
+            {
+                if (!BFSColoring(i, color, visited)) {
+                    return false;  // Grafo não é Bipartido
+                }
+            }
+        }
+
+        return true;  // Grafo Bipartido
+    }
+}
+
+bool Graph::isEulerian()
+{
+    int numberOfNodes = getNumberOfNodes();
+    int numberOfEdges = getNumberOfEdges();
+
+    if (getDigrafo()) 
+    {
+        // Verifica se todos os nós possuem os mesmos graus de entrada e de saída, menos grafos com self-loops
+        for (Node* node = getPrimeiroNo(); node != nullptr; node = node->getProxNo()) 
+        {
+            if (node->getEntradaNo() != node->getSaidaNo()) 
+            {
+                if (node->getEntradaNo() != node->getSaidaNo() || node->getEntradaNo() % 2 != 0) 
+                {
+                    return false;
+                }
+            }
+        }
+    } 
+    else 
+    {
+        int selfLoopsCount = 0;
+        // Contagem de arestas incidentes em cada nó
+        vector<int> degreeCount(numberOfNodes, 0);  
+
+        for (Node* node = getPrimeiroNo(); node != nullptr; node = node->getProxNo()) 
+        {
+            Edge* currentEdge = node->getPrimeiraAresta();
+            while (currentEdge != nullptr) 
+            {
+                int headNode = currentEdge->getIdCabeca();
+                degreeCount[headNode]++;
+                degreeCount[node->getIdArquivo()]++;
+                currentEdge = currentEdge->getProxAresta();
+            }
+
+            // Self-loops
+            if (degreeCount[node->getIdArquivo()] > 0) 
+            {
+                selfLoopsCount += degreeCount[node->getIdArquivo()] / 2;
+            }
+        }
+
+        // Verifica se todos os nós (exceto self-loops) possuem grau par, e os nós com self-loops possuem grau par ou múltiplo de 2
+        for (int i = 0; i < numberOfNodes; i++) 
+        {
+            if (degreeCount[i] % 2 != 0) 
+            {
+                if (degreeCount[i] % 2 != 0 || degreeCount[i] % 4 != 0) 
+                {
+                    return false;
+                }
+            }
+        }
+
+        // Verifica se o número de self-loops é par
+        if (selfLoopsCount % 2 != 0) 
+        {
+            return false;
+        }
+    }
+
+    // Verifica se o grafo é conexo
+    if (!BFS())
+    {
+        return false;
+    }
+
+    return true;
+
+}
+
+void Graph::stronglyConectedComponents()
+{
+    if(getDigrafo())
+    {
+
+    }
+    else
+    {
+        cout<< "Não é um digrafo?" << endl;
+    }
 }
 
 void Graph::AGM()
@@ -1152,4 +1409,83 @@ void Graph::subgrafoInduzido(vector<int> vet)
         }
         cout << endl;
     }
+}
+
+void Graph::DFSDireto(Node* no, map< int,bool > &visitado, map< int,bool > &fecho)
+{
+    visitado[no->getIdArquivo()] = true;
+    fecho[no->getIdArquivo()] = true;
+
+    for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta=aresta->getProxAresta()){
+        if(!visitado[aresta->getIdCabeca()]){
+            Node* noNovo = buscaNoPorIdArquivo(aresta->getIdCabeca());
+            DFSDireto(noNovo, visitado, fecho);
+        }
+    }
+}
+
+void Graph::DFSIndireto(Node* no, map<int,bool> &visitado, map< int,bool > &fecho)
+{
+    visitado[no->getIdArquivo()] = true;
+    fecho[no->getIdArquivo()] = true;
+
+    for(Node* aux=this->primeiroNo; aux!=nullptr; aux = aux->getProxNo()){
+        for(Edge* aresta = aux->getPrimeiraAresta(); aresta != nullptr; aresta=aresta->getProxAresta()){
+            if(aresta->getIdCabeca() == no->getIdArquivo() && !visitado[aresta->getIdCauda()]){
+                DFSIndireto(aux, visitado, fecho);
+            }
+        }
+    }
+}
+
+
+/*Função encontrarFechoTransitivoDireto(grafo, no):
+    tamanho = tamanho do grafo
+    Criar vetor visitado com tamanho elementos, todos inicializados como false
+    Criar vetor fecho com tamanho elementos, todos inicializados como false
+
+    Chamar DFS(grafo, no, visitado, fecho)
+
+    Retornar fecho
+
+*/
+
+void Graph::fechoTransitivoDireto(int id)
+{
+    Node* noDoFecho = buscaNoPorIdArquivo(id); 
+    map< int,bool > visitado;
+    map< int,bool > fecho;
+    for(Node* no=this->primeiroNo; no!=nullptr; no=no->getProxNo()){
+        visitado[no->getIdArquivo()] = false;
+        fecho[no->getIdArquivo()] = false;
+    }
+
+    DFSDireto(noDoFecho, visitado, fecho);
+
+    cout << "Fecho Transitivo Direto do nó " << id << ":" << endl;
+    for(Node* no=this->primeiroNo; no!=nullptr; no=no->getProxNo()){
+        if(fecho[no->getIdArquivo()])
+            cout << no->getIdArquivo() << ", ";
+    }
+    cout << endl;
+}
+
+void Graph::fechoTransitivoIndireto(int id)
+{
+    Node* noDoFecho = buscaNoPorIdArquivo(id); 
+    map< int,bool > visitado;
+    map< int,bool > fecho;
+    for(Node* no=this->primeiroNo; no!=nullptr; no=no->getProxNo()){
+        visitado[no->getIdArquivo()] = false;
+        fecho[no->getIdArquivo()] = false;
+    }
+
+    DFSIndireto(noDoFecho, visitado, fecho);
+
+    cout << "Fecho Transitivo Indireto do nó " << id << ":" << endl;
+    for(Node* no=this->primeiroNo; no!=nullptr; no=no->getProxNo()){
+        if(fecho[no->getIdArquivo()])
+            cout << no->getIdArquivo() << ", ";
+    }
+    cout << endl;
 }

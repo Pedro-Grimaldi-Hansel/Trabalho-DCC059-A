@@ -56,7 +56,7 @@
     },
     "cmake.debugConfig": {
         "args": [
-            "arquivoDeEntrada.txt", "arquivoDeSaida.txt", "0", "1", "0"
+            "arquivoDeEntrada.txt", "arquivoDeSaida.txt", "1", "1", "0"
         ]
     },
 }

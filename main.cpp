@@ -29,7 +29,9 @@ int main(int argc, char const *argv[]){
     // grafo->imprime();
     // grafo->caminhoMinimoDijkstra(no->getIdArquivo());
     // grafo->escreveArquivoDOT(arquivoSaida);
-    vector< int > subgrafo = {1, 3, 5};
-    grafo->subgrafoInduzido(subgrafo);
+    // vector< int > subgrafo = {1, 3, 5};
+    // grafo->subgrafoInduzido(subgrafo);
+    grafo->fechoTransitivoIndireto(2);
+    grafo->escreveArquivoDOT(arquivoSaida);
     return 0;
 }
