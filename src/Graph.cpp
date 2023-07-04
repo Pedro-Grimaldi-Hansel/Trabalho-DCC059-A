@@ -262,9 +262,7 @@ void Graph::insereArestaTrabalho(int idCauda, int idCabeca)
 
     if(!this->getDigrafo()){
         cabeca->setGrauNo(cabeca->getGrauNo() + 1);
-        cabeca->setGrauReativo(cabeca->getGrauNo());
         cauda->setGrauNo(cauda->getGrauNo() + 1);
-        cauda->setGrauReativo(cauda->getGrauNo());
     }
     else{
         cabeca->setEntradaNo(cabeca->getEntradaNo() + 1);
@@ -781,8 +779,9 @@ void Graph::quickSort(std::vector<Edge>& vetor, int low, int high) {
 
 Solution Graph::coberturaMinimaGulosa()
 {
-    vector< Node* > candidatos;
-    vector< Node* > candidatosMapa;
+    vector<int> candidatos_id(this->ordem);
+    vector<int> candidatos_peso(this->ordem);
+    vector<int> candidatos_grau(this->ordem);
     vector< int > solucao;
     vector< vector<int> > matrizDeAdjacencia(this->getOrdem(), vector<int>(this->getOrdem(), 0));
     float custoTotal = 0;
@@ -792,8 +791,9 @@ Solution Graph::coberturaMinimaGulosa()
     for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
     {
         if(no->getGrauNo() != 0){
-            candidatos.push_back(no);// remover todos os nós com grau 0
-            candidatosMapa.push_back(no);
+            candidatos_id.push_back(no->getIdArquivo());// remover todos os nós com grau 0
+            candidatos_peso.push_back(no->getPesoNo());
+            candidatos_grau.push_back(no->getGrauNo());
         }
         for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
             matrizDeAdjacencia[aresta->getIdCauda()-1][aresta->getIdCabeca()-1] = 1;
@@ -805,24 +805,32 @@ Solution Graph::coberturaMinimaGulosa()
 
     while(arestasCount > 0)
     {
-        quickSortGuloso(candidatos, 0, candidatos.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução
-        int idEscolhido = candidatos[0]->getIdArquivo();
+        quickSortGuloso(candidatos_id, candidatos_grau, candidatos_peso, 0, candidatos_id.size()); // ordenar para ter na primeira posição o "mais ótimo" para a solução
+        int idEscolhido = candidatos_id[0];
         solucao.push_back(idEscolhido); // coloca o "mais ótimo" candidato na solução
-        custoTotal += candidatos[0]->getPesoNo();
+        custoTotal += candidatos_peso[0];
 
         // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
         for(int i = 0; i < this->getOrdem(); i++)
         {
             if(matrizDeAdjacencia[idEscolhido - 1][i] == 1){
                 //Atualiza o grau do no
-                candidatosMapa[i]->setGrauNo( candidatosMapa[i]->getGrauNo() - 1); 
+                candidatos_grau[i] = candidatos_grau[i] - 1; 
+                // Removendo candidatos com grau 0
+                if(candidatos_grau[i] == 0){
+                    candidatos_id.erase(candidatos_id.begin()+i);
+                    candidatos_grau.erase(candidatos_grau.begin()+i);
+                    candidatos_peso.erase(candidatos_peso.begin()+i);
+                }
                 matrizDeAdjacencia[idEscolhido-1][i] = 0;
                 matrizDeAdjacencia[i][idEscolhido-1] = 0;
                 arestasCount--;
             }
         }
         // remove o nó que foi  adicionado à solução
-        candidatos.erase(candidatos.begin());   
+        candidatos_id.erase(candidatos_id.begin());
+        candidatos_grau.erase(candidatos_grau.begin());
+        candidatos_peso.erase(candidatos_peso.begin());   
     }
 
     high_resolution_clock::time_point stop = high_resolution_clock::now();
@@ -842,12 +850,19 @@ Solution Graph::coberturaMinimaGulosa()
     return sol;
 }
  
+
+void Graph::swap(vector<int>& vec, int index1, int index2) {
+    int temp = vec[index1];
+    vec[index1] = vec[index2];
+    vec[index2] = temp;
+}
+
 // Partition the array using the last element as the pivot
-int Graph::partitionGuloso(std::vector<Node*>& arr, int low, int high)
+int Graph::partitionGuloso(vector<int>& candidatos_id, vector<int>& candidatos_grau, vector<int>& candidatos_peso, int low, int high)
 {
     // Choosing the pivot
-    float pivot = arr[high]->getPrioridade();
-    int desempate = arr[high]->getGrauNo();
+    float pivot = candidatos_peso[high]/ (float) candidatos_grau[high];
+    int desempate = candidatos_grau[high];
  
     // Index of smaller element and indicates
     // the right position of pivot found so far
@@ -856,45 +871,48 @@ int Graph::partitionGuloso(std::vector<Node*>& arr, int low, int high)
     for (int j = low; j <= high - 1; j++) {
  
         // If current element is smaller than the pivot
-        if (arr[j]->getPrioridade() < pivot ||( arr[j]->getPrioridade() == pivot && arr[j]->getGrauNo() > desempate )) {
+        float prioridade_atual = candidatos_peso[j]/candidatos_grau[j];
+        float desempate_atual = candidatos_grau[j];
+        if (prioridade_atual < pivot ||( prioridade_atual == pivot && desempate_atual > desempate )) {
  
             // Increment index of smaller element
             i++;
             //Swap
-            Node* temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
+            swap(candidatos_id, i, j);
+            swap(candidatos_grau, i, j);
+            swap(candidatos_peso, i, j);
         }
     }
     //Swap
-    Node* temp2 = arr[high];
-    arr[high] = arr[i+1];
-    arr[i+1] = temp2;
+    swap(candidatos_id, high, i+1);
+    swap(candidatos_grau, high, i+1);
+    swap(candidatos_peso, high, i+1);
 
     return (i + 1);
 }
  
-void Graph::quickSortGuloso(std::vector<Node*>& arr, int low, int high)
+void Graph::quickSortGuloso(vector<int>& candidatos_id, vector<int>& candidatos_grau, vector<int>& candidatos_peso, int low, int high)
 {
     if (low < high) {
  
         // pi is partitioning index, arr[p]
         // is now at right place
-        int pi = partitionGuloso(arr, low, high);
+        int pi = partitionGuloso(candidatos_id, candidatos_grau, candidatos_peso, low, high);
  
         // Separately sort elements before
         // partition and after partition
-        quickSortGuloso(arr, low, pi - 1);
-        quickSortGuloso(arr, pi + 1, high);
+        quickSortGuloso(candidatos_id, candidatos_grau, candidatos_peso, low, pi - 1);
+        quickSortGuloso(candidatos_id, candidatos_grau, candidatos_peso, pi + 1, high);
     }
 }
 
 Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
 {
     high_resolution_clock::time_point start = high_resolution_clock::now();
-    vector< Node* > candidatos;
-    vector< Node* > candidatosMapa;
-    vector< vector<int> > matrizDeAdjacencia(this->getOrdem(), vector<int>(this->getOrdem(), 0));
+    vector<int> candidatos_id(this->ordem);
+    vector<int> candidatos_peso(this->ordem);
+    vector<int> candidatos_grau(this->ordem);
+    vector< vector<int> > matrizDeAdjacencia(this->ordem, vector<int>(this->ordem, 0));
     vector< int > solucao;
     vector< int > solucaoBest;
     float custoTotal = 0;
@@ -904,16 +922,18 @@ Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
     std::srand(std::time(nullptr));
 
     for(int i = 0; i < nInteracoes; i++){
-        candidatos.clear();
-        candidatosMapa.clear();
+        candidatos_id.clear();
+        candidatos_peso.clear();
+        candidatos_grau.clear();
         for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
         {
-            no->setGrauNo(no->getGrauReativo());
-            if(no->getGrauNo() != 0){
-                candidatos.push_back(no);// remover todos os nós com grau 0
-                candidatosMapa.push_back(no);
-            }
+            cout << i << " - " << no->getIdArquivo() << endl;
+            // Inicializando os vetores de candidatos
+            candidatos_id.push_back(no->getIdArquivo());
+            candidatos_peso.push_back(no->getPesoNo());
+            candidatos_grau.push_back(no->getGrauNo());
             for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
+                // Inicializando a matriz
                 matrizDeAdjacencia[aresta->getIdCauda()-1][aresta->getIdCabeca()-1] = 1;
             }
         }
@@ -922,16 +942,16 @@ Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
         solucao.clear();
         while(arestasCount > 0)
         {
-            quickSortGuloso(candidatos, 0, candidatos.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução           
+            quickSortGuloso(candidatos_id, candidatos_grau, candidatos_peso, 0, candidatos_id.size()); // ordenar para ter na primeira posição o "mais ótimo" para a solução           
 
-            int numero_aleatorio = (int)(alpha*(candidatos.size()-1));
+            int numero_aleatorio = (int)(alpha*(candidatos_id.size()-1));
             if(numero_aleatorio == 0)
                 numero_aleatorio = 1;
             int k = rand() % numero_aleatorio; //Randomizao o numero de 0 a alpha*(candidatos.size()-1)
             // cout << "numero aleatorio usado no rand:" << k << endl;
-            custoTotal += candidatos[k]->getPesoNo();
+            custoTotal += candidatos_peso[k];
 
-            int idEscolhido = candidatos[k]->getIdArquivo();
+            int idEscolhido = candidatos_id[k];
             solucao.push_back(idEscolhido); // coloca o "mais ótimo" candidato na solução
 
             // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
@@ -939,14 +959,21 @@ Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
             {
                 if(matrizDeAdjacencia[idEscolhido - 1][i] == 1){
                     //Atualiza o grau do no
-                    candidatosMapa[i]->setGrauNo( candidatosMapa[i]->getGrauNo() - 1); 
+                    candidatos_grau[i] = candidatos_grau[i] - 1; 
+                    if(candidatos_grau[i] == 0){
+                        candidatos_id.erase(candidatos_id.begin()+i);
+                        candidatos_grau.erase(candidatos_grau.begin()+i);
+                        candidatos_peso.erase(candidatos_peso.begin()+i);
+                    }
                     matrizDeAdjacencia[idEscolhido-1][i] = 0;
                     matrizDeAdjacencia[i][idEscolhido-1] = 0;
                     arestasCount--;
                 }
             }
             // remove o nó que foi  adicionado à solução
-            candidatos.erase(candidatos.begin()+k);
+            candidatos_id.erase(candidatos_id.begin()+k);
+            candidatos_grau.erase(candidatos_grau.begin()+k);
+            candidatos_peso.erase(candidatos_peso.begin()+k);
         }
 
         if(i==0 || custoTotal < custoBest){

@@ -195,3 +195,14 @@ float Node::getPrioridade()
     else
         return numeric_limits<float>::max();
 }
+
+int Node::getExcentricidadeNo()
+{
+    return this->excentricidade;
+}
+
+
+void Node::setExcentricidadeNo(int excentricidade)
+{
+    this->excentricidade = excentricidade;
+}

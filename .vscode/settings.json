@@ -1,7 +1,7 @@
 {
     "cmake.debugConfig": {
         "args": [
-            "instancias/brock200_2.txt", "arquivoDeSaida.txt", "0", "0", "1"
+            "arquivoDeEntrada.txt", "arquivoDeSaida.txt", "0", "0", "1"
         ]
     },
     "files.associations": {

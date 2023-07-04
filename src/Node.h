@@ -18,6 +18,8 @@ private:
     int grauEntradaNo;
     int grauSaidaNo;
 
+    int excentricidade;
+
 public:
     Node();
     Node(int idAplicacao);
@@ -44,6 +46,9 @@ public:
     void setSaidaNo(int grau);
     void setPesoNo(float peso);
     void setProxNo(Node* proximo);
+
+    int getExcentricidadeNo();
+    void setExcentricidadeNo(int excentricidade);
 
     float getPrioridade();
 
