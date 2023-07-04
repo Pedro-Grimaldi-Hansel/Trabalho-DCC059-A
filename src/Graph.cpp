@@ -643,11 +643,12 @@ bool Graph::BFSColoring(int startNode, vector<int>& color, vector<bool>& visited
         int currentNode = queue.front();
         queue.pop_front();
 
-        Edge* currentEdge = buscaNoPorIdArquivo(currentNode)->getPrimeiraAresta();
+        Edge* currentEdge = buscaNoPorIdArquivo(currentNode+1)->getPrimeiraAresta();
 
         while (currentEdge != nullptr) 
         {
             int neighborNode = currentEdge->getIdCabeca();
+            neighborNode--;
 
             if (!visited[neighborNode]) 
             {
@@ -770,6 +771,97 @@ bool Graph::isEulerian()
 
     return true;
 
+}
+
+// Busca por profundidade
+
+void Graph::DFS(int idInitialNode)
+{
+    int numberOfNodes = getNumberOfNodes();
+    vector<bool> visited(numberOfNodes, false);
+
+    // Modificação do índice por causa da diferença nas instâncias (vai de 1 a n e não de 0 a n-1)
+    visited[idInitialNode+1] == true;
+    Edge* currentEdge = buscaNoPorIdArquivo(idInitialNode+1)->getPrimeiraAresta();
+
+    for(currentEdge; currentEdge != nullptr; currentEdge = currentEdge->getProxAresta())
+    {
+        if(!visited[currentEdge->getIdCabeca() + 1])
+        {
+            DFS(currentEdge->getIdCabeca() + 1);
+        }
+    }
+    cout << "Vértice atual (DFS): " << idInitialNode << endl;
+
+}
+
+// void Graph::DFSBrigdeEdges(int idInitialNode)
+// {
+//     int numberOfNodes = getNumberOfNodes();
+//     vector<bool> visited(numberOfNodes, false);
+
+//     // Modificação do índice por causa da diferença nas instâncias (vai de 1 a n e não de 0 a n-1)
+//     visited[idInitialNode+1] == true;
+//     Edge* currentEdge = buscaNoPorIdArquivo(idInitialNode+1)->getPrimeiraAresta();
+
+//     for(currentEdge; currentEdge != nullptr; currentEdge = currentEdge->getProxAresta())
+//     {
+//         if(!visited[currentEdge->getIdCabeca() + 1])
+//         {
+//             DFS(currentEdge->getIdCabeca() + 1);
+//         }
+//     }
+
+// }
+
+void Graph::bridgeUtil(int initial, vector<bool> &visited, vector<int> &disc, vector<int> &low, vector<int> &parent, vector<Edge*> &bridges) 
+{
+    static int time = 0;
+    int u = initial;
+
+    Edge* currentEdge = buscaNoPorIdArquivo(u+1)->getPrimeiraAresta();
+    visited[u] = true;
+    disc[u] = low[u] = ++time;
+
+    for (currentEdge; currentEdge != nullptr; currentEdge = currentEdge->getProxAresta()) 
+    {
+        int v = currentEdge->getIdCabeca()-1;
+
+        if (!visited[v]) 
+        {
+            parent[v] = u;
+            bridgeUtil(v, visited, disc, low, parent, bridges);
+
+            low[u] = min(low[u], low[v]);
+
+            if (low[v] > disc[u])
+            {
+                bridges.push_back(currentEdge);
+            }
+        } 
+        else if (v != parent[u]) 
+        {
+            low[u] = min(low[u], disc[v]);
+        }
+    }
+}
+
+vector<Edge*> Graph::findBridges() 
+{
+    vector<Edge*> bridges;
+    int numberOfNodes = getNumberOfNodes();
+    vector<bool> visited(numberOfNodes, false);
+    vector<int> disc(numberOfNodes, 0);
+    vector<int> low(numberOfNodes, 0);
+    vector<int> parent(numberOfNodes, -1);
+
+    for (int i=0; i < numberOfNodes; i++) 
+    {
+        if (!visited[i])
+            bridgeUtil(i, visited, disc, low, parent, bridges);
+    }
+
+    return bridges;
 }
 
 void Graph::stronglyConectedComponents()

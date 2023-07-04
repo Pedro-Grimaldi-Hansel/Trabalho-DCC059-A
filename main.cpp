@@ -25,6 +25,15 @@ int main(int argc, char const *argv[]){
     Graph* grafo = new Graph(arquivoEntrada, digrafo, ponderadoAresta, ponderadoVertice);
     float alpha[] = {0.1, 0.3, 0.25, 0.60, 0.75};
     grafo->coberturaMinimaGulosaRandomizadaReativa(alpha, 5, 1000, 10);
+
+    grafo->imprime();
+
+    vector<Edge*> bridges = grafo->findBridges();
+
+    for(int i = 0; i < bridges.size(); i++)
+    {
+        cout<< "Aresta: " << bridges[i]->getIdCabeca() << ", " << bridges[i]->getIdCauda() << endl;
+    }
    
     return 0;
 }

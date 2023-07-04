@@ -90,13 +90,16 @@ class Graph{
         void vizinhancaAberta(int id);
         void vizinhancaFechada(int id);
 
-        bool BFS();
+        bool BFS(); // Busca por largura
         bool BFSColoring(int startNode, vector<int>& color, vector<bool>& visited);
         int getNumberOfNodes();
         int getNumberOfEdges();
         bool isComplete();
         bool isBipartide();
         bool isEulerian();
+        void DFS(int idInitialNode); // Busca por profundidade
+        void bridgeUtil(int idInitialNode, vector<bool> &visited, vector<int> &discovery, vector<int> &low, vector<int> &parent, vector<Edge*> &bridges);
+        vector<Edge*> findBridges();
         void stronglyConectedComponents();
 
         void AGM();
