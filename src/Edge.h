@@ -5,6 +5,8 @@ using namespace std;
 
 class Edge
 {
+    
+friend class Graph;
 private:
     Edge* proxAresta;
     float peso;

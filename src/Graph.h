@@ -9,6 +9,7 @@
 using namespace std;
 
 class Graph{
+
     private:
         Node* primeiroNo;
         Node* ultimoNo;
@@ -30,8 +31,8 @@ class Graph{
         int buscaNoVector(vector< int > vector, int valor, int tam);
         int buscaNoVectorNos(vector< Node > vector, int valor, int tam);
         int buscaNoVetor(int vetor[], int idArquivo, int tam);
-        void quickSortGuloso(std::vector<Node*>& vetor, int low, int high);
-        int partitionGuloso(std::vector<Node*>& vetor, int low, int high);
+        void quickSortGuloso(std::vector<pair<int, Node*>>& vetor, int low, int high);
+        int partitionGuloso(std::vector<pair< int, Node* > >& vetor, int low, int high);
         void swap(Node* a, Node* b);
         void inicializaVetores(vector<float>& probabilidades, vector<float>& medias, vector<int>& aparicoes, int m);
         void atualizaProbabilidades(vector<float>& probabilidades, vector<float> medias, float* alpha, Solution solBest);

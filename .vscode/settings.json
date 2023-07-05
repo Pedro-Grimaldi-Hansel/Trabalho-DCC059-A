@@ -1,7 +1,17 @@
 {
     "cmake.debugConfig": {
         "args": [
-            "instancias/brock200_2.txt", "arquivoDeSaida.txt", "0", "0", "1"
+            "arquivoDeEntrada.txt", "arquivoDeSaida.txt", "0", "0", "1"
         ]
+    },
+    "files.associations": {
+        "map": "cpp",
+        "algorithm": "cpp",
+        "chrono": "cpp",
+        "array": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "utility": "cpp",
+        "iostream": "cpp"
     }
 }

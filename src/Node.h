@@ -5,12 +5,15 @@ using namespace std;
 
 class Node
 {
+
+friend class Graph;
 private:
     Edge* primeiraAresta;
     int idAplicacao;    // id Da nossa aplicação (Serve somente para a inserção!)
     int idArquivo;      // id do arquivo
     Node* proxNo;
     int grauNo;
+    int grauBackup;
     float peso;
 
     // colocando valores para grau de entrada e saída caso digrafo
