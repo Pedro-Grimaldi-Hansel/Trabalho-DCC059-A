@@ -538,7 +538,7 @@ int Graph::getNumberOfNodes()
 
 int Graph::getNumberOfEdges()
 {
-    return this->numberOfEdges; 
+    return this->numArestas; 
 }
 
 bool Graph::isComplete()
