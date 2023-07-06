@@ -26,24 +26,15 @@ int main(int argc, char const *argv[]){
 
     Graph* grafo = new Graph(arquivoEntrada);
     float time = 0;
-    // high_resolution_clock::time_point start = high_resolution_clock::now();
-    grafo->coberturaMinimaGulosa();
-    // high_resolution_clock::time_point stop = high_resolution_clock::now();
-    // time = duration_cast<duration<double>>(stop - start).count();
-    // cout << "Tempo de execução: " << time << " segundos." << endl;
-    // float alpha[] = {0.1, 0.3, 0.25, 0.60, 0.75};
-    // Solution sol = grafo->coberturaMinimaGulosaRandomizada(0.1, 1);
-    // vector<int> solucao = sol.getSolucao();  
-
-    // cout << endl;
-    // cout << "Solução do randomizado reativo: " << endl;
-    // for(int i=0; i < solucao.size(); i++){
-    //     cout << solucao[i] << ", " ;
-    // }
-    // cout << endl;
-    // cout << "Tempo gasto: " << sol.getTempoExecucao() << endl;
-    // cout << "Custo: " << sol.getCustoTotal() << endl;
-
+    Solution sol;
+    sol = grafo->coberturaMinimaGulosaRandomizada(0.1, 1000);
+    cout << "====================================================" << endl;
+    cout << "Solução Gulosa: " << endl;
+    cout << "Tamanho da Solução: " << sol.getSolucao().size() << " vertices" << endl;
+    cout << "Custo total: " << sol.getCustoTotal() << endl;
+    cout << "Tempo de execução: " << sol.getTempoExecucao() << endl;
+    cout << "====================================================" << endl;
+        
    
     return 0;
 }
