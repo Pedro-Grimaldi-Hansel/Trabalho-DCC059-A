@@ -1,12 +1,15 @@
 #include <iostream>
 #include <fstream>
 #include <set>
+#include <chrono>
 
 #include "src/Graph.h"
 
 using namespace std;
+using namespace chrono;
 
-int main(int argc, char const *argv[]){
+int main(int argc, char const *argv[])
+{
      // Verificando os parâmetros do programa
     if (argc != 6) 
     {
@@ -23,24 +26,18 @@ int main(int argc, char const *argv[]){
     bool ponderadoAresta =  string(argv[4]) != "0";
     bool ponderadoVertice = string(argv[5]) != "0";
 
-    Graph* grafo = new Graph(arquivoEntrada, digrafo, ponderadoAresta, ponderadoVertice);
-    float alpha[] = {0.1, 0.3, 0.25, 0.60, 0.75};
-    grafo->coberturaMinimaGulosaRandomizadaReativa(alpha, 5, 1000, 10);
-
-    grafo->imprime();
-
-    // vector<Edge*> bridges = grafo->findBridges();
-
-    // for(int i = 0; i < bridges.size(); i++)
-    // {
-    //     cout<< "Aresta: " << bridges[i]->getIdCabeca() << ", " << bridges[i]->getIdCauda() << endl;
-    // }
-
-    // set<int> articulationNodes = grafo->findArticulationNodes();
-    // for (set<int>::iterator it = articulationNodes.begin(); it != articulationNodes.end(); ++it)
-    // {
-    //     cout << ' ' << *it;
-    // }
-
+    Graph* grafo = new Graph(arquivoEntrada);
+    float time = 0;
+    Solution sol;
+    float alpha[] = {0.05, 0.10, 0.15, 0.30, 0.50};
+    sol = grafo->coberturaMinimaGulosaRandomizadaReativa(alpha, 5, 100, 10);
+    grafo->verificaSolucao(sol.getSolucao());
+    cout << "====================================================" << endl;
+    cout << "Solução Gulosa: " << endl;
+    cout << "Tamanho da Solução: " << sol.getSolucao().size() << " vertices" << endl;
+    cout << "Custo total: " << sol.getCustoTotal() << endl;
+    cout << "Tempo de execução: " << sol.getTempoExecucao() << endl;
+    cout << "====================================================" << endl;
+        
     return 0;
 }

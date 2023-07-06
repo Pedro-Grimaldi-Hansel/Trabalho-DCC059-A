@@ -11,6 +11,7 @@
 using namespace std;
 
 class Graph{
+
     private:
         Node* primeiroNo;
         Node* ultimoNo;
@@ -19,6 +20,7 @@ class Graph{
         bool pesoNasArestas;
         bool pesoNosVertices;
         int numArestas;
+        int ordem;
 
 
         int ultimoIdVinculado;
@@ -30,10 +32,8 @@ class Graph{
         void imprimeAGM(vector< Edge > AGM, int subarvores[], int mapa[], int numNos);
         void atualizaSubarvores(int numNos, int subarvores[], int indiceCabecaSubarvores, int indiceCaudaSubarvores);
         int buscaNoVector(vector< int > vector, int valor, int tam);
+        int buscaNoVectorNos(vector< Node > vector, int valor, int tam);
         int buscaNoVetor(int vetor[], int idArquivo, int tam);
-        void quickSortGuloso(std::vector<Node>& vetor, int low, int high);
-        int partitionGuloso(std::vector<Node>& vetor, int low, int high);
-        void swap(Node* a, Node* b);
         void inicializaVetores(vector<float>& probabilidades, vector<float>& medias, vector<int>& aparicoes, int m);
         void atualizaProbabilidades(vector<float>& probabilidades, vector<float> medias, float* alpha, Solution solBest);
         int escolheAlfa(vector<float> probabilidades);
@@ -45,6 +45,9 @@ class Graph{
 
         //Leitura de arquivo
         Graph(ifstream &arquivoEntrada, bool digrafo, bool ponderadoVertice, bool ponderadoAresta);
+        
+        //Leitura somente para o trabalho
+        Graph(ifstream &arquivoEntrada);
 
         //Escrita no arquivo
         void escreveArquivo(ofstream &arquivoSaida);
@@ -58,6 +61,7 @@ class Graph{
 
         //Inserção de arestas
         void insereAresta(int idCauda, int idCabeca, float peso);
+        void insereArestaTrabalho(int idCauda, int idCabeca);
 
         //Remoção de aresta
         void removeAresta(int idCauda, int idCabeca);
@@ -110,9 +114,9 @@ class Graph{
 
         void AGM();
        
-        void coberturaMinimaGulosa();
+        Solution coberturaMinimaGulosa();
         Solution coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes);
-        void coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tammanhoVetor, int nIterecoes, int bloco);
+        Solution coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tammanhoVetor, int nIterecoes, int bloco);
 
         bool verificaSolucao(vector< int >solucao);
 

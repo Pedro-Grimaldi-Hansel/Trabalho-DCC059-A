@@ -1,4 +1,5 @@
 #include "Node.h"
+#include <limits>
 
 Node::Node(){
     this->primeiraAresta = nullptr;
@@ -21,7 +22,16 @@ Node::Node(int idAplicacao)
 }
 
 Node::~Node()
-{}
+{
+    // Edge* edge = this->primeiraAresta;
+
+    // while (edge != nullptr)
+    // {
+    //     Edge* aux = edge->getProxAresta(); 
+    //     delete edge;
+    //     edge = aux;
+    // }
+}
 
 void Node::setProxNo(Node* proximo)
 {
@@ -166,13 +176,4 @@ void Node::setSaidaNo(int grau)
 void Node::setPesoNo(float peso)
 {
     this->peso = peso;
-}
-
-float Node::getPrioridade()
-{
-    if(this->grauNo != 0)
-        return this->peso/this->grauNo; 
-    else
-        cout << "Nos com grau 0 não podem ter sua prioridade calculada" << endl;
-        return 999999;
 }

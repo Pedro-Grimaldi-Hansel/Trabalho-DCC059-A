@@ -14,5 +14,5 @@ output_file="arquivoDeSaida.txt"
 for input_file in $input_dir/*
 do
     echo $input_file
-    /Users/pedroleopoldo/Documents/Estudos/Trabalho-DCC059-A/build/main $input_file $output_file 0 0 1
+    ./main $input_file $output_file 0 0 1
 done

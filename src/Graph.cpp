@@ -7,18 +7,25 @@
 #include <ctime>
 #include <set>
 #include <stack>
+#include <random>
+#include <map>
+#include <algorithm>
+
 
 using namespace std;
 using namespace chrono;
 
-Graph::Graph(ifstream &arquivoEntrada, bool digrafo, bool ponderadoAresta, bool ponderadoVertice){
-    if(!arquivoEntrada.is_open()){
+Graph::Graph(ifstream &arquivoEntrada, bool digrafo, bool ponderadoAresta, bool ponderadoVertice)
+{
+    if(!arquivoEntrada.is_open())
+    {
         cout << "ERRO: Arquivo não aberto corretamente!" << endl;
         return;
     }
 
     this->ultimoIdVinculado = 0;
     this->digrafo = digrafo;
+    this->ordem = 0;
     this->pesoNasArestas = ponderadoAresta;
     this->pesoNosVertices = ponderadoVertice;
     
@@ -29,32 +36,78 @@ Graph::Graph(ifstream &arquivoEntrada, bool digrafo, bool ponderadoAresta, bool 
     int idCabeca;
     float pesoAresta = 0;
 
-    //Pegar primeira linha e ver o número de nos e arestas
+    // Pegar primeira linha e ver o número de nós e arestas
     arquivoEntrada >> ordemGrafo;
     arquivoEntrada >> numArestas;
 
     cout << "A ordem do grafo é: " << ordemGrafo << endl;
     cout << "o grafo tem " << numArestas << " arestas"<< endl;
 
-    //Primeiro insere todos o vértices
-    for(int i = 0; i < ordemGrafo; i++){
+    // Insere todos o vértices
+    for(int i = 0; i < ordemGrafo; i++)
+    {
         this->insereNoFim(i+1);
     }
 
-    if(ponderadoVertice && !ponderadoAresta){
+    if(ponderadoVertice && !ponderadoAresta)
+    {
         //Pegar linha até o fim do arquivo
-        while( arquivoEntrada >> leitor >> idCauda >> idCabeca) {
+        while( arquivoEntrada >> leitor >> idCauda >> idCabeca) 
+        {
             this->insereAresta(idCauda, idCabeca, pesoAresta);
         }
-    }else{
+    }
+    else
+    {
         cout << "ERROR: Leitura ainda não implementada!" << endl;
     }
 }
 
+Graph::Graph(ifstream &arquivoEntrada)
+{
+    if(!arquivoEntrada.is_open())
+    {
+        cout << "ERRO: Arquivo não aberto corretamente!" << endl;
+        return;
+    }
+
+    // Para o trabalho temos instancias não direcionadas, sem peso nas arestas e peso nos vétices
+    this->digrafo = false;
+    this->pesoNasArestas = false;
+    this->pesoNosVertices = true;
+    this->ordem = 0;
+    
+    string leitor;
+    int ordemGrafo;
+    int numArestas;
+    int idCauda;
+    int idCabeca;
+
+    // Pegar primeira linha e ver o número de nós e arestas
+    arquivoEntrada >> ordemGrafo;
+    arquivoEntrada >> numArestas;
+
+    cout << "A ordem do grafo é: " << ordemGrafo << endl;
+    cout << "o grafo tem " << numArestas << " arestas"<< endl;
+
+    this->numArestas = numArestas;
+
+    for(int i = 1; i <= ordemGrafo; i++ ){
+        insereNoFim(i, i);
+    }
+
+    while( arquivoEntrada >> leitor >> idCauda >> idCabeca) {
+        this->insereArestaTrabalho(idCauda, idCabeca);
+    }
+}
+
+Graph::~Graph() { }
+
 void Graph::escreveArquivo(ofstream &arquivoSaida)
 {
     // Verificar se o arquivo foi aberto corretamente
-    if (!arquivoSaida.is_open()) {
+    if (!arquivoSaida.is_open()) 
+    {
         cout << "Erro ao abrir o arquivo " << endl;
         return;
     }
@@ -62,10 +115,13 @@ void Graph::escreveArquivo(ofstream &arquivoSaida)
     arquivoSaida << this->getOrdem() << endl;
 
     // Escrever as arestas do grafo
-    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo()){
-        for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
-            if(no->getIdArquivo() > aresta->getIdCabeca()){
-                continue; //Para não repetir aresta
+    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
+    {
+        for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta())
+        {
+            if(no->getIdArquivo() > aresta->getIdCabeca())
+            {
+                continue; // Para não repetir aresta
             }
             arquivoSaida << no->getIdArquivo();
             arquivoSaida << " " << aresta->getIdCabeca();
@@ -77,28 +133,38 @@ void Graph::escreveArquivo(ofstream &arquivoSaida)
 void Graph::escreveArquivoDOT(ofstream &arquivoSaida)
 {
     // Verificar se o arquivo foi aberto corretamente
-    if (!arquivoSaida.is_open()) {
+    if (!arquivoSaida.is_open()) 
+    {
         cout << "Erro ao abrir o arquivo " << endl;
         return;
     }
     
     // Escrever o cabeçalho do arquivo DOT
-    if(this->digrafo){
+    if(this->digrafo)
+    {
         arquivoSaida << "digraph Grafo {" << endl;
-    }else{
+    }
+    else
+    {
         arquivoSaida << "graph Grafo {" << endl;
     }
     
     // Escrever as arestas do grafo
-    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo()){
-        for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
-            if(no->getIdArquivo() < aresta->getIdCabeca()){
+    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
+    {
+        for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta())
+        {
+            if(no->getIdArquivo() < aresta->getIdCabeca())
+            {
                 continue; //Para não repetir aresta
             }
             arquivoSaida << "    " << no->getIdArquivo();
-            if(this->digrafo){
+            if(this->digrafo)
+            {
                 arquivoSaida << " -> ";
-            }else{
+            }
+            else
+            {
                 arquivoSaida << " -- ";
             }
             arquivoSaida << aresta->getIdCabeca();
@@ -116,37 +182,44 @@ void Graph::escreveArquivoDOT(ofstream &arquivoSaida)
     cout << "Arquivo criado com sucesso!" << endl;
 }
 
-Node* Graph::getPrimeiroNo(){
+Node* Graph::getPrimeiroNo()
+{
     return this->primeiroNo;
 }
 
-//Somente utilizado para nos já inseridos!
+// Somente utilizado para nós já inseridos!
 void Graph::vinculaNo(int idArquivo)
 {
-    Node* no = this->ultimoNoVinculado; //Pega o ultimo no vinculado
+    Node* no = this->ultimoNoVinculado; // Pega o último nó vinculado
 
-    if(no == nullptr){ // Caso o ultimo no vinculado seja null
-        this->ultimoNoVinculado = this->primeiroNo; //ultimo no vinculado recebe o primeiro no
-    }else{
-        this->ultimoNoVinculado = no->getProxNo(); //Atualiza o ultimo nó vinculado
-        if(this->ultimoNoVinculado == nullptr){
+    if(no == nullptr) // Caso o último nó vinculado seja null
+    { 
+        this->ultimoNoVinculado = this->primeiroNo; // Último nó vinculado recebe o primeiro nó
+    }
+    else
+    {
+        this->ultimoNoVinculado = no->getProxNo(); // Atualiza o último nó vinculado
+        if(this->ultimoNoVinculado == nullptr)
+        {
             printf("Ordem do Grafo ultrapassada! Insira um nó!");
             return;
         }
     }
-    no = this->ultimoNoVinculado; //No revebe o ultimo no vinculado
-    no->setIdArquivo(idArquivo); //vincula o no
-    if(this->pesoNosVertices){
+    no = this->ultimoNoVinculado; // Nó revebe o último nó vinculado
+    no->setIdArquivo(idArquivo); // Vincula o nó
+    if(this->pesoNosVertices)
+    {
         no->setPesoNo( (idArquivo % 200) + 1);
     }
-    this->ultimoIdVinculado += 1; //incrementar o ultimo vinculado
+    this->ultimoIdVinculado += 1; // Incrementar o último vinculado
 }
 
-void Graph::insereNoFim(int id){
+void Graph::insereNoFim(int id)
+{
     Node* no = new Node(id);
     no->setProxNo(nullptr);
 
-    if(this->primeiroNo == nullptr) //caso o grafo esteja vazio, insere no inicio mesmo
+    if(this->primeiroNo == nullptr) // Caso o grafo esteja vazio, insere no início 
     {
         this->primeiroNo = no;
         this->ultimoNo = no;
@@ -156,47 +229,115 @@ void Graph::insereNoFim(int id){
         this->ultimoNo->setProxNo(no);
         this->ultimoNo = no;
     }
+    this->ordem++;
 }
 
-Node* Graph::buscaNoPorIdArquivo(int idArquivo){
-    Node* no = this->primeiroNo; //auxiliar para busca
+void Graph::insereNoFim(int id, int idArquivo)
+{
+    Node* no = new Node(id);
+    no->setIdArquivo(idArquivo);
+    no->setProxNo(nullptr);
+
+    // Setando o peso do vértice conforme o trabalho
+    no->setPesoNo( (idArquivo % 200) + 1 );
+
+    if(this->primeiroNo == nullptr) // Caso o grafo esteja vazio, insere no início mesmo
+    {
+        this->primeiroNo = no;
+        this->ultimoNo = no;
+    }
+    else
+    {
+        this->ultimoNo->setProxNo(no);
+        this->ultimoNo = no;
+    }
+    this->ordem++;
+}
+
+Node* Graph::buscaNoPorIdArquivo(int idArquivo)
+{
+    Node* no = this->primeiroNo; // Auxiliar para busca
 
     while (no != nullptr)
     {
-        if(no->getIdArquivo() == idArquivo){ //caso encontrou o nó retorna ele
+        if(no->getIdArquivo() == idArquivo) // Caso encontrou o nó retorna ele
+        { 
             return no;
         }
 
-        no = no->getProxNo(); //se não encontrou passa para o próximo
+        no = no->getProxNo(); // Se não encontrou passa para o próximo
     }
-    //caso nao tenha encontrado nenhum, retorna nullptr
+    // Caso nao tenha encontrado nenhum, retorna nullptr
     return nullptr;
 }
 
-void Graph::insereAresta(int idCauda, int idCabeca, float peso){
+void Graph::insereArestaTrabalho(int idCauda, int idCabeca)
+{
     Node* cauda = buscaNoPorIdArquivo(idCauda);
     Node* cabeca = buscaNoPorIdArquivo(idCabeca);
 
-    if(cauda == nullptr){
+    if(cauda == nullptr)
+    {
+        this->insereNoFim(idCauda, idCauda);
+        cauda = this->ultimoNo;
+    }
+    if(cabeca == nullptr)
+    {
+        this->insereNoFim(idCabeca, idCabeca);
+        cabeca = this->ultimoNo;
+    }
+
+    cauda->insereAresta(idCabeca, 0);
+
+    if(!this->digrafo)
+    {
+        cabeca->insereAresta(idCauda, 0);
+    }
+
+    if(!this->getDigrafo())
+    {
+        cabeca->setGrauNo(cabeca->getGrauNo() + 1);
+        cabeca->grauBackup = cabeca->getGrauNo(); 
+        cauda->setGrauNo(cauda->getGrauNo() + 1);
+        cauda->grauBackup = cauda->getGrauNo();
+    }
+    else
+    {
+        cabeca->setEntradaNo(cabeca->getEntradaNo() + 1);
+        cauda->setSaidaNo(cauda->getSaidaNo() + 1);
+    }
+}
+
+void Graph::insereAresta(int idCauda, int idCabeca, float peso)
+{
+    Node* cauda = buscaNoPorIdArquivo(idCauda);
+    Node* cabeca = buscaNoPorIdArquivo(idCabeca);
+
+    if(cauda == nullptr)
+    {
         this->vinculaNo(idCauda);
         cauda = this->ultimoNoVinculado;
     }
-    if(cabeca == nullptr){
+    if(cabeca == nullptr)
+    {
         this->vinculaNo(idCabeca);
         cabeca = this->ultimoNoVinculado;
     }
 
     cauda->insereAresta(idCabeca, peso);
 
-    if(!this->digrafo){
+    if(!this->digrafo)
+    {
         cabeca->insereAresta(idCauda, peso);
     }
 
-    if(!this->getDigrafo()){
+    if(!this->getDigrafo())
+    {
         cabeca->setGrauNo(cabeca->getGrauNo() + 1);
         cauda->setGrauNo(cauda->getGrauNo() + 1);
     }
-    else{
+    else
+    {
         cabeca->setEntradaNo(cabeca->getEntradaNo() + 1);
         cauda->setSaidaNo(cauda->getSaidaNo() + 1);
     }
@@ -204,30 +345,38 @@ void Graph::insereAresta(int idCauda, int idCabeca, float peso){
     setNumArestas(getNumArestas()+1);
 }
 
-void Graph::removeAresta(int idCauda, int idCabeca){
-    //busca Nos
+void Graph::removeAresta(int idCauda, int idCabeca)
+{
+    // Busca Nós
     Node* cauda = buscaNoPorIdArquivo(idCauda);
     Node* cabeca = buscaNoPorIdArquivo(idCabeca);
 
-    if(cauda == nullptr || cabeca == nullptr){
+    if(cauda == nullptr || cabeca == nullptr)
+    {
         cout << "Aresta inexiste" << endl;
         return;
     }
     
-    //chama a remoção de aresta do no
+    // Chama a remoção de aresta do nó
     bool removido = cauda->removeAresta(idCabeca);
-    if( removido ){
-        if(this->digrafo){
+    if(removido)
+    {
+        if(this->digrafo)
+        {
             cauda->setSaidaNo(cauda->getSaidaNo() - 1);
-        }else{
+        }
+        else
+        {
             cauda->setGrauNo(cauda->getGrauNo() - 1);
         }
     }
 
-    //verifica se o não for digrafo tem que remover a aresta na cabeça também
-    if(!this->digrafo){
+    // verifica se o não for digrafo tem que remover a aresta na cabeça também
+    if(!this->digrafo)
+    {
         removido = cabeca->removeAresta(idCauda);
-        if( removido ){
+        if(removido)
+        {
             cabeca->setGrauNo(cabeca->getGrauNo() - 1);
         }
     }
@@ -235,50 +384,64 @@ void Graph::removeAresta(int idCauda, int idCabeca){
     setNumArestas(getNumArestas()-1);
 }
 
-bool Graph::removeNo(int idArquivo){
+bool Graph::removeNo(int idArquivo)
+{
     Node* no = this->primeiroNo;
     Node* noAnteriror = nullptr;
 
-    if(this->primeiroNo == nullptr){
+    if(this->primeiroNo == nullptr)
+    {
         cout << "Grafo Vazio!" << endl;
         return false;
     }
 
-    //Percorre todos os nos armazenando o atual e anterior
+    // Percorre todos os nós armazenando o atual e anterior
     while(no != nullptr){
-        if(no->getIdArquivo() == idArquivo){
-            break; //encontrou a no
+        if(no->getIdArquivo() == idArquivo)
+        {
+            break; // Encontrou o nó
         }
         noAnteriror = no;
         no = no->getProxNo();
     }
 
-    //No não encontrada
-    if(no == nullptr){
-        cout << "No não encotrado!" << endl;
+    // Nó não encontrado
+    if(no == nullptr)
+    {
+        cout << "Nó não encotrado!" << endl;
         return false;
     }
 
-    //Remove todas as arestas
-    for(Node* nodeAux = this->primeiroNo; nodeAux != nullptr; nodeAux = nodeAux->getProxNo()){
-        if(nodeAux->getIdArquivo() == idArquivo){
-            //Estamos no no que queremos deletar
+    // Remove todas as arestas
+    for(Node* nodeAux = this->primeiroNo; nodeAux != nullptr; nodeAux = nodeAux->getProxNo())
+    {
+        if(nodeAux->getIdArquivo() == idArquivo)
+        {
+            // Estamos no nó que queremos deletar
             Node* noASerDecrementado;
-            for(Edge* aresta = nodeAux->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
+            for(Edge* aresta = nodeAux->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta())
+            {
                 noASerDecrementado = buscaNoPorIdArquivo(aresta->getIdCabeca());
                 noASerDecrementado->setEntradaNo( noASerDecrementado->getEntradaNo() - 1 );
             }
 
-        }else {
-            for(Edge* aresta = nodeAux->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
-                if(aresta->getIdCabeca() ==  idArquivo){
+        }
+        else 
+        {
+            for(Edge* aresta = nodeAux->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta())
+            {
+                if(aresta->getIdCabeca() ==  idArquivo)
+                {
                     nodeAux->removeAresta(idArquivo);
 
-                    if(this->digrafo){
-                        //Decrementa o grau de saida
+                    if(this->digrafo)
+                    {
+                        // Decrementa o grau de saída
                         nodeAux->setSaidaNo( nodeAux->getSaidaNo() - 1);
-                    }else{
-                        //Decrementa o grau do no
+                    }
+                    else
+                    {
+                        // Decrementa o grau do nó
                         nodeAux->setGrauNo(nodeAux->getGrauNo() - 1);
                     }
                 }
@@ -286,25 +449,33 @@ bool Graph::removeNo(int idArquivo){
         }
     }
 
-    if(noAnteriror == nullptr){
-        //o no é a primeira da lista
+    if(noAnteriror == nullptr)
+    {
+        // o nó é a primeira da lista
         this->primeiroNo = no->getProxNo();
-    }else if(no->getProxNo() == nullptr){
-        //o no é a ultima da lista
+    }
+    else if(no->getProxNo() == nullptr)
+    {
+        // o nó é a ultima da lista
         noAnteriror->setProxNo(nullptr);
-    }else{
-        //a no está no meio
+    }
+    else
+    {
+        // o nó está no meio
         noAnteriror->setProxNo(no->getProxNo());
     }
     
+    this->ordem--;
     delete no;
     return true;
 }
 
-void Graph::imprime(){
+void Graph::imprime()
+{
     Node* no =  this->primeiroNo;
 
-    if(no == nullptr){
+    if(no == nullptr)
+    {
         cout << "Grafo Vazio!" << endl;
         return;
     }
@@ -312,7 +483,8 @@ void Graph::imprime(){
     while (no != nullptr)
     {
         cout << "(" << no->getIdArquivo() << ")";
-        if(this->pesoNosVertices){
+        if(this->pesoNosVertices)
+        {
             cout << "<peso: " << no->getPesoNo() << " >";
         }
         cout << endl;
@@ -321,7 +493,8 @@ void Graph::imprime(){
         while (aresta != nullptr )
         {
             cout << aresta->getIdCabeca();
-            if(this->pesoNasArestas){
+            if(this->pesoNasArestas)
+            {
                 cout << " (" << aresta->getPeso() << ")";
             }
                 cout <<", ";
@@ -346,7 +519,8 @@ int Graph::getGrauNo(int id)
     {   
         return no->getGrauNo();
     }
-    else{
+    else
+    {
         cout << "Não é possível obter grau de um dígrafo com essa função!" << endl;
         return 0;
     }
@@ -363,50 +537,24 @@ void Graph::setNumArestas(int numArestas)
     this->numArestas = numArestas;
 }
 
-/*int Graph::getEntradaNo(int id)
-{
-    Node* no = buscaNoPorIdArquivo(id);
-
-    if(getDigrafo())
-    {
-        return no->getEntradaNo();
-    }
-    else{
-        cout << "Não é possível obter grau de um grafo não direcionado com essa função!" << endl;
-        return 0;
-    }
-
-}
-
-int Graph::getSaidaNo(int id)
-{
-    Node* no = buscaNoPorIdArquivo(id);
-
-    if(getDigrafo())
-    {
-        return no->getSaidaNo();
-    }
-    else{
-        cout << "Não é possível obter grau de um grafo não direcionado com essa função!" << endl;
-        return 0;
-    }
-}
-*/
 bool Graph::getKRegularidade(int k)
 {
     Node* no = this->primeiroNo;
 
-    if(no->getGrauNo() != k){
+    if(no->getGrauNo() != k)
+    {
         return false;
     }
-    else{
+    else
+    {
         while (no != nullptr)
         {
-            if(no->getGrauNo() != k){ //caso tenha grau diferente de k retorna false
+            if(no->getGrauNo() != k) // caso tenha grau diferente de k retorna false
+            { 
                 return false;
             }
 
-            no = no->getProxNo(); //se tinha grau k passa para o próximo
+            no = no->getProxNo(); // se tinha grau k passa para o próximo
         }
         return true; // se não retornou false depois de passar por todos retorna true
     }
@@ -414,25 +562,19 @@ bool Graph::getKRegularidade(int k)
 
 int Graph::getOrdem()
 {
-    Node* no = this->primeiroNo;
-    int ordem = 0;
-
-    while (no != nullptr)
-    {
-        ordem++;
-        no = no->getProxNo();
-    }
-    return ordem;
+    return this->ordem;
 }
 
 bool Graph::isTrivial()
 {
     Node* no = this->primeiroNo;
     
-    if(no->getProxNo() == nullptr){ // se o próximo do primeiro for null é pq só possui um no
+    if(no->getProxNo() == nullptr) // se o próximo nó do primeiro for null é pq só possui um nó
+    { 
         return true;
     }
-    else{
+    else
+    {
         return false;
     }
 }
@@ -441,10 +583,12 @@ bool Graph::isNulo()
 {
     Node* no = this->primeiroNo;
 
-    if(no == nullptr){
+    if(no == nullptr)
+    {
         return true;
     }
-    else{
+    else
+    {
         return false;
     }
 }
@@ -456,7 +600,8 @@ int Graph::getGrauGrafo() // não está adaptado para um digrafo
 
     while (no != nullptr)
     {
-        if(no->getGrauNo() > grau){ //caso tenha grau maior que o anterior, atualiza o valor de grau
+        if(no->getGrauNo() > grau) // caso tenha grau maior que o anterior, atualiza o valor de grau
+        { 
             grau = no->getGrauNo();
         }
 
@@ -465,8 +610,10 @@ int Graph::getGrauGrafo() // não está adaptado para um digrafo
     return grau; // retorna o maior grau entre os nos do grafo
 }
 
-int* Graph::sequenciaDeGraus(){     // não está adaptado para um digrafo
-    if (this == nullptr || this->primeiroNo == nullptr || getOrdem() <= 0) {
+int* Graph::sequenciaDeGraus() // não está adaptado para um digrafo
+{     
+    if (this == nullptr || this->primeiroNo == nullptr || getOrdem() <= 0) 
+    {
         cout << "Grafo Vazio!" << endl;
         return nullptr;
     }
@@ -474,16 +621,21 @@ int* Graph::sequenciaDeGraus(){     // não está adaptado para um digrafo
     Node* no = this->primeiroNo;
     int* sequencia=new int[getOrdem()];
 
-    if(no == nullptr){
+    if(no == nullptr)
+    {
         cout << "Grafo Vazio!" << endl;
         return nullptr;
     }
-    else{
-        for(int i = 0; i < getOrdem(); i++){
-            if (no != nullptr) {
+    else
+    {
+        for(int i = 0; i < getOrdem(); i++)
+        {
+            if (no != nullptr) 
+            {
                 sequencia[i] = no->getGrauNo();
                 no = no->getProxNo();
-            } else {
+            } else 
+            {
                 // nó é nulo, definir grau como zero
                 sequencia[i] = 0;
             }
@@ -498,11 +650,13 @@ void Graph::vizinhancaAberta(int id)
     Edge* aresta = no->getPrimeiraAresta();
     std::vector< int > vizinhancaAberta;
 
-    for(aresta; aresta != NULL; aresta = aresta->getProxAresta()){
+    for(aresta; aresta != NULL; aresta = aresta->getProxAresta())
+    {
         vizinhancaAberta.push_back(aresta->getIdCabeca());
     }
     cout << "A vizinhança aberta é: " << endl; 
-    for (int i = 0; i < vizinhancaAberta.size(); i++) {
+    for (int i = 0; i < vizinhancaAberta.size(); i++) 
+    {
         cout << vizinhancaAberta[i] << " ";
     }
     cout << endl;
@@ -518,12 +672,14 @@ void Graph::vizinhancaFechada(int id)
 
     vizinhancaFechada.push_back(id);
 
-    for(aresta; aresta != NULL; aresta = aresta->getProxAresta()){
+    for(aresta; aresta != NULL; aresta = aresta->getProxAresta())
+    {
         vizinhancaFechada.push_back(aresta->getIdCabeca());
     }
     
     cout << "A vizinhança fechada é: " << endl; 
-    for (int i = 0; i < vizinhancaFechada.size(); i++) {
+    for (int i = 0; i < vizinhancaFechada.size(); i++) 
+    {
         cout << vizinhancaFechada[i] << " ";
     }
     cout << endl;
@@ -546,56 +702,9 @@ bool Graph::isComplete()
     int n = getNumberOfNodes();
     int edgesToBeComplete = n*(n-1)/2;
     return (getDigrafo() && getNumberOfEdges() == edgesToBeComplete*2) || (!getDigrafo() &&  getNumberOfEdges() == edgesToBeComplete);
-
-    // if(getDigrafo())
-    // {
-    //     if(getNumberOfEdges() != edgesToBeComplete*2)
-    //     {
-    //         return false;
-    //     }
-    //     else
-    //     {
-    //         Node* currentNode = getPrimeiroNo();
-    //         while (currentNode != nullptr)
-    //         {
-    //             Node* otherNode = currentNode->getProxNo();
-    //             while (otherNode != nullptr)
-    //             {
-    //                 if (currentNode->buscaAresta(otherNode->getIdArquivo()) == nullptr)
-    //                 {
-    //                     return false;
-    //                 }
-    //                 otherNode = otherNode->getProxNo();
-    //             }
-    //             currentNode = currentNode->getProxNo();
-    //         }
-    //     }
-    // }
-    // else
-    // {
-    //     if (getNumberOfEdges() != edgesToBeComplete)
-    //     {
-    //         return false;
-    //     }
-
-    //     else
-    //     {
-    //         // Confere se há self-loops ou multiarestas
-    //         Node* currentNode = getPrimeiroNo();
-    //         while (currentNode != nullptr)
-    //         {
-    //             if (currentNode->getGrauNo() != n - 1)
-    //             {
-    //                 return false;
-    //             }
-    //             currentNode = currentNode->getProxNo();
-    //         }
-    //     }
-    // }
 }
 
 // Função de busca em largura (Breadth-first search)
-
 bool Graph::BFS()
 {
     Node* root = getPrimeiroNo(); 
@@ -632,7 +741,6 @@ bool Graph::BFS()
 }
 
 // BFS auxiliar para saber se é bipartido onde há colocarção dos nós parasaber se há uma possível bipartição
-
 bool Graph::BFSColoring(int startNode, vector<int>& color, vector<bool>& visited)
 {
     color[startNode] = 1;  // Colore o primeiro nó com a cor 1
@@ -671,7 +779,6 @@ bool Graph::BFSColoring(int startNode, vector<int>& color, vector<bool>& visited
 }
 
 // Grafo bipartido é grafo cujos vértices podem ser divididos em dois conjuntos disjuntos U e V tais que toda aresta conecta um vértice em U a um vértice em V; ou seja, U e V são conjuntos independentes.
-
 bool Graph::isBipartide()
 {
 
@@ -679,7 +786,6 @@ bool Graph::isBipartide()
     int numberOfEdges = getNumberOfEdges();
 
     // Verificação Básica Inicial
-    
     if(getDigrafo() && numberOfEdges > ((numberOfNodes*numberOfNodes)/2) || !getDigrafo() && numberOfEdges > ((numberOfNodes*numberOfNodes)/4))
     {
         return false;
@@ -693,12 +799,12 @@ bool Graph::isBipartide()
         {
             if (!visited[i]) 
             {
-                if (!BFSColoring(i, color, visited)) {
+                if (!BFSColoring(i, color, visited)) 
+                {
                     return false;  // Grafo não é Bipartido
                 }
             }
         }
-
         return true;  // Grafo Bipartido
     }
 }
@@ -738,14 +844,12 @@ bool Graph::isEulerian()
                 degreeCount[node->getIdArquivo()]++;
                 currentEdge = currentEdge->getProxAresta();
             }
-
             // Self-loops
             if (degreeCount[node->getIdArquivo()] > 0) 
             {
                 selfLoopsCount += degreeCount[node->getIdArquivo()] / 2;
             }
         }
-
         // Verifica se todos os nós (exceto self-loops) possuem grau par, e os nós com self-loops possuem grau par ou múltiplo de 2
         for (int i = 0; i < numberOfNodes; i++) 
         {
@@ -757,26 +861,21 @@ bool Graph::isEulerian()
                 }
             }
         }
-
         // Verifica se o número de self-loops é par
         if (selfLoopsCount % 2 != 0) 
         {
             return false;
         }
     }
-
     // Verifica se o grafo é conexo
     if (!BFS())
     {
         return false;
     }
-
     return true;
-
 }
 
 // Busca por profundidade
-
 void Graph::DFS(int idInitialNode)
 {
     int numberOfNodes = getNumberOfNodes();
@@ -797,6 +896,7 @@ void Graph::DFS(int idInitialNode)
 
 }
 
+// DFS para arestas ponte
 void Graph::bridgesDFS(int initial, vector<bool> &visited, vector<int> &disc, vector<int> &low, vector<int> &parent, vector<Edge*> &bridges) 
 {
     // disc = discovery -> tempo de descoberta
@@ -864,16 +964,15 @@ void Graph::stronglyConnectedComponents()
 {
     stack<Node*> nodeStack;
     unordered_set<Node*> visitedNodes;
-    // Passo 1: Percorrer o grafo e preencher a pilha com a ordem de finalização dos nós
+    // Percorre o grafo e preenche a pilha com a ordem de finalização dos nós
     for (Node* node = primeiroNo; node != nullptr; node = node->getProxNo()) 
     {
         DFSSCC(node, nodeStack, visitedNodes);
-
     }
-    // Passo 2: Inverter todas as arestas do grafo
+    // Inverte todas as arestas do grafo
     Graph* transposedGraph = new Graph();
     transposedGraph = getTransposedGraph();
-    // Passo 3: Realizar uma DFS no grafo transposto e encontrar as componentes fortemente conexas
+    // Realiza uma DFS no grafo transposto e encontra as componentes fortemente conexas
     visitedNodes.clear(); 
     int componentIndex = 1;
     while (!nodeStack.empty()) 
@@ -973,11 +1072,14 @@ void Graph::AGM()
     int mapa[numNos]; // vetor de mapeamento idArquivo->subarvore
     // inicializar vetores auxiliares (aproveitando esse msm while)
 
-    while(no != nullptr){ // pegar todas as arestas do grafo e colocar no vetor
+    while(no != nullptr) // pegar todas as arestas do grafo e colocar no vetor
+    { 
         Edge* primeiraAresta = no->getPrimeiraAresta();
-        while(primeiraAresta!=nullptr){
-            if(this->getDigrafo() || primeiraAresta->getIdCabeca() < no->getIdArquivo()){ // se for digrafo eu tenho q entrar de qqr forma, pois serão duas arestas diferentes msm
-                arestas.push_back(*primeiraAresta);// se não for digrafo esse if ajuda a evitar pegar as arestas "duplicadas" que o grafo simples tem
+        while(primeiraAresta!=nullptr)
+        {
+            if(this->getDigrafo() || primeiraAresta->getIdCabeca() < no->getIdArquivo()) // se for digrafo eu tenho q entrar de qqr forma, pois serão duas arestas diferentes
+            { 
+                arestas.push_back(*primeiraAresta); // se não for digrafo esse if ajuda a evitar pegar as arestas "duplicadas" que o grafo simples tem
             }
             primeiraAresta = primeiraAresta->getProxAresta();
         }
@@ -991,11 +1093,12 @@ void Graph::AGM()
     int contador = 0;
     i=0;
 
-    while(contador < numNos-1 && i < arestas.size()){
+    while(contador < numNos-1 && i < arestas.size())
+    {
         int indiceCaudaSubarvores = buscaNoVetor(mapa, arestas[i].getIdCauda(), numNos);
         int indiceCabecaSubarvores = buscaNoVetor(mapa, arestas[i].getIdCabeca(), numNos);
 
-        if(subarvores[indiceCaudaSubarvores] != subarvores[indiceCabecaSubarvores]) // se forem enguais é pq estão na msm subarvores
+        if(subarvores[indiceCaudaSubarvores] != subarvores[indiceCabecaSubarvores]) // se forem iguais é pq estão na msm subarvores
         {
             // atualizar o vetor de subarvores
             atualizaSubarvores(numNos, subarvores, indiceCabecaSubarvores, indiceCaudaSubarvores);
@@ -1010,36 +1113,20 @@ void Graph::AGM()
 
 void Graph::imprimeAGM(vector< Edge > AGM, int subarvores[], int mapa[], int numNos)
 {
-    // vector< int > quantasSubarvoresTem;
-
-    // for(int i=0; i<numNos; i++){
-    //     if(buscaNoVector(quantasSubarvoresTem, subarvores[i], quantasSubarvoresTem.size()) == -1){
-    //         quantasSubarvoresTem.push_back(subarvores[i]);
-    //     }
-    // }
-    // // depois disso temos como saber o número de subarvores diferentes que existem com o quantasSubarvoresTem.size()
-    
-    // for(int i=0; i<quantasSubarvoresTem.size(); i++){
-    //     for(int j=0; j<AGM.size(); j++){
-    //         if(subarvores[j] == i){
-    //             print agm[j]
-    //         }
-    //     }
-    // }
     cout << "AGM: {";
     for(int i=0; i<AGM.size(); i++){
         cout << "(" << AGM[i].getIdCauda() << ", " << AGM[i].getIdCabeca() << "), ";
     }
     cout << "}" << endl;
-
-    
 }
 
 // atualizar o vetor de subarvores
 void Graph::atualizaSubarvores(int numNos, int subarvores[], int indiceCabecaSubarvores, int indiceCaudaSubarvores)
 {
-    for(int j=0; j<numNos; j++){ 
-        if(subarvores[j] == subarvores[indiceCaudaSubarvores]){
+    for(int j=0; j<numNos; j++)
+    { 
+        if(subarvores[j] == subarvores[indiceCaudaSubarvores])
+        {
             subarvores[j] = subarvores[indiceCabecaSubarvores];
         }
     }
@@ -1047,8 +1134,22 @@ void Graph::atualizaSubarvores(int numNos, int subarvores[], int indiceCabecaSub
 
 int Graph::buscaNoVector(vector< int > vector, int valor, int tam)
 {
-    for(int i=0; i<tam; i++){
-        if(vector[i] == valor){
+    for(int i=0; i<tam; i++)
+    {
+        if(vector[i] == valor)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int Graph::buscaNoVectorNos(vector< Node > vector, int valor, int tam)
+{
+    for(int i=0; i<tam; i++)
+    {
+        if(vector[i].getIdArquivo() == valor)
+        {
             return i;
         }
     }
@@ -1057,8 +1158,10 @@ int Graph::buscaNoVector(vector< int > vector, int valor, int tam)
 
 int Graph::buscaNoVetor(int vetor[], int idArquivo, int tam)
 {
-    for(int i=0; i<tam; i++){
-        if(vetor[i] == idArquivo){
+    for(int i=0; i<tam; i++)
+    {
+        if(vetor[i] == idArquivo)
+        {
             return i;
         }
     }
@@ -1081,12 +1184,15 @@ vector< Edge > Graph::OrdenaArestas(vector< Edge >arestas, int numArestas) // bu
     return arestas;
 }
 
-int partition(std::vector<Edge>& vetor, int low, int high) {
+int partition(std::vector<Edge>& vetor, int low, int high) 
+{
     int pivot = vetor[high].getPeso();
     int i = low - 1;
 
-    for (int j = low; j <= high - 1; j++) {
-        if (vetor[j].getPeso() <= pivot) {
+    for (int j = low; j <= high - 1; j++) 
+    {
+        if (vetor[j].getPeso() <= pivot) 
+        {
             i++;
             std::swap(vetor[i], vetor[j]);
         }
@@ -1096,8 +1202,10 @@ int partition(std::vector<Edge>& vetor, int low, int high) {
     return i + 1;
 }
 
-void Graph::quickSort(std::vector<Edge>& vetor, int low, int high) {
-    if (low < high) {
+void Graph::quickSort(std::vector<Edge>& vetor, int low, int high) 
+{
+    if (low < high) 
+    {
         int pi = partition(vetor, low, high);
 
         quickSort(vetor, low, pi - 1);
@@ -1105,164 +1213,153 @@ void Graph::quickSort(std::vector<Edge>& vetor, int low, int high) {
     }
 }
 
-// PARTE 2 DO TRABALHO ABAIXO
+// ****** PARTE 2 DO TRABALHO ABAIXO *******
 
-void Graph::coberturaMinimaGulosa()
+Solution Graph::coberturaMinimaGulosa()
 {
-    // vetor com os nos e graus dos nós
-    // contador que começa com o  valor do dobro do número de arestas e é decrementado em 2 a cada aresta adicionada
-    // vetor com os nos ordenados por uma ordem de otimidade (custo / grau) que mediria o "quão bom" ele seria para a solução
-    // toda vez q colocar alguém na solução é preciso atualizar todos os vetores 
-    // vetor solução que vai conter os indices dos nos
-
-    vector< Node > vetorAuxiliar;
+    vector< pair< int, Node* > > candidatos;
     vector< int > solucao;
     float custoTotal = 0;
+    double time = 0;
 
-    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
+    high_resolution_clock::time_point start = high_resolution_clock::now();
+    int j = 1;
+    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo(), j++)
     {
-        if(no->getGrauNo() != 0){
-            vetorAuxiliar.push_back(*no);// remover todos os nós com grau 0
+        if(no->getGrauNo() != 0)
+        {
+            candidatos.push_back(make_pair(j, no)); // remover todos os nós com grau 0
+            candidatos[j-1].second->prioridade = candidatos[j-1].second->peso / candidatos[j-1].second->grauNo;
         }
     }
-    // aqui já temos o vetor auxiliar completo
 
-    while(vetorAuxiliar.size() != 0)
+    int arestasCount = this->getNumArestas();
+
+    while(candidatos.size() != 0)
     {
-        quickSortGuloso(vetorAuxiliar, 0, vetorAuxiliar.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução
-        solucao.push_back(vetorAuxiliar[0].getIdArquivo()); // coloca o "mais ótimo" candidato na solução
-        custoTotal += vetorAuxiliar[0].getPesoNo();
+        sort(candidatos.begin(), candidatos.end(), [](pair<int, Node*> &a, pair<int, Node*> &b)
+        {
+            return a.second->prioridade < b.second->prioridade;
+        }); // ordenar para ter na primeira posição o "mais ótimo" para a solução
+        int idEscolhido = candidatos[0].second->idArquivo;
+        solucao.push_back(idEscolhido); // coloca o "mais ótimo" candidato na solução
+        custoTotal += candidatos[0].second->peso;
 
         // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
-        for(int i = 1; i < vetorAuxiliar.size(); i++){
-            for(Edge* aux = vetorAuxiliar[i].getPrimeiraAresta(); aux != nullptr; aux = aux->getProxAresta())
+        for(Edge* aresta=candidatos[0].second->primeiraAresta; aresta != nullptr; aresta=aresta->getProxAresta())
+        {
+            int firstVizinho = aresta->idCabeca; 
+            //encontro o iterador do vizinho
+            auto it = std::find_if(candidatos.begin(), candidatos.end(),
+                          [firstVizinho](const pair<int, Node*> &ids)
+                          {
+                              return ids.first == firstVizinho;
+                          });
+            // decremento o grau
+            if(it != candidatos.end())
             {
-                if(aux->getIdCabeca() == vetorAuxiliar[0].getIdArquivo()){
-                    vetorAuxiliar[i].setGrauNo( vetorAuxiliar[i].getGrauNo() - 1); //Atualiza o grau do no
-                    if(vetorAuxiliar[i].getGrauNo() == 0){
-                        vetorAuxiliar.erase(vetorAuxiliar.begin() + i);// olhuaire de novo isso aqui pq tá estranho
-                        i--;
-                    }
+                int posicao = distance(candidatos.begin(), it);
+                candidatos.at(posicao).second->setGrauNo(candidatos.at(posicao).second->grauNo - 1); 
+                candidatos.at(posicao).second->prioridade = candidatos[posicao].second->peso / candidatos[posicao].second->grauNo;
+                
+                 // se o vizinho ficou com grau 0, removo 
+                if(candidatos[posicao].second->grauNo == 0)
+                {
+                    candidatos.erase(candidatos.begin() + posicao);   
                 }
             }
         }
         // remove o nó que foi  adicionado à solução
-        vetorAuxiliar.erase(vetorAuxiliar.begin());   
+        candidatos.erase(candidatos.begin());   
     }
+    
+    high_resolution_clock::time_point stop = high_resolution_clock::now();
+    time = duration_cast<duration<double>>(stop - start).count();
 
+    verificaSolucao(solucao);
     // imprimir a solução
-    cout << "Tamanho da Solução: " << solucao.size() << " vertices" << endl;
-    cout << "Custo total: " << custoTotal << endl;
-    cout << endl;
-}
-
-// Function to swap two elements
-void Graph::swap(Node* a, Node* b)
-{
-    Node t = *a;
-    *a = *b;
-    *b = t;
-}
- 
-// Partition the array using the last element as the pivot
-int Graph::partitionGuloso(std::vector<Node>& arr, int low, int high)
-{
-    // Choosing the pivot
-    float pivot = arr[high].getPrioridade();
-    int desempate = arr[high].getGrauNo();
- 
-    // Index of smaller element and indicates
-    // the right position of pivot found so far
-    int i = (low - 1);
- 
-    for (int j = low; j <= high - 1; j++) {
- 
-        // If current element is smaller than the pivot
-        if (arr[j].getPrioridade() < pivot ||( arr[j].getPrioridade() == pivot && arr[j].getGrauNo() > desempate )) {
- 
-            // Increment index of smaller element
-            i++;
-            swap(&arr[i], &arr[j]);
-        }
-    }
-    swap(&arr[i + 1], &arr[high]);
-    return (i + 1);
-}
- 
-void Graph::quickSortGuloso(std::vector<Node>& arr, int low, int high)
-{
-    if (low < high) {
- 
-        // pi is partitioning index, arr[p]
-        // is now at right place
-        int pi = partitionGuloso(arr, low, high);
- 
-        // Separately sort elements before
-        // partition and after partition
-        quickSortGuloso(arr, low, pi - 1);
-        quickSortGuloso(arr, pi + 1, high);
-    }
+    Solution sol = Solution(custoTotal, solucao, time, 0);
+    return sol;
 }
 
 Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
 {
     high_resolution_clock::time_point start = high_resolution_clock::now();
-    vector< Node > vetorAuxiliar;
+    double time = 0;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::srand(rd());
+    vector< pair< int, Node* > > candidatos;
     vector< int > solucao;
     vector< int > solucaoBest;
     float custoTotal = 0;
     float custoBest = 0;
-    double time = 0;
 
-    std::srand(std::time(nullptr));
-
-    for(int i=0; i<nInteracoes; i++){
-        for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
+    for(int i=0; i < nInteracoes; i++)
+    {
+        int j = 1;
+        for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo(), j++)
         {
-            if(no->getGrauNo() != 0){
-                vetorAuxiliar.push_back(*no);// remover todos os nós com grau 0
+            no->grauNo = no->grauBackup;
+            if(no->getGrauNo() != 0)
+            {   // não adicionar os nós com grau 0
+                candidatos.push_back(make_pair(j, no));
+                candidatos[j-1].second->prioridade = candidatos[j-1].second->peso / candidatos[j-1].second->grauNo;
             }
-        } // aqui já temos o vetor auxiliar completo
+        }
         solucao.clear();
-        while(vetorAuxiliar.size() > 0)
+        while(candidatos.size() != 0)
         {
-            quickSortGuloso(vetorAuxiliar, 0, vetorAuxiliar.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução           
+            sort(candidatos.begin(), candidatos.end(), [](pair<int, Node*> &a, pair<int, Node*> &b){
+                return a.second->prioridade < b.second->prioridade;
+            }); // ordenar para ter na primeira posição o "mais ótimo" para a solução
 
-            int numero_aleatorio = (int)(alpha*(vetorAuxiliar.size()-1));
-            if(numero_aleatorio==0)
-                numero_aleatorio=1;
+            int numero_aleatorio = (int)(alpha*(candidatos.size()-1));
+            if( numero_aleatorio == 0 )
+                numero_aleatorio = 1;
             int k = std::rand() % numero_aleatorio; //Randomizao o numero de 0 a alpha*(vetorAuxiliar.size()-1)
-            // cout << "numero aleatorio usado no rand:" << k << endl;
-            custoTotal += vetorAuxiliar[k].getPesoNo();
 
-            solucao.push_back(vetorAuxiliar[k].getIdArquivo()); // coloca o "mais ótimo" candidato na solução
+            custoTotal += candidatos[k].second->peso;
 
-            // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
-            for(int i = 1; i < vetorAuxiliar.size(); i++){
-                for(Edge* aux = vetorAuxiliar[i].getPrimeiraAresta(); aux != nullptr; aux = aux->getProxAresta())
-                {
-                    if(aux->getIdCabeca() == vetorAuxiliar[k].getIdArquivo()){
-                        vetorAuxiliar[i].setGrauNo( vetorAuxiliar[i].getGrauNo() - 1); //Atualiza o grau do no
-                        if(vetorAuxiliar[i].getGrauNo() == 0){
-                            vetorAuxiliar.erase(vetorAuxiliar.begin() + i);
-                            i--;
-                        }
+            solucao.push_back(candidatos[k].second->idArquivo); // coloca o "mais ótimo" candidato na solução
+
+                // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
+            Node* escolhido = candidatos[k].second;
+            for(Edge* aresta=escolhido->primeiraAresta; aresta != nullptr; aresta=aresta->getProxAresta())
+            {
+                int firstVizinho = aresta->idCabeca; 
+                //encontro o iterador do vizinho
+                
+                auto it = std::find_if(candidatos.begin(), candidatos.end(),
+                            [firstVizinho](const pair<int, Node*> &ids)
+                            {
+                                return ids.first == firstVizinho;
+                            });
+                // decremento o grau
+                if(it != candidatos.end()){
+                    int posicao = distance(candidatos.begin(), it);
+                    candidatos.at(posicao).second->setGrauNo(candidatos.at(posicao).second->grauNo - 1); 
+                    candidatos.at(posicao).second->prioridade = candidatos[posicao].second->peso / candidatos[posicao].second->grauNo;
+
+                    // se o vizinho ficou com grau 0, removo 
+                    if(candidatos[posicao].second->grauNo == 0){
+                        candidatos.erase(candidatos.begin() + posicao);   
+                        candidatos.shrink_to_fit();
                     }
                 }
             }
             // remove o nó que foi  adicionado à solução
-            vetorAuxiliar.erase(vetorAuxiliar.begin()+k);    
+            candidatos.erase(candidatos.begin()+k);
+            candidatos.shrink_to_fit();
         }
 
-        if(i==0 || custoTotal < custoBest){
-           custoBest = custoTotal;
-           solucaoBest = solucao; 
+        if(i == 0 || custoTotal < custoBest){
+            custoBest = custoTotal;
+            solucaoBest = solucao; 
         }  //Compara as soluçoes e atualiza a melhor
     }
-
     high_resolution_clock::time_point stop = high_resolution_clock::now();
     time = duration_cast<duration<double>>(stop - start).count();
-
     Solution solution = Solution(custoBest, solucaoBest, time, alpha);
 
     return solution;
@@ -1340,16 +1437,29 @@ void Graph::atualizaMedias(vector<float>& medias, vector<int> aparicoes, int ind
     medias[indiceEscolhido] = (medias[indiceEscolhido] * aparicoes[indiceEscolhido] + sol.getCustoTotal())/(aparicoes[indiceEscolhido] + 1);
 }
 
-void Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanhoVetor, int nIteracoes, int bloco)
+Solution Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanhoVetor, int nIteracoes, int bloco)
 {
     Solution solBest, sol;
     int i = 1;
     vector<float> probabilidades, medias;
     vector<int> aparicoes;
     inicializaVetores(probabilidades, medias, aparicoes, tamanhoVetor);
+    high_resolution_clock::time_point start = high_resolution_clock::now();
+    double time = 0;
+
+    for(int i = 0; i < tamanhoVetor; i++){
+        sol = coberturaMinimaGulosaRandomizada(alpha[i], 1);
+        medias[i] = sol.getCustoTotal();
+        aparicoes[i] = 1;
+
+        if(i == 0 || solBest.getCustoTotal() > sol.getCustoTotal())
+        {
+            solBest = sol;
+        }
+    }
 
    while(i < nIteracoes){
-        if(i % bloco == 0 && i != 1){
+        if(i % bloco == 0){
             atualizaProbabilidades(probabilidades, medias, alpha, solBest);
         }
         int indiceEscolhido = escolheAlfa(probabilidades);
@@ -1367,8 +1477,10 @@ void Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanhoVet
         i++;
    }
 
-   cout << "Solução gulosa randomizada reativa: "<< endl;
-   cout << "Tamanho da solução: " << solBest.getSolucao().size() << endl;
-   cout << "Custo da solução: " << solBest.getCustoTotal()<< endl;
-   cout << "Tempo de execução: " << solBest.getTempoExecucao() << " segundos."<< endl;
+
+    high_resolution_clock::time_point stop = high_resolution_clock::now();
+    time = duration_cast<duration<double>>(stop - start).count();
+    solBest.setTempoExecucao(time);
+
+   return solBest;
 }
