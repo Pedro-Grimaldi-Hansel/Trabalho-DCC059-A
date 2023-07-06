@@ -3,6 +3,7 @@
 #include <vector>
 #include <chrono>
 #include <ctime>
+#include <random>
 #include <map>
 #include <algorithm>
 
@@ -896,15 +897,18 @@ Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
 {
     high_resolution_clock::time_point start = high_resolution_clock::now();
     double time = 0;
-    double seed = std::time(nullptr);
-    std::srand(seed);
-    cout << "Seed: " << seed << endl;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::srand(rd());
+
+    std::cout << "Seed: " << rd() << std::endl;
     vector< pair< int, Node* > > candidatos;
     vector< int > solucao;
     vector< int > solucaoBest;
     float custoTotal = 0;
     float custoBest = 0;
-    
+
     for(int i=0; i < nInteracoes; i++){
         int j = 1;
         for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo(), j++)
@@ -963,7 +967,6 @@ Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
     }
     high_resolution_clock::time_point stop = high_resolution_clock::now();
     time = duration_cast<duration<double>>(stop - start).count();
-    verificaSolucao(solucaoBest);
     Solution solution = Solution(custoBest, solucaoBest, time, alpha);
 
     return solution;
@@ -1041,35 +1044,48 @@ void Graph::atualizaMedias(vector<float>& medias, vector<int> aparicoes, int ind
     medias[indiceEscolhido] = (medias[indiceEscolhido] * aparicoes[indiceEscolhido] + sol.getCustoTotal())/(aparicoes[indiceEscolhido] + 1);
 }
 
-// void Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanhoVetor, int nIteracoes, int bloco)
-// {
-//     Solution solBest, sol;
-//     int i = 1;
-//     vector<float> probabilidades, medias;
-//     vector<int> aparicoes;
-//     inicializaVetores(probabilidades, medias, aparicoes, tamanhoVetor);
+Solution Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanhoVetor, int nIteracoes, int bloco)
+{
+    Solution solBest, sol;
+    int i = 1;
+    vector<float> probabilidades, medias;
+    vector<int> aparicoes;
+    inicializaVetores(probabilidades, medias, aparicoes, tamanhoVetor);
 
-//    while(i < nIteracoes){
-//         if(i % bloco == 0 && i != 1){
-//             atualizaProbabilidades(probabilidades, medias, alpha, solBest);
-//         }
-//         int indiceEscolhido = escolheAlfa(probabilidades);
-//         float alfaAtual = alpha[ indiceEscolhido ];
+    for(int i = 0; i < tamanhoVetor; i++){
+        sol = coberturaMinimaGulosaRandomizada(alpha[i], 1);
+        medias[i] = sol.getCustoTotal();
+        aparicoes[i] = 1;
+
+        if(i == 0 || solBest.getCustoTotal() > sol.getCustoTotal())
+        {
+            solBest = sol;
+        }
+    }
+
+   while(i < nIteracoes){
+        if(i % bloco == 0){
+            atualizaProbabilidades(probabilidades, medias, alpha, solBest);
+        }
+        int indiceEscolhido = escolheAlfa(probabilidades);
+        float alfaAtual = alpha[ indiceEscolhido ];
         
-//         sol = coberturaMinimaGulosaRandomizada(alfaAtual, 1);
+        sol = coberturaMinimaGulosaRandomizada(alfaAtual, 1);
 
-//         atualizaMedias(medias, aparicoes, indiceEscolhido, sol);
-//         aparicoes[indiceEscolhido] = aparicoes[indiceEscolhido] + 1;
+        atualizaMedias(medias, aparicoes, indiceEscolhido, sol);
+        aparicoes[indiceEscolhido] = aparicoes[indiceEscolhido] + 1;
 
-//         if(sol.getCustoTotal() < solBest.getCustoTotal() || i == 1)
-//         {
-//             solBest = sol;
-//         }
-//         i++;
-//    }
+        if(sol.getCustoTotal() < solBest.getCustoTotal() || i == 1)
+        {
+            solBest = sol;
+        }
+        i++;
+   }
 
-//    cout << "Solução gulosa randomizada reativa: "<< endl;
-//    cout << "Tamanho da solução: " << solBest.getSolucao().size() << endl;
-//    cout << "Custo da solução: " << solBest.getCustoTotal()<< endl;
-//    cout << "Tempo de execução: " << solBest.getTempoExecucao() << " segundos."<< endl;
-// }
+   cout << "Solução gulosa randomizada reativa: "<< endl;
+   cout << "Tamanho da solução: " << solBest.getSolucao().size() << endl;
+   cout << "Custo da solução: " << solBest.getCustoTotal()<< endl;
+   cout << "Tempo de execução: " << solBest.getTempoExecucao() << " segundos."<< endl;
+
+   return solBest;
+}

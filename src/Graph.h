@@ -99,7 +99,7 @@ class Graph{
        
         Solution coberturaMinimaGulosa();
         Solution coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes);
-        void coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tammanhoVetor, int nIterecoes, int bloco);
+        Solution coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tammanhoVetor, int nIterecoes, int bloco);
 
         bool verificaSolucao(vector< int >solucao);
 
