@@ -4,7 +4,9 @@
 #include"Solution.h"
 #include "Node.h"
 #include <vector>
-
+#include <set>
+#include <stack>
+#include <unordered_set>
 
 using namespace std;
 
@@ -98,9 +100,14 @@ class Graph{
         bool isBipartide();
         bool isEulerian();
         void DFS(int idInitialNode); // Busca por profundidade
-        void bridgeUtil(int idInitialNode, vector<bool> &visited, vector<int> &discovery, vector<int> &low, vector<int> &parent, vector<Edge*> &bridges);
+        void bridgesDFS(int idInitialNode, vector<bool> &visited, vector<int> &discovery, vector<int> &low, vector<int> &parent, vector<Edge*> &bridges);
         vector<Edge*> findBridges();
-        void stronglyConectedComponents();
+        set<int> findArticulationNodes(); 
+        Graph();
+        void stronglyConnectedComponents();
+        void DFSSCC(Node* node, stack<Node*>& nodeStack, unordered_set<Node*>& visitedNodes);
+        void DFSSCCAUX(Node* node, unordered_set<Node*>& visitedNodes, int componentIndex, vector<int>& components);
+        Graph* getTransposedGraph();
 
         void AGM();
        

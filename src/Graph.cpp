@@ -5,6 +5,8 @@
 #include <list>
 #include <chrono>
 #include <ctime>
+#include <set>
+#include <stack>
 
 using namespace std;
 using namespace chrono;
@@ -795,27 +797,9 @@ void Graph::DFS(int idInitialNode)
 
 }
 
-// void Graph::DFSBrigdeEdges(int idInitialNode)
-// {
-//     int numberOfNodes = getNumberOfNodes();
-//     vector<bool> visited(numberOfNodes, false);
-
-//     // Modificação do índice por causa da diferença nas instâncias (vai de 1 a n e não de 0 a n-1)
-//     visited[idInitialNode+1] == true;
-//     Edge* currentEdge = buscaNoPorIdArquivo(idInitialNode+1)->getPrimeiraAresta();
-
-//     for(currentEdge; currentEdge != nullptr; currentEdge = currentEdge->getProxAresta())
-//     {
-//         if(!visited[currentEdge->getIdCabeca() + 1])
-//         {
-//             DFS(currentEdge->getIdCabeca() + 1);
-//         }
-//     }
-
-// }
-
-void Graph::bridgeUtil(int initial, vector<bool> &visited, vector<int> &disc, vector<int> &low, vector<int> &parent, vector<Edge*> &bridges) 
+void Graph::bridgesDFS(int initial, vector<bool> &visited, vector<int> &disc, vector<int> &low, vector<int> &parent, vector<Edge*> &bridges) 
 {
+    // disc = discovery -> tempo de descoberta
     static int time = 0;
     int u = initial;
 
@@ -830,7 +814,7 @@ void Graph::bridgeUtil(int initial, vector<bool> &visited, vector<int> &disc, ve
         if (!visited[v]) 
         {
             parent[v] = u;
-            bridgeUtil(v, visited, disc, low, parent, bridges);
+            bridgesDFS(v, visited, disc, low, parent, bridges);
 
             low[u] = min(low[u], low[v]);
 
@@ -858,22 +842,123 @@ vector<Edge*> Graph::findBridges()
     for (int i=0; i < numberOfNodes; i++) 
     {
         if (!visited[i])
-            bridgeUtil(i, visited, disc, low, parent, bridges);
+            bridgesDFS(i, visited, disc, low, parent, bridges);
     }
 
     return bridges;
 }
 
-void Graph::stronglyConectedComponents()
+set<int> Graph::findArticulationNodes()
 {
-    if(getDigrafo())
+    set<int> articulationNodes;
+    vector<Edge*> bridges = findBridges();
+    for(int i = 0; i < bridges.size(); i++)
     {
+        articulationNodes.insert(bridges[i]->getIdCabeca());
+        articulationNodes.insert(bridges[i]->getIdCauda());
+    }
+    return articulationNodes;
+}
+
+void Graph::stronglyConnectedComponents() 
+{
+    stack<Node*> nodeStack;
+    unordered_set<Node*> visitedNodes;
+    // Passo 1: Percorrer o grafo e preencher a pilha com a ordem de finalização dos nós
+    for (Node* node = primeiroNo; node != nullptr; node = node->getProxNo()) 
+    {
+        DFSSCC(node, nodeStack, visitedNodes);
 
     }
-    else
+    // Passo 2: Inverter todas as arestas do grafo
+    Graph* transposedGraph = new Graph();
+    transposedGraph = getTransposedGraph();
+    // Passo 3: Realizar uma DFS no grafo transposto e encontrar as componentes fortemente conexas
+    visitedNodes.clear(); 
+    int componentIndex = 1;
+    while (!nodeStack.empty()) 
     {
-        cout<< "Não é um digrafo?" << endl;
+        Node* node = nodeStack.top();
+        nodeStack.pop();
+
+        if (visitedNodes.find(node) == visitedNodes.end()) 
+        {
+            vector<int> components;
+            transposedGraph->DFSSCCAUX(node, visitedNodes, componentIndex, components);
+            cout << "Componente Fortemente Conexa " << componentIndex << ": ";
+            for (int i = 0; i < components.size(); i++) 
+            {
+                cout << components[i] << " ";
+            }
+            cout << endl;
+            componentIndex++;
+        }
     }
+}
+
+void Graph::DFSSCC(Node* node, stack<Node*>& nodeStack, unordered_set<Node*>& visitedNodes) 
+{
+    visitedNodes.insert(node);
+    // Recorrer para todos os nós adjacentes não visitados
+    for (Edge* edge = node->getPrimeiraAresta(); edge != nullptr; edge = edge->getProxAresta()) 
+    {
+        Node* adjacentNode = buscaNoPorIdArquivo(edge->getIdCabeca());
+        if (adjacentNode && visitedNodes.find(adjacentNode) == visitedNodes.end()) 
+        {
+            DFSSCC(adjacentNode, nodeStack, visitedNodes);
+        }
+    }
+    // Adicionar o nó à pilha após percorrer todos os seus vizinhos
+    nodeStack.push(node);
+}
+
+void Graph::DFSSCCAUX(Node* node, unordered_set<Node*>& visitedNodes, int componentIndex, vector<int>& components) 
+{
+    // Se for uma DFS no grafo transposto, adicionar o nó à componente
+    if (componentIndex != -1) 
+    {
+        components.push_back(node->getIdArquivo());
+    }
+    // Recorrer para todos os nós adjacentes não visitados
+    for (Edge* edge = node->getPrimeiraAresta(); edge != nullptr; edge = edge->getProxAresta()) 
+    {
+        Node* adjacentNode = buscaNoPorIdArquivo(edge->getIdCabeca());
+        if (adjacentNode && visitedNodes.find(adjacentNode) == visitedNodes.end()) 
+        {
+            DFSSCCAUX(adjacentNode, visitedNodes, componentIndex, components);
+        }
+    }
+}
+
+Graph::Graph() 
+{
+    primeiroNo = nullptr;
+    ultimoNo = nullptr;
+    digrafo = true;
+    pesoNasArestas = false;
+    pesoNosVertices = false;
+    numArestas = 0;
+}
+
+Graph* Graph::getTransposedGraph() 
+{
+    Graph* transposedGraph  = new Graph();
+    // Criação de nós no grafo transposto
+    for (Node* node = primeiroNo; node != nullptr; node = node->getProxNo()) 
+    {
+        transposedGraph->insereNoFim(node->getIdArquivo());
+    }
+    // Inversão das arestas
+    for (Node* node = primeiroNo; node != nullptr; node = node->getProxNo()) 
+    {
+        Edge* edge = node->getPrimeiraAresta();
+        while (edge != nullptr) 
+        {
+            transposedGraph->insereAresta(edge->getIdCabeca(), node->getIdArquivo(), edge->getPeso());
+            edge = edge->getProxAresta();
+        }
+    }
+    return transposedGraph;
 }
 
 void Graph::AGM()

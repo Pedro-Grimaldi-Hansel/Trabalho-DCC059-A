@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <set>
 
 #include "src/Graph.h"
 
@@ -28,12 +29,18 @@ int main(int argc, char const *argv[]){
 
     grafo->imprime();
 
-    vector<Edge*> bridges = grafo->findBridges();
+    // vector<Edge*> bridges = grafo->findBridges();
 
-    for(int i = 0; i < bridges.size(); i++)
-    {
-        cout<< "Aresta: " << bridges[i]->getIdCabeca() << ", " << bridges[i]->getIdCauda() << endl;
-    }
-   
+    // for(int i = 0; i < bridges.size(); i++)
+    // {
+    //     cout<< "Aresta: " << bridges[i]->getIdCabeca() << ", " << bridges[i]->getIdCauda() << endl;
+    // }
+
+    // set<int> articulationNodes = grafo->findArticulationNodes();
+    // for (set<int>::iterator it = articulationNodes.begin(); it != articulationNodes.end(); ++it)
+    // {
+    //     cout << ' ' << *it;
+    // }
+
     return 0;
 }
