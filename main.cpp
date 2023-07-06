@@ -28,7 +28,8 @@ int main(int argc, char const *argv[]){
     float time = 0;
     Solution sol;
     float alpha[] = {0.05, 0.10, 0.15, 0.30, 0.50};
-    sol = grafo->coberturaMinimaGulosaRandomizadaReativa(alpha, 5, 1000, 100);
+    sol = grafo->coberturaMinimaGulosaRandomizadaReativa(alpha, 5, 100, 10);
+    grafo->verificaSolucao(sol.getSolucao());
     cout << "====================================================" << endl;
     cout << "Solução Gulosa: " << endl;
     cout << "Tamanho da Solução: " << sol.getSolucao().size() << " vertices" << endl;

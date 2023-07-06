@@ -15,6 +15,7 @@ private:
     int grauNo;
     int grauBackup;
     float peso;
+    float prioridade;
 
     // colocando valores para grau de entrada e saída caso digrafo
     int grauEntradaNo;
@@ -44,7 +45,5 @@ public:
     void setSaidaNo(int grau);
     void setPesoNo(float peso);
     void setProxNo(Node* proximo);
-
-    float getPrioridade();
 
 };

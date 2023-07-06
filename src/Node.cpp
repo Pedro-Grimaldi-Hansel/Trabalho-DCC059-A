@@ -177,11 +177,3 @@ void Node::setPesoNo(float peso)
 {
     this->peso = peso;
 }
-
-float Node::getPrioridade()
-{
-    if(this->grauNo != 0)
-        return this->peso/this->grauNo; 
-    else
-        return numeric_limits<float>::max();
-}

@@ -796,6 +796,7 @@ Solution Graph::coberturaMinimaGulosa()
     {
         if(no->getGrauNo() != 0){
             candidatos.push_back(make_pair(j, no));// remover todos os nós com grau 0
+            candidatos[j-1].second->prioridade = candidatos[j-1].second->peso / candidatos[j-1].second->grauNo;
         }
     }
 
@@ -803,7 +804,9 @@ Solution Graph::coberturaMinimaGulosa()
 
     while(candidatos.size() != 0)
     {
-        quickSortGuloso(candidatos, 0, candidatos.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução
+        sort(candidatos.begin(), candidatos.end(), [](pair<int, Node*> &a, pair<int, Node*> &b){
+            return a.second->prioridade < b.second->prioridade;
+        }); // ordenar para ter na primeira posição o "mais ótimo" para a solução
         int idEscolhido = candidatos[0].second->idArquivo;
         solucao.push_back(idEscolhido); // coloca o "mais ótimo" candidato na solução
         custoTotal += candidatos[0].second->peso;
@@ -822,6 +825,7 @@ Solution Graph::coberturaMinimaGulosa()
             if(it != candidatos.end()){
                 int posicao = distance(candidatos.begin(), it);
                 candidatos.at(posicao).second->setGrauNo(candidatos.at(posicao).second->grauNo - 1); 
+                candidatos.at(posicao).second->prioridade = candidatos[posicao].second->peso / candidatos[posicao].second->grauNo;
                 
                  // se o vizinho ficou com grau 0, removo 
                 if(candidatos[posicao].second->grauNo == 0){
@@ -841,57 +845,6 @@ Solution Graph::coberturaMinimaGulosa()
     Solution sol = Solution(custoTotal, solucao, time, 0);
     return sol;
 }
- 
-// Partition the array using the last element as the pivot
-int Graph::partitionGuloso(std::vector<pair< int, Node* > >& arr, int low, int high)
-{
-    // Choosing the pivot
-    float pivot = arr[high].second->getPrioridade();
-    int desempate = arr[high].second->getGrauNo();
- 
-    // Index of smaller element and indicates
-    // the right position of pivot found so far
-    int i = (low - 1);
- 
-    for (int j = low; j <= high - 1; j++) {
- 
-        // If current element is smaller than the pivot
-        if (arr[j].second->getPrioridade() < pivot ||( arr[j].second->getPrioridade() == pivot && arr[j].second->getGrauNo() > desempate )) {
- 
-            // Increment index of smaller element
-            i++;
-            //Swap
-            int tempFirst = arr[i].first;
-            Node* tempSecond = arr[i].second;
-            arr[i] = arr[j];
-            arr[j].first = tempFirst;
-            arr[j].second = tempSecond;
-        }
-    }
-    //Swap
-    int tempFirst = arr[high].first;
-    Node* tempSecond = arr[high].second;
-    arr[high] = arr[i+1];
-    arr[i+1].first = tempFirst;
-    arr[i+1].second = tempSecond;
-
-    return (i + 1);
-}
- 
-void Graph::quickSortGuloso(std::vector<pair<int, Node*>>& arr, int low, int high)
-{
-    if (low < high) {
- 
-        // pi is partitioning index, arr[p]
-        // is now at right place
-        int pi = partitionGuloso(arr, low, high);
- 
-        // Separately sort elements before
-        // partition and after partition
-        quickSortGuloso(arr, low, pi - 1);
-        quickSortGuloso(arr, pi + 1, high);
-    }
-}
 
 Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
 {
@@ -899,10 +852,7 @@ Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
     double time = 0;
     std::random_device rd;
     std::mt19937 gen(rd());
-
     std::srand(rd());
-
-    std::cout << "Seed: " << rd() << std::endl;
     vector< pair< int, Node* > > candidatos;
     vector< int > solucao;
     vector< int > solucaoBest;
@@ -916,12 +866,15 @@ Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
             no->grauNo = no->grauBackup;
             if(no->getGrauNo() != 0){// não adicionar os nós com grau 0
                 candidatos.push_back(make_pair(j, no));
+                candidatos[j-1].second->prioridade = candidatos[j-1].second->peso / candidatos[j-1].second->grauNo;
             }
         }
         solucao.clear();
         while(candidatos.size() != 0)
         {
-            quickSortGuloso(candidatos, 0, candidatos.size()-1); // ordenar para ter na primeira posição o "mais ótimo" para a solução
+            sort(candidatos.begin(), candidatos.end(), [](pair<int, Node*> &a, pair<int, Node*> &b){
+                return a.second->prioridade < b.second->prioridade;
+            }); // ordenar para ter na primeira posição o "mais ótimo" para a solução
 
             int numero_aleatorio = (int)(alpha*(candidatos.size()-1));
             if( numero_aleatorio == 0 )
@@ -948,6 +901,8 @@ Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
                 if(it != candidatos.end()){
                     int posicao = distance(candidatos.begin(), it);
                     candidatos.at(posicao).second->setGrauNo(candidatos.at(posicao).second->grauNo - 1); 
+                    candidatos.at(posicao).second->prioridade = candidatos[posicao].second->peso / candidatos[posicao].second->grauNo;
+
                     // se o vizinho ficou com grau 0, removo 
                     if(candidatos[posicao].second->grauNo == 0){
                         candidatos.erase(candidatos.begin() + posicao);   
@@ -1051,6 +1006,8 @@ Solution Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanh
     vector<float> probabilidades, medias;
     vector<int> aparicoes;
     inicializaVetores(probabilidades, medias, aparicoes, tamanhoVetor);
+    high_resolution_clock::time_point start = high_resolution_clock::now();
+    double time = 0;
 
     for(int i = 0; i < tamanhoVetor; i++){
         sol = coberturaMinimaGulosaRandomizada(alpha[i], 1);
@@ -1082,10 +1039,10 @@ Solution Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanh
         i++;
    }
 
-   cout << "Solução gulosa randomizada reativa: "<< endl;
-   cout << "Tamanho da solução: " << solBest.getSolucao().size() << endl;
-   cout << "Custo da solução: " << solBest.getCustoTotal()<< endl;
-   cout << "Tempo de execução: " << solBest.getTempoExecucao() << " segundos."<< endl;
+
+    high_resolution_clock::time_point stop = high_resolution_clock::now();
+    time = duration_cast<duration<double>>(stop - start).count();
+    solBest.setTempoExecucao(time);
 
    return solBest;
 }
