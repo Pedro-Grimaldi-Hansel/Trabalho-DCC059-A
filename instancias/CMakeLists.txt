@@ -1,1 +1,0 @@
-file(GLOB SOURCE_FILES "*.txt")
