@@ -26,6 +26,7 @@ public:
     ~Solution(){};
 
     float getCustoTotal(){return this->custoTotal;};
+    float getAlpha(){return this->alpha;};
     vector<int> getSolucao(){return this->solucao;};
     double getTempoExecucao(){ return this->tempoExecucao; };
 
