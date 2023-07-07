@@ -859,60 +859,82 @@ Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
     float custoTotal = 0;
     float custoBest = 0;
 
+    int j = 1;
+    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo(), j++)
+    {
+        no->grauNo = no->grauBackup;
+        if(no->getGrauNo() != 0){// não adicionar os nós com grau 0
+            candidatos.push_back(make_pair(j, no));
+            candidatos[j-1].second->prioridade = candidatos[j-1].second->peso / candidatos[j-1].second->grauNo;
+        }
+    }
     for(int i=0; i < nInteracoes; i++){
-        int j = 1;
-        for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo(), j++)
+        //Resetando o grau que alteramos
+        j = 1;
+        for(Node* no = this->primeiroNo; i != 0 && no != nullptr; no = no->getProxNo(), j++)
         {
             no->grauNo = no->grauBackup;
-            if(no->getGrauNo() != 0){// não adicionar os nós com grau 0
-                candidatos.push_back(make_pair(j, no));
-                candidatos[j-1].second->prioridade = candidatos[j-1].second->peso / candidatos[j-1].second->grauNo;
-            }
+            candidatos[j-1].second->prioridade = candidatos[j-1].second->peso / candidatos[j-1].second->grauNo;
         }
+        //Tamanho real do vetor de candidatos
+        int tamCandidatos = this->ordem;
         solucao.clear();
-        while(candidatos.size() != 0)
-        {
-            sort(candidatos.begin(), candidatos.end(), [](pair<int, Node*> &a, pair<int, Node*> &b){
-                return a.second->prioridade < b.second->prioridade;
-            }); // ordenar para ter na primeira posição o "mais ótimo" para a solução
 
-            int numero_aleatorio = (int)(alpha*(candidatos.size()-1));
+        //Começamos a eurística para resolver o problema
+        while(tamCandidatos != 0)
+        {
+            // ordenar para ter na primeira posição o melhor candidato
+            sort(candidatos.begin(), candidatos.begin() + tamCandidatos, [](pair<int, Node*> &a, pair<int, Node*> &b){
+                return a.second->prioridade < b.second->prioridade;
+            }); 
+
+            // Gerando um número aleatório
+            int numero_aleatorio = (int)( alpha*(tamCandidatos-1));
             if( numero_aleatorio == 0 )
                 numero_aleatorio = 1;
-            int k = std::rand() % numero_aleatorio; //Randomizao o numero de 0 a alpha*(vetorAuxiliar.size()-1)
+            int k = std::rand() % numero_aleatorio; //Randomiza o numero de 0 a alpha*(vetorAuxiliar.size()-1)
 
-            custoTotal += candidatos[k].second->peso;
+            //Coloca o melhor candidato na solução
+            Node* melhorCandidato = candidatos[k].second;
+            solucao.push_back(melhorCandidato->idArquivo); 
+            //Adiciona o peso do escolhido ao custo total
+            custoTotal += melhorCandidato->peso;
 
-            solucao.push_back(candidatos[k].second->idArquivo); // coloca o "mais ótimo" candidato na solução
-
-                // todo esse for é pra decrementar 1 no grau dos vizinhos do no adicionada à solução
-            Node* escolhido = candidatos[k].second;
-            for(Edge* aresta=escolhido->primeiraAresta; aresta != nullptr; aresta=aresta->getProxAresta())
+            // Decrementa 1 do grau do no dos vizinhos do candidato que entrou na solução
+            for(Edge* aresta=melhorCandidato->primeiraAresta; aresta != nullptr; aresta=aresta->getProxAresta())
             {
                 int firstVizinho = aresta->idCabeca; 
                 //encontro o iterador do vizinho
-                
-                auto it = std::find_if(candidatos.begin(), candidatos.end(),
+                auto it = std::find_if(candidatos.begin(), candidatos.begin() + tamCandidatos,
                             [firstVizinho](const pair<int, Node*> &ids)
                             {
                                 return ids.first == firstVizinho;
                             });
                 // decremento o grau
-                if(it != candidatos.end()){
+                if(it != candidatos.begin() + tamCandidatos){
                     int posicao = distance(candidatos.begin(), it);
-                    candidatos.at(posicao).second->setGrauNo(candidatos.at(posicao).second->grauNo - 1); 
-                    candidatos.at(posicao).second->prioridade = candidatos[posicao].second->peso / candidatos[posicao].second->grauNo;
+                    Node* NoVizinho = candidatos.at(posicao).second;
+                    NoVizinho->setGrauNo(NoVizinho->grauNo - 1); 
+                    NoVizinho->prioridade = NoVizinho->peso / NoVizinho->grauNo;
 
                     // se o vizinho ficou com grau 0, removo 
-                    if(candidatos[posicao].second->grauNo == 0){
-                        candidatos.erase(candidatos.begin() + posicao);   
-                        candidatos.shrink_to_fit();
+                    if(NoVizinho->grauNo == 0){
+                        NoVizinho->prioridade = numeric_limits<float>::max();
+                        pair<int, Node*> aux = candidatos[posicao];
+                        candidatos[posicao] = candidatos[tamCandidatos-1];
+                        candidatos[tamCandidatos-1] = aux;
+                        tamCandidatos--;
                     }
                 }
             }
-            // remove o nó que foi  adicionado à solução
-            candidatos.erase(candidatos.begin()+k);
-            candidatos.shrink_to_fit();
+            // remove o nó que foi adicionado à solução
+            melhorCandidato->prioridade = numeric_limits<float>::max();
+            //Trocando o primeiro e o ultimo de lugar
+            pair<int, Node*> aux = candidatos[k];
+            candidatos[k] = candidatos[tamCandidatos-1];
+            candidatos[tamCandidatos-1] = aux;
+
+            tamCandidatos--;
         }
 
         if(i == 0 || custoTotal < custoBest){
