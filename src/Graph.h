@@ -7,6 +7,8 @@
 #include <set>
 #include <stack>
 #include <unordered_set>
+#include <map>
+
 
 using namespace std;
 
@@ -92,7 +94,7 @@ class Graph{
         int getGrauGrafo();
 
         int* sequenciaDeGraus(); //Apresentar a sequência de graus do grafo.
-        void vizinhancaAberta(int id);
+        vector< int >  vizinhancaAberta(int id);
         void vizinhancaFechada(int id);
 
         bool BFS(); // Busca por largura
@@ -120,6 +122,20 @@ class Graph{
 
         bool verificaSolucao(vector< int >solucao);
 
+        void raioDiametroCentroPeriferia();
+        int calculaExcentricidadeNo(Node* no);
+
+        bool isVizinho(int idNo, int idVizinho);
+        map<int, int> distanciaMinima(int idNo);
+        void caminhoMinimoDijkstra(int idNo);
+
+        void subgrafoInduzido(vector< int > vet); // deve receber um vector de inteiros que representam os ids de arquivo dos nós do subgrafo
+
+        void DFSDireto(Node* no, map<int,bool> &visitado, map< int,bool > &fecho);
+        void DFSIndireto(Node* no, map<int,bool> &visitado, map< int,bool > &fecho);
+
+        void fechoTransitivoDireto(int id);
+        void fechoTransitivoIndireto(int id);
 };
 
 #endif // GRAPH_H_INCLUDED

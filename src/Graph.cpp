@@ -11,6 +11,8 @@
 #include <map>
 #include <algorithm>
 
+#include <queue>
+#include <climits>
 
 using namespace std;
 using namespace chrono;
@@ -56,9 +58,13 @@ Graph::Graph(ifstream &arquivoEntrada, bool digrafo, bool ponderadoAresta, bool 
         {
             this->insereAresta(idCauda, idCabeca, pesoAresta);
         }
+    }else if(!ponderadoVertice && ponderadoAresta){
+        while(arquivoEntrada >> idCauda >> idCabeca >> pesoAresta){
+            this->insereAresta(idCauda, idCabeca, pesoAresta);
+        }
     }
-    else
-    {
+    
+    else{
         cout << "ERROR: Leitura ainda não implementada!" << endl;
     }
 }
@@ -150,12 +156,9 @@ void Graph::escreveArquivoDOT(ofstream &arquivoSaida)
     }
     
     // Escrever as arestas do grafo
-    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo())
-    {
-        for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta())
-        {
-            if(no->getIdArquivo() < aresta->getIdCabeca())
-            {
+    for(Node* no = this->primeiroNo; no != nullptr; no = no->getProxNo()){
+        for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta = aresta->getProxAresta()){
+            if(no->getIdArquivo() < aresta->getIdCabeca() && !this->digrafo){
                 continue; //Para não repetir aresta
             }
             arquivoSaida << "    " << no->getIdArquivo();
@@ -644,7 +647,7 @@ int* Graph::sequenciaDeGraus() // não está adaptado para um digrafo
     return sequencia;
 }
 
-void Graph::vizinhancaAberta(int id)
+vector< int > Graph::vizinhancaAberta(int id)
 {
     Node* no = buscaNoPorIdArquivo(id);
     Edge* aresta = no->getPrimeiraAresta();
@@ -661,7 +664,7 @@ void Graph::vizinhancaAberta(int id)
     }
     cout << endl;
 
-    return;
+    return vizinhancaAberta;
 }
 
 void Graph::vizinhancaFechada(int id)
@@ -1113,9 +1116,10 @@ void Graph::AGM()
 
 void Graph::imprimeAGM(vector< Edge > AGM, int subarvores[], int mapa[], int numNos)
 {
-    cout << "AGM: {";
-    for(int i=0; i<AGM.size(); i++){
-        cout << "(" << AGM[i].getIdCauda() << ", " << AGM[i].getIdCabeca() << "), ";
+    cout << "graph AGM { " << endl;
+    for(int i = 0; i < AGM.size(); i++){
+        cout << "\t" << AGM[i].getIdCauda() << " -- " << AGM[i].getIdCabeca();
+        cout << " [ label = \"" << AGM[i].getPeso() << "\"]"  << "; " << endl;
     }
     cout << "}" << endl;
 }
@@ -1213,7 +1217,280 @@ void Graph::quickSort(std::vector<Edge>& vetor, int low, int high)
     }
 }
 
-// ****** PARTE 2 DO TRABALHO ABAIXO *******
+bool Graph::isVizinho(int idNo, int idVizinho)
+{
+    Node* no = buscaNoPorIdArquivo(idNo);
+    Edge* aresta = no->getPrimeiraAresta();
+
+    for(aresta; aresta != NULL; aresta = aresta->getProxAresta()){
+        if(aresta->getIdCabeca() == idVizinho)
+            return true;
+    }
+    return false;
+}
+
+void Graph::caminhoMinimoDijkstra(int idNo) {
+    typedef pair<int, int> pii;  // Pair de inteiros (vértice, peso)
+
+    int n = this->getOrdem();
+    Node* no = buscaNoPorIdArquivo(idNo);
+
+    map<int, int> distances;  // mapa para armazenar os id em conjunto com as distâncias mínimas
+    for(Node* aux=primeiroNo;aux!=nullptr;aux=aux->getProxNo())
+    {   
+        distances[aux->getIdArquivo()] = INT_MAX; // populando o mapa 
+    }
+    priority_queue<pii, vector<pii>, greater<pii>> pq;  // Fila de prioridade para os pares (distância, vértice)
+
+    distances[idNo] = 0;
+    pq.push(make_pair(0, idNo));
+
+    // Execução do algoritmo de Dijkstra
+    while (!pq.empty()) {
+        int current_node = pq.top().second;
+        int current_distance = pq.top().first;
+        pq.pop();
+
+        // Verifica se já encontrou uma distância menor para esse nó
+        if(current_distance > distances[current_node])
+            continue;
+
+        // Exploração dos vizinhos do nó atual
+        for(Edge* edge=no->getPrimeiraAresta(); edge!=nullptr; edge=edge->getProxAresta()) {
+            Node* vizinho = buscaNoPorIdArquivo(edge->getIdCabeca());
+
+            int neighbor_node = vizinho->getIdArquivo();
+            int neighbor_distance = edge->getPeso();
+
+            int new_distance = distances[current_node] + neighbor_distance;
+            if (new_distance < distances[neighbor_node]) {
+                // Atualiza a distância e adiciona o vizinho na fila
+                distances[neighbor_node] = new_distance;
+                pq.push(make_pair(new_distance, neighbor_node));
+            }
+        }
+    }
+    cout << "Caminho mínimo dijkstra:" << endl;
+    for(no; no!=nullptr; no=no->getProxNo()){
+    cout << "(" << no->getIdArquivo() << ", " << distances[no->getIdArquivo()] << ")" << endl;
+    }
+}
+
+
+map<int, int> Graph::distanciaMinima(int idNo) {
+    int n = this->getOrdem();
+    Node* no = buscaNoPorIdArquivo(idNo);
+
+    map<int, int> distances;  // mapa para armazenar os id em conjunto com as distâncias mínimas
+    for(Node* aux=primeiroNo;aux!=nullptr;aux=aux->getProxNo())
+    {   
+        distances[aux->getIdArquivo()] = INT_MAX; // populando o mapa 
+    }
+    queue<int> q;  // Fila para processar os nós
+
+    distances[idNo] = 0;
+    q.push(idNo);
+
+    // Execução do algoritmo de Dijkstra
+    while (!q.empty()) {
+        int current_node = q.front();
+        no = buscaNoPorIdArquivo(current_node);
+        q.pop();
+
+        // Exploração dos vizinhos do nó atual
+        for(Edge* edge=no->getPrimeiraAresta(); edge!=nullptr; edge=edge->getProxAresta()) {
+            Node* vizinho = buscaNoPorIdArquivo(edge->getIdCabeca());
+
+            if (distances[vizinho->getIdArquivo()] == INT_MAX) {
+                // Atualiza a distância e adiciona o vizinho na fila
+                distances[vizinho->getIdArquivo()] = distances[current_node] + 1;
+                q.push(vizinho->getIdArquivo());
+            }
+        }
+    }
+
+    return distances;
+}
+
+int Graph::calculaExcentricidadeNo(Node* no)
+{
+    int dist;
+    map<int,int> distancias;
+    int excentricidade = 0;
+    // calcular todos os caminhos mínimos e retornar o maior
+   
+    distancias = distanciaMinima(no->getIdArquivo()); // recebe um mapa com todas as distâncias entre o no e os demais
+    for(int i=0; i<distancias.size(); i++)
+    {
+        if(distancias[i]> excentricidade){
+            excentricidade = distancias[i]; // a excentricidade vai ser a maior distância entre todas
+        }
+    }
+    return excentricidade;
+}
+
+void Graph::raioDiametroCentroPeriferia()
+{
+    int excentricidade;
+    vector< Node* > excentricidades; 
+    int raio = INT_MAX;
+    int diametro = 0;
+    vector< int> centro, periferia;
+    for(Node* no=this->primeiroNo; no != nullptr; no = no->getProxNo())
+    {
+        // calcular a  excentricidade do nó
+        // se a distancia for menor q o raio, raio = distância
+        // se a distância for maior q o diâmetro, diâmetro = distância
+        excentricidade = calculaExcentricidadeNo(no);
+        no->setExcentricidadeNo(excentricidade);
+
+        if(no->getExcentricidadeNo() < raio){
+            raio = excentricidade; // atualiza o raio
+            centro.clear(); // limpa o centro que continha nos antigos (do raio anterior)
+        }
+        if(no->getExcentricidadeNo() == raio){
+            centro.push_back(no->getIdArquivo()); // coloca o nó (raio atual) no centro 
+        }
+
+        if(no->getExcentricidadeNo() > diametro){
+            diametro = excentricidade;
+            periferia.clear(); // limpa a periferia que continha nos antigos (do diâmetro anterior)
+        }
+        if(no->getExcentricidadeNo() == diametro){
+            periferia.push_back(no->getIdArquivo()); // coloca o nó (diâmetro atual) na periferia 
+        }
+
+    }// saindo do for já teremos o valor do raio e diametro
+
+    // printar resultados
+
+    cout << "Raio do grafo:" << raio << endl;
+    cout << "Diâmetro do grafo:" << diametro << endl;
+    
+    cout << "Centro do grafo:" << endl;
+    for(int i=0;i<centro.size();i++)
+        cout << centro[i] << ", ";
+
+    cout << endl;
+
+    cout << "Periferia do grafo:" << endl;
+    for(int i=0;i<periferia.size();i++)
+        cout << periferia[i] << ", ";
+
+    cout << endl;
+
+}
+
+
+void Graph::subgrafoInduzido(vector<int> vet)
+{
+    vector< Node* > subgrafoNo; 
+    Node* aux = new Node;
+
+    for(int i=0;i<vet.size();i++){
+        aux = buscaNoPorIdArquivo(vet[i]);
+        if(aux != nullptr){
+            subgrafoNo.push_back(aux);
+        }
+        else{
+            cout << "Vértice (" << vet[i] << ") não encontrado" << endl;
+            return;
+        }
+    }
+    
+    // imprimindo o resultado
+    cout << "O subgrafo induzido é:" << endl;
+    for(int i=0;i<subgrafoNo.size();i++){
+        cout << "(" << subgrafoNo[i]->getIdArquivo() << ")";
+        if(this->pesoNosVertices){
+            cout << "<peso: " << subgrafoNo[i]->getPesoNo() << " >";
+        }
+        cout << endl;
+        Edge* aresta = subgrafoNo[i]->getPrimeiraAresta();
+        cout << "\t";
+        while (aresta != nullptr)
+        {
+            if(buscaNoVector(vet, aresta->getIdCabeca(), vet.size()) != -1 && buscaNoVector(vet, aresta->getIdCauda(), vet.size()) != -1){
+                cout << aresta->getIdCabeca();
+                if(this->pesoNasArestas){
+                    cout << " (" << aresta->getPeso() << ")";
+                }
+                cout <<", ";
+            }
+            aresta = aresta->getProxAresta();
+        }
+        cout << endl;
+    }
+}
+
+void Graph::DFSDireto(Node* no, map< int,bool > &visitado, map< int,bool > &fecho)
+{
+    visitado[no->getIdArquivo()] = true;
+    fecho[no->getIdArquivo()] = true;
+
+    for(Edge* aresta = no->getPrimeiraAresta(); aresta != nullptr; aresta=aresta->getProxAresta()){
+        if(!visitado[aresta->getIdCabeca()]){
+            Node* noNovo = buscaNoPorIdArquivo(aresta->getIdCabeca());
+            DFSDireto(noNovo, visitado, fecho);
+        }
+    }
+}
+
+void Graph::DFSIndireto(Node* no, map<int,bool> &visitado, map< int,bool > &fecho)
+{
+    visitado[no->getIdArquivo()] = true;
+    fecho[no->getIdArquivo()] = true;
+
+    for(Node* aux=this->primeiroNo; aux!=nullptr; aux = aux->getProxNo()){
+        for(Edge* aresta = aux->getPrimeiraAresta(); aresta != nullptr; aresta=aresta->getProxAresta()){
+            if(aresta->getIdCabeca() == no->getIdArquivo() && !visitado[aresta->getIdCauda()]){
+                DFSIndireto(aux, visitado, fecho);
+            }
+        }
+    }
+}
+
+void Graph::fechoTransitivoDireto(int id)
+{
+    Node* noDoFecho = buscaNoPorIdArquivo(id); 
+    map< int,bool > visitado;
+    map< int,bool > fecho;
+    for(Node* no=this->primeiroNo; no!=nullptr; no=no->getProxNo()){
+        visitado[no->getIdArquivo()] = false;
+        fecho[no->getIdArquivo()] = false;
+    }
+
+    DFSDireto(noDoFecho, visitado, fecho);
+
+    cout << "Fecho Transitivo Direto do nó " << id << ":" << endl;
+    for(Node* no=this->primeiroNo; no!=nullptr; no=no->getProxNo()){
+        if(fecho[no->getIdArquivo()])
+            cout << no->getIdArquivo() << ", ";
+    }
+    cout << endl;
+}
+
+void Graph::fechoTransitivoIndireto(int id)
+{
+    Node* noDoFecho = buscaNoPorIdArquivo(id); 
+    map< int,bool > visitado;
+    map< int,bool > fecho;
+    for(Node* no=this->primeiroNo; no!=nullptr; no=no->getProxNo()){
+        visitado[no->getIdArquivo()] = false;
+        fecho[no->getIdArquivo()] = false;
+    }
+
+    DFSIndireto(noDoFecho, visitado, fecho);
+
+    cout << "Fecho Transitivo Indireto do nó " << id << ":" << endl;
+    for(Node* no=this->primeiroNo; no!=nullptr; no=no->getProxNo()){
+        if(fecho[no->getIdArquivo()])
+            cout << no->getIdArquivo() << ", ";
+    }
+    cout << endl;
+}
+
+// PARTE 2 DO TRABALHO ABAIXO
 
 Solution Graph::coberturaMinimaGulosa()
 {
