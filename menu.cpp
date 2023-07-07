@@ -89,26 +89,55 @@ int main(int argc, char const *argv[])
                     cout << "Não, o grafo não é bipartido!" << endl;
                 }
                 cout << "________________" << endl;
+                break;
             }
             case 'd':
             {
+                int param;
                 cout << "________________" << endl;
-
+                cout << "Digite o ID do vértice de intresse:" << endl;
+                cin >> param;
+                cout << "Resultado:" << endl;
+                grafo->fechoTransitivoDireto(param);
                 cout << "________________" << endl;
+                break;
             }
             case 'e':
             {
-
+                int param;
+                cout << "________________" << endl;
+                cout << "Digite o ID do vértice de intresse:" << endl;
+                cin >> param;
+                cout << "Resultado:" << endl;
+                grafo->fechoTransitivoIndireto(param);
+                cout << "________________" << endl;
+                break;
             }
             case 'f':
             {
-
+                vector<int> nodes;
+                int size;
+                cout << "________________" << endl;
+                cout << "Digite o tamanho do vetor de vértices: ";
+                cin >> size;
+                nodes.resize(size);
+                cout << "Digite os vértices de interesse: ";
+                for (int i = 0; i < size; i++) 
+                {
+                    cout << "Vértice " << i + 1 << ": ";
+                    cin >> nodes[i];
+                }
+                cout << "Resultado:" << endl;
+                grafo->subgrafoInduzido(nodes);
+                cout << "________________" << endl;
+                break;
             }
             case 'g':
             {
                 cout << "________________" << endl;
                 grafo->stronglyConnectedComponents();
                 cout << "________________" << endl;
+                break;
             }
             case 'h':
             {
@@ -122,6 +151,7 @@ int main(int argc, char const *argv[])
                     cout << "Não, o grafo não é euleriano!" << endl;
                 }
                 cout << "________________" << endl;
+                break;
             }
             case 'i':
             {
@@ -133,6 +163,7 @@ int main(int argc, char const *argv[])
                 }
                 cout << "\n";
                 cout << "________________" << endl;
+                break;
             }
             case 'j':
             {
@@ -143,34 +174,58 @@ int main(int argc, char const *argv[])
                     cout << "Aresta: " << bridges[i]->getIdCabeca() << ", " << bridges[i]->getIdCauda() << endl;
                 }
                 cout << "________________" << endl;
+                break;
             }
             case 'k':
             {
-                
+                cout << "________________" << endl;
+                grafo->raioDiametroCentroPeriferia();
+                cout << "________________" << endl;
+                break;
             }
             case 'l':
             {
-                
+                cout << "________________" << endl;
+                grafo->AGM();
+                cout << "________________" << endl;
+                break;
             }
             case 'm':
             {
-                
+                int param;
+                cout << "________________" << endl;
+                cout << "Digite o ID do vértice de intresse:" << endl;
+                cin >> param;
+                cout << "Resultado:" << endl;
+                grafo->caminhoMinimoDijkstra(param);
+                cout << "________________" << endl;
+                break;
             }
             case 'n':
             {
-                
+                cout << "Algoritmo Guloso" << endl;
+                cout << "________________" << endl;
+                cout << "________________" << endl;
+                break;
             }
             case 'o':
             {
-                
+                cout << "Algoritmo Guloso Randomizado" << endl;
+                cout << "________________" << endl;
+                cout << "________________" << endl;
+                break;
             }
             case 'p':
             {
-                
+                cout << "Algoritmo Guloso Randomizado Reativo" << endl;
+                cout << "________________" << endl;
+                cout << "________________" << endl;
+                break;
             }
             default:
             {
                 cout << "Insira uma opção válida" << endl;
+                break;
             }
         }
     }
