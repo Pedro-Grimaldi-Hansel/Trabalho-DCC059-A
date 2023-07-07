@@ -1302,7 +1302,7 @@ Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
         {
             no->grauNo = no->grauBackup;
             if(no->getGrauNo() != 0)
-            {   // não adicionar os nós com grau 0
+            {// não adicionar os nós com grau 0
                 candidatos.push_back(make_pair(j, no));
                 candidatos[j-1].second->prioridade = candidatos[j-1].second->peso / candidatos[j-1].second->grauNo;
             }

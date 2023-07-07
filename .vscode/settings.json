@@ -3,5 +3,9 @@
         "args": [
             "instancias/p_hat300-1.txt", "arquivoDeSaida.txt", "0", "0", "1"
         ]
+    },
+    "files.associations": {
+        "iostream": "cpp",
+        "ostream": "cpp"
     }
 }
