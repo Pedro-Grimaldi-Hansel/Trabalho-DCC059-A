@@ -26,6 +26,7 @@ int main(int argc, char const *argv[])
     bool ponderadoAresta =  string(argv[4]) != "0";
     bool ponderadoVertice = string(argv[5]) != "0";
     Graph* grafo = new Graph(arquivoEntrada);
+    float alpha[] = {0.05, 0.10, 0.15, 0.30, 0.50};
 
     cout << "**************************************" << endl;
     cout << "Qual função deseja executar?" << endl;
@@ -46,12 +47,13 @@ int main(int argc, char const *argv[])
     cout << "n) COBERTURA DE VÉRTICES - ALGORITMO GULOSO" << endl;
     cout << "o) COBERTURA DE VÉRTICES - ALGORITMO RANDOMIZADO" << endl;
     cout << "p) COBERTURA DE VÉRTICES - ALGORITMO RANDOMIZADO REATIVO" << endl;
-    cout << "q) Sair do programa" << endl;
+    cout << "q) Escrever no arquivo" << endl;
+    cout << "r) Sair do programa" << endl;
 
     char option;
     cin >> option;
 
-    while(option != 'q')
+    while(option != 'r')
     {
         switch(option)
         {
@@ -205,20 +207,53 @@ int main(int argc, char const *argv[])
             {
                 cout << "Algoritmo Guloso" << endl;
                 cout << "________________" << endl;
+                Solution sol;
+                sol = grafo->coberturaMinimaGulosa();
+                cout << "====================================================" << endl;
+                cout << "Solução Gulosa: " << endl;
+                cout << "Custo total: " << sol.getCustoTotal() << endl;
+                cout << "Tempo de execução: " << sol.getTempoExecucao() << endl;
+                cout << "====================================================" << endl;
                 cout << "________________" << endl;
                 break;
             }
             case 'o':
             {
-                cout << "Algoritmo Guloso Randomizado" << endl;
+                cout << "Algoritmo Guloso Randomizado (1000 iterações)" << endl;
                 cout << "________________" << endl;
+                Solution sol;
+                float alpha;
+                cout << "Qual alfa você deseja?" << endl;
+                cin >> alpha;
+                sol = grafo->coberturaMinimaGulosaRandomizada(alpha, 1000);
+                cout << "====================================================" << endl;
+                cout << "Solução Gulosa Randomizada: " << endl;
+                cout << "Custo total: " << sol.getCustoTotal() << endl;
+                cout << "Tempo de execução: " << sol.getTempoExecucao() << endl;
+                cout << "====================================================" << endl;
                 cout << "________________" << endl;
                 break;
             }
             case 'p':
             {
-                cout << "Algoritmo Guloso Randomizado Reativo" << endl;
+                cout << "Algoritmo Guloso Randomizado Reativo (5000 iterações - Bloco 500)" << endl;
                 cout << "________________" << endl;
+                Solution sol;
+                sol = grafo->coberturaMinimaGulosaRandomizadaReativa(alpha, 5, 5000, 500);
+                cout << "====================================================" << endl;
+                cout << "Solução Gulosa Randomizada Reativa: " << endl;
+                cout << "Custo total: " << sol.getCustoTotal() << endl;
+                cout << "Tempo de execução: " << sol.getTempoExecucao() << endl;
+                cout << "Alpha: " << sol.getAlpha() << endl;
+                cout << "====================================================" << endl;
+                cout << "________________" << endl;
+                break;
+            }
+            case 'q':
+            {
+                cout << "________________" << endl;
+                cout << "Escrevendo no arquivo..." << endl;
+                grafo->escreveArquivo(arquivoSaida);
                 cout << "________________" << endl;
                 break;
             }
