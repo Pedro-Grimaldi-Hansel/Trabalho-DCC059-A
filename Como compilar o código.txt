@@ -1,0 +1,24 @@
+Como compilar o código:
+
+g++ -std=c++11 *.cpp ./src/*.cpp -o execGrupo5
+./execGrupo5 "ArquivoDeEntrada" "Arquivo De Saida" "Direcionado" "ponderadoAresta" "ponderadoVertice" "algoritmoEscolhido" "?numeroIterações" "?alfa" "?seed" 
+
+"Direcionado"       -> (Bool) indica se o grafo é direcionado(true) ou não direcionado(false)
+
+"ponderadoAresta"   -> (Bool) indica se o grafo tem peso nas arestas(true) ou não tem peso nas arestas(false)
+
+"ponderadoVertice"  -> (Bool) indica se o grafo tem peso nos vertices(true) ou não tem peso nos vertices(false)
+
+"algoritmoEscolhido"-> (int) Indica qual algoritmo foi escolhido:
+    1- Algoritmo guloso
+    2- Algoritmo guloso randomizado adaptativo
+    3- Algoritmo guloso randomizado adaptativo reativo
+    4- Menu de opções
+
+"?numeroIterações" -> (Opcional, int) Indica quantas iterações serão executadas para o algoritmo escolhido
+
+"?alfa"            -> (Opcional, float) Indica qual o alfa utilizado
+
+"?seed"            -> (Opcional, int) Indica qual o seed de randomização será utilizado
+
+OBS: Caso o algoritmo seja 2 ou 3, numeroIterações, alfa e seed são obrigatórios!!!

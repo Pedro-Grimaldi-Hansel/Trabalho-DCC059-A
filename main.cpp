@@ -9,12 +9,42 @@
 using namespace std;
 using namespace chrono;
 
+void execAlgoritmo(Graph grafo, int algoritmoEscolhido, int numExecucoes, float alfa, int seed)
+{
+    Solution sol;
+    if(algoritmoEscolhido == 1){
+        sol = grafo.coberturaMinimaGulosa();
+        cout << "Solução Algoritmo guloso" << endl;
+        cout << "Peso: " << sol.getCustoTotal() << endl;
+        cout << "Tempo: " << sol.getTempoExecucao() << " segundos" << endl;
+        cout << "Tamanho: " << sol.getSolucao().size() << endl;
+    }else if(algoritmoEscolhido == 2){
+        sol = grafo.coberturaMinimaGulosaRandomizada(alfa, numExecucoes, seed);
+        cout << "Algoritmo guloso randomizado adaptativo" << endl;
+        cout << "Peso: " << sol.getCustoTotal() << endl;
+        cout << "Tempo: " << sol.getTempoExecucao() << " segundos" << endl;
+        cout << "Tamanho: " << sol.getSolucao().size() << endl;
+        cout << "Alfa: " << alfa << endl;
+    }else if(algoritmoEscolhido == 3){
+        float alpha[] = {0.05, 0.10, 0.15, 0.30, 0.50};
+        sol = grafo.coberturaMinimaGulosaRandomizadaReativa(alpha, 5, numExecucoes, (int) numExecucoes*0.1, seed);
+        cout << "Algoritmo guloso randomizado adaptativo reativo" << endl;
+        cout << "Peso: " << sol.getCustoTotal() << endl;
+        cout << "Tempo: " << sol.getTempoExecucao() << " segundos" << endl;
+        cout << "Tamanho: " << sol.getSolucao().size() << endl;
+        cout << "Alfa: " << sol.getAlpha() << endl;
+    }else{
+        cout << "ALGORITMO INVÁLIDO! 1- Algoritmo guloso, 2- Algoritmo guloso randomizado adaptativo, 3- Algoritmo guloso randomizado adaptativo reativo" << endl;
+    }
+
+}
+
 int main(int argc, char const *argv[])
 {
      // Verificando os parâmetros do programa
-    if (argc != 6) 
+    if (argc < 7) 
     {
-        cout << "ERRO: Esperado: ./<nome_Programa> <arquivoDeEntrada> <arquivoDeSaida> <direcionado[0,1]> <ponderadoAresta[0,1]> <ponderadoVertice[0,1]>" << endl;
+        cout << "ERRO: Esperado: ./<nome_Programa> <arquivoDeEntrada> <arquivoDeSaida> <direcionado[0,1]> <ponderadoAresta[0,1]> <ponderadoVertice[0,1]> <algoritmoEscolhido> <?numeroIterações> <?alfa> <?seed>" << endl;
         return 1;
     }
 
@@ -26,11 +56,29 @@ int main(int argc, char const *argv[])
     bool digrafo = string(argv[3]) != "0";
     bool ponderadoAresta =  string(argv[4]) != "0";
     bool ponderadoVertice = string(argv[5]) != "0";
+    int algEscolhido = stoi(argv[6]);
     Graph* grafo = new Graph(arquivoEntrada);
     float alpha[] = {0.05, 0.10, 0.15, 0.30, 0.50};
-    //grafo->imprime();
 
-    char option;
+    if(algEscolhido != 4){
+        int numeroIteracoes = 1000;
+        float alfa = 0.1;
+        int seed = -1;
+
+        if(algEscolhido != 1){
+            numeroIteracoes = stoi(argv[7]);
+            if(argc >= 8){
+                alfa = stof(argv[8]);
+                if(argc > 9){
+                    seed = stoi(argv[9]);
+                }
+            }
+        }
+        execAlgoritmo(*grafo, algEscolhido, numeroIteracoes, alfa, seed);
+        return 0;
+    }
+
+    char option = 'a';
 
     while(option != 'r')
     {
@@ -234,7 +282,7 @@ int main(int argc, char const *argv[])
                 float alpha;
                 cout << "Qual alfa você deseja?" << endl;
                 cin >> alpha;
-                sol = grafo->coberturaMinimaGulosaRandomizada(alpha, 1000);
+                sol = grafo->coberturaMinimaGulosaRandomizada(alpha, 1000, -1);
                 cout << "====================================================" << endl;
                 cout << "Solução Gulosa Randomizada: " << sol.getSolucao().size() << endl;
                 cout << "Custo total: " << sol.getCustoTotal() << endl;
@@ -248,7 +296,7 @@ int main(int argc, char const *argv[])
                 cout << "Algoritmo Guloso Randomizado Reativo (5000 iterações - Bloco 500)" << endl;
                 cout << "________________" << endl;
                 Solution sol;
-                sol = grafo->coberturaMinimaGulosaRandomizadaReativa(alpha, 5, 5000, 500);
+                sol = grafo->coberturaMinimaGulosaRandomizadaReativa(alpha, 5, 5000, 500, -1);
                 cout << "====================================================" << endl;
                 cout << "Solução Gulosa Randomizada Reativa: " << sol.getSolucao().size() << endl;
                 cout << "Custo total: " << sol.getCustoTotal() << endl;

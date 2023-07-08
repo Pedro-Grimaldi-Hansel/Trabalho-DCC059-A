@@ -1559,13 +1559,16 @@ Solution Graph::coberturaMinimaGulosa()
     return sol;
 }
 
-Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes)
+Solution Graph::coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes, int seed)
 {
     high_resolution_clock::time_point start = high_resolution_clock::now();
     double time = 0;
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::srand(rd());
+    if(seed == -1){
+        seed = rd();
+    }
+    std::srand(seed);
     vector< pair< int, Node* > > candidatos;
     vector< int > solucao;
     vector< int > solucaoBest;
@@ -1734,7 +1737,7 @@ void Graph::atualizaMedias(vector<float>& medias, vector<int> aparicoes, int ind
     medias[indiceEscolhido] = (medias[indiceEscolhido] * aparicoes[indiceEscolhido] + sol.getCustoTotal())/(aparicoes[indiceEscolhido] + 1);
 }
 
-Solution Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanhoVetor, int nIteracoes, int bloco)
+Solution Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanhoVetor, int nIteracoes, int bloco, int seed)
 {
     Solution solBest, sol;
     int i = 1;
@@ -1745,7 +1748,7 @@ Solution Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanh
     double time = 0;
 
     for(int i = 0; i < tamanhoVetor; i++){
-        sol = coberturaMinimaGulosaRandomizada(alpha[i], 1);
+        sol = coberturaMinimaGulosaRandomizada(alpha[i], 1, seed);
         medias[i] = sol.getCustoTotal();
         aparicoes[i] = 1;
 
@@ -1762,7 +1765,7 @@ Solution Graph::coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tamanh
         int indiceEscolhido = escolheAlfa(probabilidades);
         float alfaAtual = alpha[ indiceEscolhido ];
         
-        sol = coberturaMinimaGulosaRandomizada(alfaAtual, 1);
+        sol = coberturaMinimaGulosaRandomizada(alfaAtual, 1, -1);
 
         atualizaMedias(medias, aparicoes, indiceEscolhido, sol);
         aparicoes[indiceEscolhido] = aparicoes[indiceEscolhido] + 1;

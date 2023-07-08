@@ -117,8 +117,8 @@ class Graph{
         void AGM();
        
         Solution coberturaMinimaGulosa();
-        Solution coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes);
-        Solution coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tammanhoVetor, int nIterecoes, int bloco);
+        Solution coberturaMinimaGulosaRandomizada(float alpha, int nInteracoes, int seed);
+        Solution coberturaMinimaGulosaRandomizadaReativa(float* alpha, int tammanhoVetor, int nIterecoes, int bloco, int seed);
 
         bool verificaSolucao(vector< int >solucao);
 
